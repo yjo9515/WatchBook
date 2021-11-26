@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 class AlarmPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
+
     return _alarmPage();
   }
 }
@@ -24,7 +25,6 @@ class _alarmPage extends State<AlarmPage> {
   int? _hour;
   int? _minute;
   Time? _time;
-
   void initState() {
     super.initState();
     var androidSetting =

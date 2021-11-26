@@ -1,10 +1,8 @@
-import 'dart:convert';
-import 'dart:io';
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:async';
@@ -13,10 +11,45 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'login.dart';
 import 'alarm.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print('Handling a background message ${message.messageId}');
+}
+
+// 저장소권한요청
+Future<bool> _getStatuses(BuildContext context) async {
+  Map<Permission, PermissionStatus> statuses =
+      await [Permission.storage].request();
+  if (await Permission.storage.isGranted == true) {
+    print('저장소 권한 동의');
+    return Future.value(true);
+  } else {
+    print('저장소 권한 비동의');
+    return Future.value(false);
+  }
+}
+
+Future<bool> _checkStoarge() async {
+  bool status = await Permission.storage.isGranted;
+  print('저장소 체크값 : ${status}');
+  if (status == true) {
+    return Future.value(true);
+  } else {
+    return Future.value(false);
+  }
+}
+
+Future<bool> _checkNotification() async {
+  bool status = await Permission.notification.isGranted;
+  print('알람 체크값 : ${status}');
+  if (status == true) {
+    return Future.value(true);
+  } else {
+    return Future.value(false);
+  }
 }
 
 late AndroidNotificationChannel channel;
@@ -81,28 +114,36 @@ class _MainPageState extends State<MainPage> {
 
   @override
   void initState() {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null && !kIsWeb) {
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                icon: 'launch_background',
-              ),
-            ));
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
-    });
     super.initState();
+    _checkStoarge().then((value) async => {
+          if (value == false)
+            {_getStatuses(context)}
+          else
+            {
+              FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+                RemoteNotification? notification = message.notification;
+                AndroidNotification? android = message.notification?.android;
+                if (notification != null && android != null && !kIsWeb) {
+                  flutterLocalNotificationsPlugin.show(
+                      notification.hashCode,
+                      notification.title,
+                      notification.body,
+                      NotificationDetails(
+                        android: AndroidNotificationDetails(
+                          channel.id,
+                          channel.name,
+                          icon: 'launch_background',
+                        ),
+                      ));
+                }
+              }),
+              FirebaseMessaging.onMessageOpenedApp
+                  .listen((RemoteMessage message) {
+                print('A new onMessageOpenedApp event was published!');
+              })
+            }
+        });
+
     loginStatus();
   }
 
@@ -180,13 +221,30 @@ class _MainPageState extends State<MainPage> {
               centerTitle: true,
               actions: [
                 IconButton(
-                    onPressed: () => {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      AlarmPage()))
-                        },
+                    onPressed: () async {
+                      if (await _checkNotification() == true) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    AlarmPage()));
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: const Text("권한 설정을 확인해주세요."),
+                                actions: [
+                                  FlatButton(
+                                      onPressed: () {
+                                        openAppSettings(); // 앱 설정으로 이동
+                                      },
+                                      child: const Text('설정하기')),
+                                ],
+                              );
+                            });
+                      }
+                    },
                     icon: const Icon(
                       Icons.add_alert,
                       color: Colors.black,
@@ -194,53 +252,291 @@ class _MainPageState extends State<MainPage> {
               ],
             ),
             drawer: Drawer(
-                child: ListView(
-              padding: EdgeInsets.zero, // 여백x
-              children: [
-                UserAccountsDrawerHeader(
-                  accountName: const Text("유저이름"),
-                  accountEmail: const Text("메일주소"),
-                  currentAccountPicture: const CircleAvatar(
-                    backgroundColor: Colors.white,
-                    backgroundImage: AssetImage('/images/login_logo.png'),
-                  ),
-                  onDetailsPressed: () => {print('click')},
-                  decoration: const BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(40.0),
-                          bottomRight: Radius.circular(40.0))),
-                ),
-                ListTile(
-                  leading: const Icon(
-                    Icons.home,
-                    color: Colors.grey,
-                  ),
-                  title: const Text('Home'),
-                  onTap: () => {print("home")},
-                  trailing: const Icon(Icons.add),
-                ),
-                ListTile(
-                  leading: const Icon(
-                    Icons.home,
-                    color: Colors.grey,
-                  ),
-                  title: const Text('Setting'),
-                  onTap: () => {print("settting")},
-                  trailing: const Icon(Icons.add),
-                ),
-                ListTile(
-                  leading: const Icon(
-                    Icons.home,
-                    color: Colors.grey,
-                  ),
-                  title: const Text('Q&A'),
-                  onTap: () => {print("Q&A")},
-                  trailing: const Icon(Icons.add),
-                ),
-              ],
-            )),
-          ));
+              child: ListView(
+                //메모리 문제해결
+                addAutomaticKeepAlives: false,
+                addRepaintBoundaries: false,
+                padding: EdgeInsets.zero, // 여백x
+                children: [
+                        Container(
+                          height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
+                              .size
+                              .height,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Wrap(
+                                children: [
+                                  Container(
+                                    height: 120,
+                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                    decoration: const BoxDecoration(
+                                      color: Color.fromARGB(255, 217, 84, 84),
+                                    ),
+                                    child: Stack(
+                                      children: [
+                                        Positioned(
+                                          width: 252,
+                                          height: 120,
+                                          top: 10,
+                                          child: UserAccountsDrawerHeader(
+                                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                            decoration: const BoxDecoration(
+                                              color: Color.fromARGB(255, 217, 84, 84),
+                                            ),
+                                            // keep blank text because email is required
+                                            accountName: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: <Widget>[
+                                                Container(
+                                                  width: 120,
+                                                  height: 120,
+                                                  decoration:
+                                                  const BoxDecoration(
+                                                    color: Colors.orange,
+                                                  shape:BoxShape.circle,
+                                                  )
+                                                ),
+                                                Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    const Text('박보영님'),
+                                                    const Text('LV.1'),
+                                                    const Text('30C'),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                            accountEmail: Container(
+                                              height: 0,
+                                              width: 100,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: TextButton(
+                                              onPressed: () {
+                                                print('d');
+                                              },
+                                              child: const Text(
+                                                '내 정보',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 1,
+                                            height: 14,
+                                            color: const Color.fromARGB(255, 207, 207, 207),
+                                          ),
+                                          Expanded(
+                                            child: TextButton(
+                                              onPressed: () {
+                                                print('d');
+                                              },
+                                              child: const Text(
+                                                '스토어',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )),
+                                  const Divider(color: Color.fromARGB(255, 207, 207, 207)),
+                                  ListTile(
+                                    dense: true,
+                                    leading: const Icon(
+                                      IconData(62268, fontFamily: 'MaterialIcons'),
+                                      color: const Color.fromARGB(255, 0, 104, 166),
+                                    ),
+                                    title: const Text('강좌',
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(255, 0, 104, 166),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold)),
+                                    onTap: () => {print("")},
+                                    trailing: const Icon(
+                                      IconData(61068,
+                                          fontFamily: 'MaterialIcons', matchTextDirection: true),
+                                      color: const Color.fromARGB(255, 0, 104, 166),
+                                    ),
+                                  ),
+                                  const Divider(
+                                      indent: 20,
+                                      endIndent: 20,
+                                      color: Color.fromARGB(255, 207, 207, 207)),
+                                  ListTile(
+                                    dense: true,
+                                    leading: const Icon(
+                                      Icons.edit,
+                                      color: const Color.fromARGB(255, 0, 104, 166),
+                                    ),
+                                    title: const Text('모의고사',
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(255, 0, 104, 166),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold)),
+                                    onTap: () => {print("settting")},
+                                    trailing: const Icon(
+                                      IconData(61068,
+                                          fontFamily: 'MaterialIcons', matchTextDirection: true),
+                                      color: const Color.fromARGB(255, 0, 104, 166),
+                                    ),
+                                  ),
+                                  const Divider(
+                                      indent: 20,
+                                      endIndent: 20,
+                                      color: Color.fromARGB(255, 207, 207, 207)),
+                                  ListTile(
+                                    dense: true,
+                                    leading: const Icon(
+                                      IconData(0xeeb8, fontFamily: 'MaterialIcons'),
+                                      color: const Color.fromARGB(255, 0, 104, 166),
+                                    ),
+                                    title: const Text('자격증',
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(255, 0, 104, 166),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold)),
+                                    onTap: () => {print("Q&A")},
+                                    trailing: const Icon(
+                                        IconData(61068,
+                                            fontFamily: 'MaterialIcons',
+                                            matchTextDirection: true),
+                                        color: const Color.fromARGB(255, 0, 104, 166)),
+                                  ),
+                                  const Divider(
+                                      indent: 20,
+                                      endIndent: 20,
+                                      color: Color.fromARGB(255, 207, 207, 207)),
+                                  ListTile(
+                                    dense: true,
+                                    leading: const Icon(
+                                      IconData(58173, fontFamily: 'MaterialIcons'),
+                                      color: const Color.fromARGB(255, 0, 104, 166),
+                                    ),
+                                    title: const Text('고객센터',
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(255, 0, 104, 166),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold)),
+                                    onTap: () => {print("Q&A")},
+                                    trailing: const Icon(
+                                        IconData(61068,
+                                            fontFamily: 'MaterialIcons',
+                                            matchTextDirection: true),
+                                        color: const Color.fromARGB(255, 0, 104, 166)),
+                                  ),
+                                  const Divider(
+                                      indent: 20,
+                                      endIndent: 20,
+                                      color: Color.fromARGB(255, 207, 207, 207)),
+                                  ListTile(
+                                    dense: true,
+                                    leading: const Icon(
+                                      Icons.help_outline,
+                                      color: const Color.fromARGB(255, 0, 104, 166),
+                                    ),
+                                    title: const Text('도움말',
+                                        style: TextStyle(
+                                            color: const Color.fromARGB(255, 0, 104, 166),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold)),
+                                    onTap: () => {print("Q&A")},
+                                    trailing: const Icon(
+                                        IconData(61068,
+                                            fontFamily: 'MaterialIcons',
+                                            matchTextDirection: true),
+                                        color: const Color.fromARGB(255, 0, 104, 166)),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                                decoration: const BoxDecoration(
+                                  border: Border(
+                                    top: BorderSide(width:1,color: Color.fromARGB(
+                                        255, 207, 207, 207), )
+                                  )
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      child: Row(
+                                        children: [
+                                          TextButton(
+                                            child:  const Text(
+                                              '이용약관',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            onPressed: () {
+                                            },
+                                          ),
+                                          Container(
+                                            width: 1,
+                                            height: 14,
+                                            color: Colors.black,
+                                          ),
+                                          TextButton(
+                                            child:  const Text(
+                                              '개인정보처리방침',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            onPressed: () {
+
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    TextButton(
+                                      child:  const Text(
+                                        '로그아웃',
+                                        style: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 0, 36, 98),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                      },
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        )
+
+                          ],
+                        ),
+
+              ),
+            )
+          );
     }
   }
 
