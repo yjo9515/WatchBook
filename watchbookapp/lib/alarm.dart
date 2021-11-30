@@ -27,6 +27,7 @@ class _alarmPage extends State<AlarmPage> {
   Time? _time;
   void initState() {
     super.initState();
+    callPermissions();
     var androidSetting =
         const AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosSetting = const IOSInitializationSettings(

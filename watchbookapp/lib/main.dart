@@ -13,6 +13,7 @@ import 'alarm.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'welcome.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -109,6 +110,9 @@ class _MainPageState extends State<MainPage> {
       Completer<WebViewController>();
   String id = '';
   String url = '';
+  String msg = '';
+  late Future<String?> currentUrl;
+
 
   //Make sure this function return Future<bool> otherwise you will get an error
 
@@ -147,6 +151,8 @@ class _MainPageState extends State<MainPage> {
     loginStatus();
   }
 
+
+
   loginStatus() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.getString("token") != null) {
@@ -170,6 +176,7 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     if (loading == true) {
+      //스플래시 화면
       return WillPopScope(
           onWillPop: () => _goBack(context),
           child: Scaffold(
@@ -198,6 +205,7 @@ class _MainPageState extends State<MainPage> {
           ));
     } else {
       return WillPopScope(
+        //웹뷰(웹에서 받아온 javascript값에 따라 루트 변경)
           onWillPop: () => _goBack(context),
           child: Scaffold(
             resizeToAvoidBottomInset: false,
@@ -211,332 +219,26 @@ class _MainPageState extends State<MainPage> {
                   _controllerCompleter.complete(webViewController);
                 },
                 javascriptMode: JavascriptMode.unrestricted,
+                javascriptChannels: {
+                  JavascriptChannel(
+                    name:'JavaScriptChannel',
+                      onMessageReceived: (JavascriptMessage message) async {
+                       msg = message.message;
+                       print(msg);
+                       if(msg == 'login') {
+                         Navigator.push(
+                           context,
+                             MaterialPageRoute(builder: (BuildContext context) => LoginPage()));
+                       }else if(msg == 'index') {
+                         Navigator.of(context).pushAndRemoveUntil(
+                             MaterialPageRoute(builder: (BuildContext context) => WelcomePage()),
+                                 (Route<dynamic> route) => false);
+                       }
+                  })
+                },
               ),
             ),
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              iconTheme: const IconThemeData(color: Colors.black),
-              title: const Text("Watchbook",
-                  style: TextStyle(color: Colors.black)),
-              centerTitle: true,
-              actions: [
-                IconButton(
-                    onPressed: () async {
-                      if (await _checkNotification() == true) {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    AlarmPage()));
-                      } else {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                content: const Text("권한 설정을 확인해주세요."),
-                                actions: [
-                                  FlatButton(
-                                      onPressed: () {
-                                        openAppSettings(); // 앱 설정으로 이동
-                                      },
-                                      child: const Text('설정하기')),
-                                ],
-                              );
-                            });
-                      }
-                    },
-                    icon: const Icon(
-                      Icons.add_alert,
-                      color: Colors.black,
-                    ))
-              ],
-            ),
-            drawer: Drawer(
-              child: ListView(
-                //메모리 문제해결
-                addAutomaticKeepAlives: false,
-                addRepaintBoundaries: false,
-                padding: EdgeInsets.zero, // 여백x
-                children: [
-                        Container(
-                          height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
-                              .size
-                              .height,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Wrap(
-                                children: [
-                                  Container(
-                                    height: 120,
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                    decoration: const BoxDecoration(
-                                      color: Color.fromARGB(255, 217, 84, 84),
-                                    ),
-                                    child: Stack(
-                                      children: [
-                                        Positioned(
-                                          width: 252,
-                                          height: 120,
-                                          top: 10,
-                                          child: UserAccountsDrawerHeader(
-                                            margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                            decoration: const BoxDecoration(
-                                              color: Color.fromARGB(255, 217, 84, 84),
-                                            ),
-                                            // keep blank text because email is required
-                                            accountName: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              crossAxisAlignment: CrossAxisAlignment.center,
-                                              children: <Widget>[
-                                                Container(
-                                                  width: 120,
-                                                  height: 120,
-                                                  decoration:
-                                                  const BoxDecoration(
-                                                    color: Colors.orange,
-                                                  shape:BoxShape.circle,
-                                                  )
-                                                ),
-                                                Column(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: <Widget>[
-                                                    const Text('박보영님'),
-                                                    const Text('LV.1'),
-                                                    const Text('30C'),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                            accountEmail: Container(
-                                              height: 0,
-                                              width: 100,
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: TextButton(
-                                              onPressed: () {
-                                                print('d');
-                                              },
-                                              child: const Text(
-                                                '내 정보',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            width: 1,
-                                            height: 14,
-                                            color: const Color.fromARGB(255, 207, 207, 207),
-                                          ),
-                                          Expanded(
-                                            child: TextButton(
-                                              onPressed: () {
-                                                print('d');
-                                              },
-                                              child: const Text(
-                                                '스토어',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )),
-                                  const Divider(color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      IconData(62268, fontFamily: 'MaterialIcons'),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('강좌',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(255, 0, 104, 166),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
-                                    onTap: () => {print("")},
-                                    trailing: const Icon(
-                                      IconData(61068,
-                                          fontFamily: 'MaterialIcons', matchTextDirection: true),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                  ),
-                                  const Divider(
-                                      indent: 20,
-                                      endIndent: 20,
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      Icons.edit,
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('모의고사',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(255, 0, 104, 166),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
-                                    onTap: () => {print("settting")},
-                                    trailing: const Icon(
-                                      IconData(61068,
-                                          fontFamily: 'MaterialIcons', matchTextDirection: true),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                  ),
-                                  const Divider(
-                                      indent: 20,
-                                      endIndent: 20,
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      IconData(0xeeb8, fontFamily: 'MaterialIcons'),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('자격증',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(255, 0, 104, 166),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
-                                    onTap: () => {print("Q&A")},
-                                    trailing: const Icon(
-                                        IconData(61068,
-                                            fontFamily: 'MaterialIcons',
-                                            matchTextDirection: true),
-                                        color: const Color.fromARGB(255, 0, 104, 166)),
-                                  ),
-                                  const Divider(
-                                      indent: 20,
-                                      endIndent: 20,
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      IconData(58173, fontFamily: 'MaterialIcons'),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('고객센터',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(255, 0, 104, 166),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
-                                    onTap: () => {print("Q&A")},
-                                    trailing: const Icon(
-                                        IconData(61068,
-                                            fontFamily: 'MaterialIcons',
-                                            matchTextDirection: true),
-                                        color: const Color.fromARGB(255, 0, 104, 166)),
-                                  ),
-                                  const Divider(
-                                      indent: 20,
-                                      endIndent: 20,
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      Icons.help_outline,
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('도움말',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(255, 0, 104, 166),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
-                                    onTap: () => {print("Q&A")},
-                                    trailing: const Icon(
-                                        IconData(61068,
-                                            fontFamily: 'MaterialIcons',
-                                            matchTextDirection: true),
-                                        color: const Color.fromARGB(255, 0, 104, 166)),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                                decoration: const BoxDecoration(
-                                  border: Border(
-                                    top: BorderSide(width:1,color: Color.fromARGB(
-                                        255, 207, 207, 207), )
-                                  )
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      child: Row(
-                                        children: [
-                                          TextButton(
-                                            child:  const Text(
-                                              '이용약관',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            onPressed: () {
-                                            },
-                                          ),
-                                          Container(
-                                            width: 1,
-                                            height: 14,
-                                            color: Colors.black,
-                                          ),
-                                          TextButton(
-                                            child:  const Text(
-                                              '개인정보처리방침',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            onPressed: () {
-
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    TextButton(
-                                      child:  const Text(
-                                        '로그아웃',
-                                        style: TextStyle(
-                                          color: Color.fromARGB(
-                                              255, 0, 36, 98),
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                      },
-                                    )
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-
-                          ],
-                        ),
-
-              ),
-            )
-          );
+          ));
     }
   }
 

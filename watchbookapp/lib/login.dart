@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
+import 'package:kakao_flutter_sdk/all.dart';
+import 'package:get/get.dart';
 //import http package manually
 import 'findId.dart';
 
@@ -15,11 +17,21 @@ class LoginPage extends StatefulWidget {
   }
 }
 
+Future<void> _loginButtonPressed() async{
+  try {
+    String authCode = await AuthCodeClient.instance.request();
+    print(authCode);
+  } catch (e) {
+    print(e.toString());
+  }
+}
+
 class _LoginPage extends State<LoginPage> {
   late String errormsg;
   late bool error, showprogress;
   late String id, passwd;
   bool _isObscure = true;
+  bool _isKakaoInstalled = false;
 
   var _id = TextEditingController();
   var _passwd = TextEditingController();
@@ -73,12 +85,32 @@ class _LoginPage extends State<LoginPage> {
     errormsg = "";
     error = false;
     showprogress = false;
-
+    KakaoContext.clientId = 'e705415345f23aab069be7b7e95e9826';
+    
+    _initKakaoInstalled();
     super.initState();
   }
+  _initKakaoInstalled() async{
+    final installed = await isKakaoTalkInstalled();
+    print('kakao installed:'+installed.toString());
+    setState(() {
+      _isKakaoInstalled = installed;
+    });
+  }
+
+  // _issueAccessToken(String authCode) async {
+  //   try{
+  //     var token = await AuthApi.instance.issueAccessToken(authCode);
+  //     await AccessTokenStore.instance.toStore(token);
+  //     Get.to(Landing());
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
+
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent
           //color set to transperent or set your own color
@@ -310,12 +342,15 @@ class _LoginPage extends State<LoginPage> {
                                     const Expanded(
                                         child:
                                             Padding(padding: EdgeInsets.only(right: 36),
-                                             child: Text(
-                                               '카카오로 시작하기',
-                                               textAlign: TextAlign.center,
-                                               style: TextStyle(
-                                                 fontSize: 14,
-                                                 color: Colors.black87,
+                                             child: TextButton(
+                                               onPressed: _loginButtonPressed,
+                                               child: Text(
+                                                 '카카오로 시작하기',
+                                                 textAlign: TextAlign.center,
+                                                 style: TextStyle(
+                                                   fontSize: 14,
+                                                   color: Colors.black87,
+                                                 ),
                                                ),
                                              ),
                                             )
@@ -437,22 +472,7 @@ class _LoginPage extends State<LoginPage> {
     );
   }
   Future<bool> _goBack(BuildContext context) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('와치북을 종료하시겠어요?'),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('네'),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-          TextButton(
-            child: const Text('아니오'),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-        ],
-      ),
-    ).then((value) => value ?? false);
+    return true;
   }
 
 }
