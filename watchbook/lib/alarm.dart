@@ -91,11 +91,8 @@ class _alarmPage extends State<AlarmPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('내부알람설정'),
-      ),
-      body: Center(
+    return SafeArea(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -153,7 +150,7 @@ class _alarmPage extends State<AlarmPage> {
           ],
         ),
       ),
-    );
+      );
   }
 
   Future _dailyAtTimeNotification() async {

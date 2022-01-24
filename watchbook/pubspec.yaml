@@ -51,7 +51,6 @@ dependencies:
   accordion: ^2.1.2
 
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

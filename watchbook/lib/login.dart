@@ -305,7 +305,7 @@ class _LoginPage extends State<LoginPage> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (BuildContext context) =>
-                                              index()));
+                                              IndexPage()));
                                 },
                               ),
                               Container(

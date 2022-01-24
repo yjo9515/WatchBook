@@ -10,6 +10,7 @@ import 'package:kakao_flutter_sdk/all.dart';
 import 'package:kakao_flutter_sdk/auth.dart';
 import 'package:kakao_flutter_sdk/user.dart';
 import 'package:uuid/uuid.dart';
+import 'welcome.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
@@ -296,7 +297,9 @@ class _LoginPage extends State<LoginPage> {
                                       ),
                                     ),
                                     onPressed: () {
-
+                                      Navigator.of(context).pushAndRemoveUntil(
+                                          MaterialPageRoute(builder: (BuildContext context) => WelcomePage()),
+                                              (Route<dynamic> route) => false);
                                     },
                                   ),
                                   Container(

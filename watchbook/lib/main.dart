@@ -169,43 +169,51 @@ class _MainPageState extends State<MainPage> {
   bool _isObscure = true;
   bool _isKakaoTalkInstalled = false;
 
-  var _id = TextEditingController();
-  var _passwd = TextEditingController();
+  TextEditingController _id = TextEditingController();
+  TextEditingController _passwd = TextEditingController();
 
   startLogin() async {
-    String apiurl = "http://watchbook.tv/User/loginProcess"; //api url
+    String apiurl = 'https://www.watchbook.tv/User/getToken'; //api url
     print(id);
+
     var response = await http.post(Uri.parse(apiurl), body: {
-      'id': id, //get the id text
-      'passwd': passwd //get passwd text
+      'id': _id.text, //get the id text
+      'passwd': _passwd.text //get passwd text
     });
 
     if (response.statusCode == 200) {
       //정상신호 일때
+      print('정상신호');
+      print(response.body);
       var jsondata = json.decode(response.body);
-      if (jsondata["error"]) {
+      print(jsondata);
+       if (jsondata["result"] == false) {
         setState(() {
           error = true;
-          errormsg = jsondata["message"];
+
         });
-      } else {
-        if (jsondata["true"]) {
+         print('d');
+       } else {
+         print('d2');
+         if (jsondata["result"]) {
           setState(() {
             error = false;
-            showprogress = false;
           });
-          //save the data returned from server
-          //and navigate to home page
-          String id = jsondata["id"];
-          print(id);
-          //user shared preference to save data
-        } else {
-          showprogress = false; //don't show progress indicator
-          error = true;
-          errormsg = "Something went wrong.";
-
-        }
-      }
+      //     //save the data returned from server
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (BuildContext context) => IndexPage()),
+                  (Route<dynamic> route) => false
+          );
+      //     //and navigate to home page
+      //     String id = jsondata["token"];
+      //     print(id);
+      //     //user shared preference to save data
+      //   } else {
+      //     showprogress = false; //don't show progress indicator
+      //     error = true;
+      //     errormsg = "Something went wrong.";
+         }
+       }
     } else {
       setState(() {
         showprogress = false; //don't show progress indicator

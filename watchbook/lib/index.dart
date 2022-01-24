@@ -4,7 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:accordion/accordion.dart';
 import 'package:http/http.dart' as http;
+import 'package:watchbookapp/alarm.dart';
 import 'dart:convert';
+
+import 'login.dart';
 
 class IndexPage extends StatefulWidget {
   @override
@@ -25,21 +28,23 @@ class _indexPage extends State<IndexPage> {
   String stoptimetodisplay = '00:00:00';
   Stopwatch swatch = Stopwatch();
   late Timer timer;
+
   List<String> _subjectList = ['과목', '국어', '수학', '영어'];
   String _selectedSubject = '과목';
   List<String> _studyList = ['인터넷강의', '자습', '모의고사', '오답노트'];
   String _selectedStudy = '인터넷강의';
 
   int initial = int.parse('00');
-  String timerName='';
+  String timerName = '';
   int hour = 0;
   int min = 0;
   int sec = 0;
   bool started = true;
   bool stopped = true;
+  bool timeStart = false;
   int timeForTimer = 0;
-  String timetodisplay = "";
-  bool checktimer = true;
+  int timeForTimer2 = 0;
+  String timetodisplay = "00:00:00";
 
   bool timerTrigger = true;
   bool all = true;
@@ -70,7 +75,7 @@ class _indexPage extends State<IndexPage> {
   // }
   void start() {
     swatch.start();
-    timer = Timer.periodic(const Duration(milliseconds: 1), update);
+    timer = new Timer.periodic(const Duration(milliseconds: 1), update);
   }
 
   void update(Timer t) {
@@ -122,43 +127,103 @@ class _indexPage extends State<IndexPage> {
     });
   }
 
-  void timeSet(){
-    _timerDialog(context);
+  void timeSet() {
+    if(mounted) {
+      timeStart = true;
+      _timerDialog(context);
+    }
   }
 
+  void timerStop() {
+    if(mounted){
+      setState(() {
+        started = false;
+      });
+    }
+  }
 
-  void timerStop(){
-    setState(() {
-      started = false;
-      checktimer = false;
-    });
+  void timerRestart() {
+    if(mounted){
+      setState(() {
+        print(timeForTimer);
+        print(timeForTimer2);
+        started = true;
+        timerResume();
+      });
+    }
   }
 
   Future timerStart() async {
-    setState(() {
-      started = true;
-    });
     timeForTimer = ((hour * 60 * 60) + (min * 60) + sec);
-    Timer.periodic(const Duration(
-      seconds: 1,
-    ), (Timer t){
+     new Timer.periodic(
+        const Duration(
+          seconds: 1,
+        ), (Timer t) {
       setState(() {
-        if(timeForTimer < 1 || checktimer == false){
-          t.cancel();
-          if(timeForTimer == 0){
+        if(mounted){
+          if(started == false){
+            t.cancel();
+            timeForTimer = timeForTimer;
+          }else{
+            if (timeForTimer < 1) {
+              t.cancel();
+              if (timeForTimer == 0) {}
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => build(context),
+                  ));
+            } else {
+              int h = timeForTimer ~/ 3600;
+              int t = timeForTimer - (3600 * h);
+              int m = t ~/ 60;
+              int s = t - (60 * m);
+              timetodisplay = h.toString().padLeft(2, '0') +
+                  ":" +
+                  m.toString().padLeft(2, '0') +
+                  ":" +
+                  s.toString().padLeft(2, '0');
+              timeForTimer = timeForTimer - 1;
+              timeForTimer2 = timeForTimer;
+            }
           }
-          Navigator.pushReplacement(context, MaterialPageRoute(
-            builder: (context) => build(context),
-          ));
         }
-        else{
-          int h = timeForTimer ~/3600;
-          int t = timeForTimer - (3600 * h);
-          int m = t~/60;
-          int s = t - (60*m);
-          timetodisplay =
-              h.toString().padLeft(2, '0')  + ":" + m.toString().padLeft(2, '0')  + ":" + s.toString().padLeft(2, '0') ;
-          timeForTimer = timeForTimer -1;
+      });
+    });
+  }
+
+  Future timerResume() async {
+    new Timer.periodic(
+        const Duration(
+          seconds: 1,
+        ), (Timer t) {
+      setState(() {
+        if(mounted){
+          if(started == false){
+            t.cancel();
+            timeForTimer2 = timeForTimer2;
+          }else{
+            if (timeForTimer2 < 1) {
+              t.cancel();
+              if (timeForTimer2 == 0) {}
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => build(context),
+                  ));
+            } else {
+              int h = timeForTimer2 ~/ 3600;
+              int t = timeForTimer2 - (3600 * h);
+              int m = t ~/ 60;
+              int s = t - (60 * m);
+              timetodisplay = h.toString().padLeft(2, '0') +
+                  ":" +
+                  m.toString().padLeft(2, '0') +
+                  ":" +
+                  s.toString().padLeft(2, '0');
+              timeForTimer2 = timeForTimer2 - 1;
+            }
+          }
         }
       });
     });
@@ -290,8 +355,8 @@ class _indexPage extends State<IndexPage> {
               builder: (BuildContext context, StateSetter setState) {
             return AlertDialog(
               title: TextField(
-                onChanged: (text){
-                  setState((){
+                onChanged: (text) {
+                  setState(() {
                     timerName = text;
                   });
                 },
@@ -359,12 +424,12 @@ class _indexPage extends State<IndexPage> {
                         Container(
                           width: 90,
                           child: TextFormField(
-                            initialValue: '00',
-                              onChanged: (text){
-                                setState((){
-                                  if(text == '00'){
+                              initialValue: '00',
+                              onChanged: (text) {
+                                setState(() {
+                                  if (text == '00') {
                                     hour = 0;
-                                  }else{
+                                  } else {
                                     hour = int.parse('$text');
                                   }
                                 });
@@ -402,12 +467,12 @@ class _indexPage extends State<IndexPage> {
                         Container(
                           width: 100,
                           child: TextFormField(
-                            initialValue: '00',
-                              onChanged: (text){
-                                setState((){
-                                  if(text == '00'){
+                              initialValue: '00',
+                              onChanged: (text) {
+                                setState(() {
+                                  if (text == '00') {
                                     min = 0;
-                                  }else{
+                                  } else {
                                     min = int.parse('$text');
                                   }
                                 });
@@ -443,11 +508,11 @@ class _indexPage extends State<IndexPage> {
                           width: 90,
                           child: TextFormField(
                               initialValue: '00',
-                              onChanged: (text){
-                                setState((){
-                                  if(text == '00'){
+                              onChanged: (text) {
+                                setState(() {
+                                  if (text == '00') {
                                     sec = 0;
-                                  }else{
+                                  } else {
                                     sec = int.parse('$text');
                                   }
                                 });
@@ -509,7 +574,8 @@ class _indexPage extends State<IndexPage> {
                                 style: TextStyle(
                                     color: const Color.fromARGB(
                                         255, 237, 243, 249))),
-                            onPressed: () => Navigator.pop(context, timerStart()),
+                            onPressed: () =>
+                                Navigator.pop(context, timerStart()),
                           ))
                     ],
                   ),
@@ -520,219 +586,216 @@ class _indexPage extends State<IndexPage> {
         }).then((value) => value ?? false);
   }
 
-  void _detailShow(){
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (BuildContext context){
-        return Container(
-          width: MediaQueryData.fromWindow(
-              WidgetsBinding.instance!.window)
-              .size
-              .width,
-          height: MediaQueryData.fromWindow(
-              WidgetsBinding.instance!.window)
-              .size
-              .height,
-          color: const Color.fromARGB(255, 42, 43, 57),
-          // child: Column(
-          //   mainAxisSize: MainAxisSize.max,
-          //   children: <Widget>[
-          //     Expanded(
-          //       flex: 40,
-          //       child: Column(
-          //
-          //           mainAxisAlignment: MainAxisAlignment.center,
-          //           crossAxisAlignment: CrossAxisAlignment.center,
-          //           children: [
-          //             Text(
-          //               stoptimetodisplay,
-          //               style: const TextStyle(
-          //                 color: const Color.fromARGB(255, 237, 243, 249),
-          //                 fontSize: 44.0,
-          //                 fontWeight: FontWeight.w600,
-          //               ),
-          //             ),
-          //             Container(
-          //               height: 40,
-          //             ),
-          //             Row(
-          //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //               children: <Widget>[
-          //                 ButtonTheme(
-          //                     minWidth: 120,
-          //                     height: 40,
-          //                     child: RaisedButton(
-          //                       shape: RoundedRectangleBorder(
-          //                           side: swatch.isRunning
-          //                               ? const BorderSide(
-          //                               color: Color.fromARGB(
-          //                                   255, 237, 243, 249))
-          //                               : const BorderSide(
-          //                               color: Color.fromARGB(
-          //                                   255, 237, 243, 249)),
-          //                           borderRadius:
-          //                           BorderRadius.circular(50)),
-          //                       onPressed: () {
-          //                         swatch.isRunning ? stop() : start();
-          //                       },
-          //                       color: swatch.isRunning
-          //                           ? const Color.fromARGB(
-          //                           255, 42, 43, 57)
-          //                           : const Color.fromARGB(
-          //                           255, 237, 243, 249),
-          //                       child: Text(
-          //                         swatch.isRunning ? "일시정지" : "시작",
-          //                         style: swatch.isRunning
-          //                             ? const TextStyle(
-          //                             fontSize: 14.0,
-          //                             color: Color.fromARGB(
-          //                                 255, 237, 243, 249))
-          //                             : const TextStyle(
-          //                             fontSize: 14.0,
-          //                             color: Color.fromARGB(
-          //                                 255, 42, 43, 57)),
-          //                       ),
-          //                     )),
-          //                 ButtonTheme(
-          //                     minWidth: 120,
-          //                     height: 40,
-          //                     child: RaisedButton(
-          //                       shape: RoundedRectangleBorder(
-          //                           side: const BorderSide(
-          //                               color: Color.fromARGB(
-          //                                   255, 237, 243, 249)),
-          //                           borderRadius:
-          //                           BorderRadius.circular(50)),
-          //                       onPressed: reset,
-          //                       color:
-          //                       const Color.fromARGB(255, 42, 43, 57),
-          //                       child: const Text(
-          //                         "초기화",
-          //                         style: TextStyle(
-          //                           fontSize: 14.0,
-          //                           color: Color.fromARGB(
-          //                               255, 237, 243, 249),
-          //                         ),
-          //                       ),
-          //                     ))
-          //               ],
-          //             )
-          //           ]),
-          //     ),
-          //     Expanded(
-          //       flex: 60,
-          //       child: Column(
-          //         crossAxisAlignment: CrossAxisAlignment.center,
-          //         mainAxisAlignment: MainAxisAlignment.center,
-          //         children: [
-          //           const Text(
-          //             '오늘 공부 시간',
-          //             style: TextStyle(
-          //                 color: Color.fromARGB(255, 237, 243, 249),
-          //                 fontSize: 14),
-          //           ),
-          //           Container(
-          //             height: 20,
-          //           ),
-          //           Text(
-          //             stoptimetodisplay,
-          //             style: const TextStyle(
-          //               color: const Color.fromARGB(255, 237, 243, 249),
-          //               fontSize: 30.0,
-          //               fontWeight: FontWeight.w600,
-          //             ),
-          //           ),
-          //           Accordion(
-          //             maxOpenSections: 8,
-          //             rightIcon: const Icon(Icons.keyboard_arrow_down,
-          //                 color: Color.fromARGB(255, 237, 243, 249)),
-          //             children: [
-          //               AccordionSection(
-          //                 contentBorderColor:
-          //                 const Color.fromARGB(255, 42, 43, 57),
-          //                 headerBackgroundColor:
-          //                 const Color.fromARGB(255, 42, 43, 57),
-          //                 contentBackgroundColor:
-          //                 const Color.fromARGB(255, 42, 43, 57),
-          //                 isOpen: false,
-          //                 header: const Text('자세히',
-          //                     style: TextStyle(
-          //                         color:
-          //                         Color.fromARGB(255, 237, 243, 249),
-          //                         fontSize: 13)),
-          //                 content: Container(
-          //                   height: 170,
-          //                   child: ListView(
-          //                     children: [
-          //                       Column(
-          //                         mainAxisAlignment:
-          //                         MainAxisAlignment.spaceBetween,
-          //                         children: [
-          //                           Container(
-          //                             height: 6,
-          //                           ),
-          //
-          //                         ],
-          //                       )
-          //                     ],
-          //                   ),
-          //                 ),
-          //               ),
-          //             ],
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //     Container(
-          //       child: Column(
-          //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //         children: <Widget>[
-          //           Container(
-          //             decoration: const BoxDecoration(
-          //                 border: Border(
-          //                     top: BorderSide(
-          //                         color: Color.fromARGB(
-          //                             255, 237, 243, 249)))),
-          //             child: Row(
-          //               children: [
-          //                 Expanded(
-          //                     flex: 1,
-          //                     child: TextButton(
-          //                       child: const Text(
-          //                         '통계',
-          //                         style: TextStyle(
-          //                           color: const Color.fromARGB(
-          //                               255, 237, 243, 249),
-          //                         ),
-          //                       ),
-          //                       onPressed: () =>
-          //                           Navigator.pop(context, false),
-          //                     )),
-          //                 Container(
-          //                   width: 1,
-          //                   height: 14,
-          //                   color: Colors.white,
-          //                 ),
-          //                 Expanded(
-          //                     flex: 1,
-          //                     child: TextButton(
-          //                       child: const Text('설정',
-          //                           style: TextStyle(
-          //                               color: const Color.fromARGB(
-          //                                   255, 237, 243, 249))),
-          //                       onPressed: () =>
-          //                           Navigator.pop(context, true),
-          //                     ))
-          //               ],
-          //             ),
-          //           )
-          //         ],
-          //       ),
-          //     )
-          //   ],
-          // ),
-        );
-      })
-    );
+  void _detailShow() {
+    Navigator.of(context)
+        .push(MaterialPageRoute<void>(builder: (BuildContext context) {
+      return Container(
+        width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
+            .size
+            .width,
+        height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
+            .size
+            .height,
+        color: const Color.fromARGB(255, 42, 43, 57),
+        // child: Column(
+        //   mainAxisSize: MainAxisSize.max,
+        //   children: <Widget>[
+        //     Expanded(
+        //       flex: 40,
+        //       child: Column(
+        //
+        //           mainAxisAlignment: MainAxisAlignment.center,
+        //           crossAxisAlignment: CrossAxisAlignment.center,
+        //           children: [
+        //             Text(
+        //               stoptimetodisplay,
+        //               style: const TextStyle(
+        //                 color: const Color.fromARGB(255, 237, 243, 249),
+        //                 fontSize: 44.0,
+        //                 fontWeight: FontWeight.w600,
+        //               ),
+        //             ),
+        //             Container(
+        //               height: 40,
+        //             ),
+        //             Row(
+        //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        //               children: <Widget>[
+        //                 ButtonTheme(
+        //                     minWidth: 120,
+        //                     height: 40,
+        //                     child: RaisedButton(
+        //                       shape: RoundedRectangleBorder(
+        //                           side: swatch.isRunning
+        //                               ? const BorderSide(
+        //                               color: Color.fromARGB(
+        //                                   255, 237, 243, 249))
+        //                               : const BorderSide(
+        //                               color: Color.fromARGB(
+        //                                   255, 237, 243, 249)),
+        //                           borderRadius:
+        //                           BorderRadius.circular(50)),
+        //                       onPressed: () {
+        //                         swatch.isRunning ? stop() : start();
+        //                       },
+        //                       color: swatch.isRunning
+        //                           ? const Color.fromARGB(
+        //                           255, 42, 43, 57)
+        //                           : const Color.fromARGB(
+        //                           255, 237, 243, 249),
+        //                       child: Text(
+        //                         swatch.isRunning ? "일시정지" : "시작",
+        //                         style: swatch.isRunning
+        //                             ? const TextStyle(
+        //                             fontSize: 14.0,
+        //                             color: Color.fromARGB(
+        //                                 255, 237, 243, 249))
+        //                             : const TextStyle(
+        //                             fontSize: 14.0,
+        //                             color: Color.fromARGB(
+        //                                 255, 42, 43, 57)),
+        //                       ),
+        //                     )),
+        //                 ButtonTheme(
+        //                     minWidth: 120,
+        //                     height: 40,
+        //                     child: RaisedButton(
+        //                       shape: RoundedRectangleBorder(
+        //                           side: const BorderSide(
+        //                               color: Color.fromARGB(
+        //                                   255, 237, 243, 249)),
+        //                           borderRadius:
+        //                           BorderRadius.circular(50)),
+        //                       onPressed: reset,
+        //                       color:
+        //                       const Color.fromARGB(255, 42, 43, 57),
+        //                       child: const Text(
+        //                         "초기화",
+        //                         style: TextStyle(
+        //                           fontSize: 14.0,
+        //                           color: Color.fromARGB(
+        //                               255, 237, 243, 249),
+        //                         ),
+        //                       ),
+        //                     ))
+        //               ],
+        //             )
+        //           ]),
+        //     ),
+        //     Expanded(
+        //       flex: 60,
+        //       child: Column(
+        //         crossAxisAlignment: CrossAxisAlignment.center,
+        //         mainAxisAlignment: MainAxisAlignment.center,
+        //         children: [
+        //           const Text(
+        //             '오늘 공부 시간',
+        //             style: TextStyle(
+        //                 color: Color.fromARGB(255, 237, 243, 249),
+        //                 fontSize: 14),
+        //           ),
+        //           Container(
+        //             height: 20,
+        //           ),
+        //           Text(
+        //             stoptimetodisplay,
+        //             style: const TextStyle(
+        //               color: const Color.fromARGB(255, 237, 243, 249),
+        //               fontSize: 30.0,
+        //               fontWeight: FontWeight.w600,
+        //             ),
+        //           ),
+        //           Accordion(
+        //             maxOpenSections: 8,
+        //             rightIcon: const Icon(Icons.keyboard_arrow_down,
+        //                 color: Color.fromARGB(255, 237, 243, 249)),
+        //             children: [
+        //               AccordionSection(
+        //                 contentBorderColor:
+        //                 const Color.fromARGB(255, 42, 43, 57),
+        //                 headerBackgroundColor:
+        //                 const Color.fromARGB(255, 42, 43, 57),
+        //                 contentBackgroundColor:
+        //                 const Color.fromARGB(255, 42, 43, 57),
+        //                 isOpen: false,
+        //                 header: const Text('자세히',
+        //                     style: TextStyle(
+        //                         color:
+        //                         Color.fromARGB(255, 237, 243, 249),
+        //                         fontSize: 13)),
+        //                 content: Container(
+        //                   height: 170,
+        //                   child: ListView(
+        //                     children: [
+        //                       Column(
+        //                         mainAxisAlignment:
+        //                         MainAxisAlignment.spaceBetween,
+        //                         children: [
+        //                           Container(
+        //                             height: 6,
+        //                           ),
+        //
+        //                         ],
+        //                       )
+        //                     ],
+        //                   ),
+        //                 ),
+        //               ),
+        //             ],
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+        //     Container(
+        //       child: Column(
+        //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //         children: <Widget>[
+        //           Container(
+        //             decoration: const BoxDecoration(
+        //                 border: Border(
+        //                     top: BorderSide(
+        //                         color: Color.fromARGB(
+        //                             255, 237, 243, 249)))),
+        //             child: Row(
+        //               children: [
+        //                 Expanded(
+        //                     flex: 1,
+        //                     child: TextButton(
+        //                       child: const Text(
+        //                         '통계',
+        //                         style: TextStyle(
+        //                           color: const Color.fromARGB(
+        //                               255, 237, 243, 249),
+        //                         ),
+        //                       ),
+        //                       onPressed: () =>
+        //                           Navigator.pop(context, false),
+        //                     )),
+        //                 Container(
+        //                   width: 1,
+        //                   height: 14,
+        //                   color: Colors.white,
+        //                 ),
+        //                 Expanded(
+        //                     flex: 1,
+        //                     child: TextButton(
+        //                       child: const Text('설정',
+        //                           style: TextStyle(
+        //                               color: const Color.fromARGB(
+        //                                   255, 237, 243, 249))),
+        //                       onPressed: () =>
+        //                           Navigator.pop(context, true),
+        //                     ))
+        //               ],
+        //             ),
+        //           )
+        //         ],
+        //       ),
+        //     )
+        //   ],
+        // ),
+      );
+    }));
   }
 
   @override
@@ -742,7 +805,7 @@ class _indexPage extends State<IndexPage> {
         // 탭의 수 설정
         length: 3,
         child: Scaffold(
-          resizeToAvoidBottomInset : false,
+          resizeToAvoidBottomInset: false,
           appBar: AppBar(
             backgroundColor: const Color.fromARGB(255, 42, 43, 57),
             elevation: 0,
@@ -764,7 +827,10 @@ class _indexPage extends State<IndexPage> {
           // TabVarView 구현. 각 탭에 해당하는 컨텐트 구성
           body: TabBarView(
             children: [
-              const Tab(text: '알람'),
+              Tab(
+                  child:
+                MaterialApp(home: AlarmPage())
+              ),
               Tab(
                   child: Container(
                 color: const Color.fromARGB(255, 42, 43, 57),
@@ -1131,371 +1197,396 @@ class _indexPage extends State<IndexPage> {
               )),
               Tab(
                   child: Container(
-                    color: const Color.fromARGB(255, 42, 43, 57),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Expanded(
-                          flex: 40,
-                          child: Column(
-                              mainAxisSize: MainAxisSize.max,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(
-                                  timetodisplay,
-                                  style: const TextStyle(
-                                    color: const Color.fromARGB(255, 237, 243, 249),
-                                    fontSize: 44.0,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Container(
-                                  height: 40,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: <Widget>[
-                                    ButtonTheme(
-                                        minWidth: 120,
-                                        height: 40,
-                                        child: RaisedButton(
-                                          shape: RoundedRectangleBorder(
-                                              side: started
-                                                  ? const BorderSide(
+                color: const Color.fromARGB(255, 42, 43, 57),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    Expanded(
+                      flex: 40,
+                      child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              timerName,
+                              style: const TextStyle(
+                                color: const Color.fromARGB(255, 237, 243, 249),
+                                fontSize: 14.0,
+                              ),
+                            ),
+                            Text(
+                              timetodisplay,
+                              style: const TextStyle(
+                                color: const Color.fromARGB(255, 237, 243, 249),
+                                fontSize: 44.0,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Container(
+                              height: 40,
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                ButtonTheme(
+                                    minWidth: 120,
+                                    height: 40,
+                                    child: RaisedButton(
+                                      shape: RoundedRectangleBorder(
+                                          side: started
+                                              ? const BorderSide(
                                                   color: Color.fromARGB(
                                                       255, 237, 243, 249))
-                                                  : const BorderSide(
+                                              : const BorderSide(
                                                   color: Color.fromARGB(
                                                       255, 237, 243, 249)),
-                                              borderRadius:
+                                          borderRadius:
                                               BorderRadius.circular(50)),
-                                          onPressed: () {
-                                            started ?
-                                                timeSet():
-                                                timerStop();
-
-                                          },
-                                          color: started
+                                      onPressed: () {
+                                        setState(() {
+                                          // timeStart == false ? timeSet() : timerStop();
+                                          if(timeStart == false){
+                                            timeSet();
+                                          }else if (timeStart && started){
+                                            timerStop();
+                                          }else if (timeStart && started == false){
+                                            timerRestart();
+                                          }
+                                        });
+                                      },
+                                      color: timeStart == false
+                                          ? const Color.fromARGB(
+                                          255, 237, 243, 249)
+                                          : (timeStart && started) ?
+                                            const Color.fromARGB(
+                                                255, 42, 43, 57 )
+                                          : (timeStart && started == false) ?
+                                            const Color.fromARGB(
+                                              255, 42, 43, 57)
+                                          : const Color.fromARGB(
+                                          255, 42, 43, 57),
+                                      child: Text(
+                                        timeStart == false ? "시간설정" :
+                                        (timeStart && started) ? "일시정지" :
+                                        (timeStart && started == false) ? "재개" : "일시정지",
+                                        style: TextStyle(
+                                          color:timeStart == false
                                               ? const Color.fromARGB(
                                               255, 42, 43, 57)
+                                              : (timeStart && started) ?
+                                          const Color.fromARGB(
+                                              255, 237, 243, 249 )
+                                              : (timeStart && started == false) ?
+                                          const Color.fromARGB(
+                                              255, 237, 243, 249)
                                               : const Color.fromARGB(
                                               255, 237, 243, 249),
-                                          child: Text(
-                                            started ? "시간설정" : "일시정지",
-                                            style: started
-                                                ? const TextStyle(
-                                                fontSize: 14.0,
-                                                color: Color.fromARGB(
-                                                    255, 237, 243, 249))
-                                                : const TextStyle(
-                                                fontSize: 14.0,
-                                                color: Color.fromARGB(
-                                                    255, 42, 43, 57)),
-                                          ),
-                                        )),
-                                    ButtonTheme(
-                                        minWidth: 120,
-                                        height: 40,
-                                        child: RaisedButton(
-                                          shape: RoundedRectangleBorder(
-                                              side: const BorderSide(
-                                                  color: Color.fromARGB(
-                                                      255, 237, 243, 249)),
-                                              borderRadius:
-                                              BorderRadius.circular(50)),
-                                          onPressed: reset,
-                                          color:
-                                          const Color.fromARGB(255, 42, 43, 57),
-                                          child: const Text(
-                                            "초기화",
-                                            style: TextStyle(
-                                              fontSize: 14.0,
-                                              color: Color.fromARGB(
-                                                  255, 237, 243, 249),
-                                            ),
-                                          ),
-                                        ))
-                                  ],
-                                )
-                              ]),
-                        ),
-                        Expanded(
-                          flex: 60,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                '오늘 공부 시간',
-                                style: TextStyle(
-                                    color: Color.fromARGB(255, 237, 243, 249),
-                                    fontSize: 14),
-                              ),
-                              Container(
-                                height: 20,
-                              ),
-                              Text(
-                                timetodisplay,
-                                style: const TextStyle(
-                                  color: const Color.fromARGB(255, 237, 243, 249),
-                                  fontSize: 30.0,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Accordion(
-                                maxOpenSections: 8,
-                                rightIcon: const Icon(Icons.keyboard_arrow_down,
-                                    color: Color.fromARGB(255, 237, 243, 249)),
-                                children: [
-                                  AccordionSection(
-                                    contentBorderColor:
-                                    const Color.fromARGB(255, 42, 43, 57),
-                                    headerBackgroundColor:
-                                    const Color.fromARGB(255, 42, 43, 57),
-                                    contentBackgroundColor:
-                                    const Color.fromARGB(255, 42, 43, 57),
-                                    isOpen: false,
-                                    header: const Text('자세히',
-                                        style: TextStyle(
-                                            color:
-                                            Color.fromARGB(255, 237, 243, 249),
-                                            fontSize: 13)),
-                                    content: Container(
-                                      height: 170,
-                                      child: ListView(
-                                        children: [
-                                          Column(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Container(
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                        width: 120,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                          children: [
-                                                            const Icon(Icons.timer),
-                                                            const Text(
-                                                                '11:14 ~ 11:14')
-                                                          ],
-                                                        )),
-                                                    const Text('00h 00m 00s')
-                                                  ],
-                                                ),
-                                                padding: const EdgeInsets.fromLTRB(
-                                                    10, 13, 10, 13),
-                                                decoration: BoxDecoration(
-                                                    color: const Color.fromARGB(
-                                                        255, 237, 243, 249),
-                                                    borderRadius:
-                                                    BorderRadius.circular(10)),
-                                              ),
-                                              Container(
-                                                height: 6,
-                                              ),
-                                              Container(
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                        width: 120,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                          children: [
-                                                            const Icon(Icons.timer),
-                                                            const Text(
-                                                                '11:14 ~ 11:14')
-                                                          ],
-                                                        )),
-                                                    const Text('00h 00m 00s')
-                                                  ],
-                                                ),
-                                                padding: const EdgeInsets.fromLTRB(
-                                                    10, 13, 10, 13),
-                                                decoration: BoxDecoration(
-                                                    color: const Color.fromARGB(
-                                                        255, 237, 243, 249),
-                                                    borderRadius:
-                                                    BorderRadius.circular(10)),
-                                              ),
-                                              Container(
-                                                height: 6,
-                                              ),
-                                              Container(
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                        width: 120,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                          children: [
-                                                            const Icon(Icons.timer),
-                                                            const Text(
-                                                                '11:14 ~ 11:14')
-                                                          ],
-                                                        )),
-                                                    const Text('00h 00m 00s')
-                                                  ],
-                                                ),
-                                                padding: const EdgeInsets.fromLTRB(
-                                                    10, 13, 10, 13),
-                                                decoration: BoxDecoration(
-                                                    color: const Color.fromARGB(
-                                                        255, 237, 243, 249),
-                                                    borderRadius:
-                                                    BorderRadius.circular(10)),
-                                              ),
-                                              Container(
-                                                height: 6,
-                                              ),
-                                              Container(
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                        width: 120,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                          children: [
-                                                            const Icon(Icons.timer),
-                                                            const Text(
-                                                                '11:14 ~ 11:14')
-                                                          ],
-                                                        )),
-                                                    const Text('00h 00m 00s')
-                                                  ],
-                                                ),
-                                                padding: const EdgeInsets.fromLTRB(
-                                                    10, 13, 10, 13),
-                                                decoration: BoxDecoration(
-                                                    color: const Color.fromARGB(
-                                                        255, 237, 243, 249),
-                                                    borderRadius:
-                                                    BorderRadius.circular(10)),
-                                              ),
-                                              Container(
-                                                height: 6,
-                                              ),
-                                              Container(
-                                                child: Row(
-                                                  mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                                  children: [
-                                                    Container(
-                                                        width: 120,
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .spaceBetween,
-                                                          children: [
-                                                            const Icon(Icons.timer),
-                                                            const Text(
-                                                                '11:14 ~ 11:14')
-                                                          ],
-                                                        )),
-                                                    const Text('00h 00m 00s')
-                                                  ],
-                                                ),
-                                                padding: const EdgeInsets.fromLTRB(
-                                                    10, 13, 10, 13),
-                                                decoration: BoxDecoration(
-                                                    color: const Color.fromARGB(
-                                                        255, 237, 243, 249),
-                                                    borderRadius:
-                                                    BorderRadius.circular(10)),
-                                              ),
-                                            ],
-                                          )
-                                        ],
+                                        )
                                       ),
-                                    ),
+                                    )),
+                                ButtonTheme(
+                                    minWidth: 120,
+                                    height: 40,
+                                    child: RaisedButton(
+                                      shape: RoundedRectangleBorder(
+                                          side: const BorderSide(
+                                              color: Color.fromARGB(
+                                                  255, 237, 243, 249)),
+                                          borderRadius:
+                                              BorderRadius.circular(50)),
+                                      onPressed: reset,
+                                      color:
+                                          const Color.fromARGB(255, 42, 43, 57),
+                                      child: const Text(
+                                        "저장하기",
+                                        style: TextStyle(
+                                          fontSize: 14.0,
+                                          color: Color.fromARGB(
+                                              255, 237, 243, 249),
+                                        ),
+                                      ),
+                                    ))
+                              ],
+                            )
+                          ]),
+                    ),
+                    Expanded(
+                      flex: 60,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            '오늘 공부 시간',
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 237, 243, 249),
+                                fontSize: 14),
+                          ),
+                          Container(
+                            height: 20,
+                          ),
+                          Text(
+                            timetodisplay,
+                            style: const TextStyle(
+                              color: const Color.fromARGB(255, 237, 243, 249),
+                              fontSize: 30.0,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          Accordion(
+                            maxOpenSections: 8,
+                            rightIcon: const Icon(Icons.keyboard_arrow_down,
+                                color: Color.fromARGB(255, 237, 243, 249)),
+                            children: [
+                              AccordionSection(
+                                contentBorderColor:
+                                    const Color.fromARGB(255, 42, 43, 57),
+                                headerBackgroundColor:
+                                    const Color.fromARGB(255, 42, 43, 57),
+                                contentBackgroundColor:
+                                    const Color.fromARGB(255, 42, 43, 57),
+                                isOpen: false,
+                                header: const Text('자세히',
+                                    style: TextStyle(
+                                        color:
+                                            Color.fromARGB(255, 237, 243, 249),
+                                        fontSize: 13)),
+                                content: Container(
+                                  height: 170,
+                                  child: ListView(
+                                    children: [
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                    width: 120,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        const Icon(Icons.timer),
+                                                        const Text(
+                                                            '11:14 ~ 11:14')
+                                                      ],
+                                                    )),
+                                                const Text('00h 00m 00s')
+                                              ],
+                                            ),
+                                            padding: const EdgeInsets.fromLTRB(
+                                                10, 13, 10, 13),
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromARGB(
+                                                    255, 237, 243, 249),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                          Container(
+                                            height: 6,
+                                          ),
+                                          Container(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                    width: 120,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        const Icon(Icons.timer),
+                                                        const Text(
+                                                            '11:14 ~ 11:14')
+                                                      ],
+                                                    )),
+                                                const Text('00h 00m 00s')
+                                              ],
+                                            ),
+                                            padding: const EdgeInsets.fromLTRB(
+                                                10, 13, 10, 13),
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromARGB(
+                                                    255, 237, 243, 249),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                          Container(
+                                            height: 6,
+                                          ),
+                                          Container(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                    width: 120,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        const Icon(Icons.timer),
+                                                        const Text(
+                                                            '11:14 ~ 11:14')
+                                                      ],
+                                                    )),
+                                                const Text('00h 00m 00s')
+                                              ],
+                                            ),
+                                            padding: const EdgeInsets.fromLTRB(
+                                                10, 13, 10, 13),
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromARGB(
+                                                    255, 237, 243, 249),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                          Container(
+                                            height: 6,
+                                          ),
+                                          Container(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                    width: 120,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        const Icon(Icons.timer),
+                                                        const Text(
+                                                            '11:14 ~ 11:14')
+                                                      ],
+                                                    )),
+                                                const Text('00h 00m 00s')
+                                              ],
+                                            ),
+                                            padding: const EdgeInsets.fromLTRB(
+                                                10, 13, 10, 13),
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromARGB(
+                                                    255, 237, 243, 249),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                          Container(
+                                            height: 6,
+                                          ),
+                                          Container(
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              children: [
+                                                Container(
+                                                    width: 120,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
+                                                      children: [
+                                                        const Icon(Icons.timer),
+                                                        const Text(
+                                                            '11:14 ~ 11:14')
+                                                      ],
+                                                    )),
+                                                const Text('00h 00m 00s')
+                                              ],
+                                            ),
+                                            padding: const EdgeInsets.fromLTRB(
+                                                10, 13, 10, 13),
+                                            decoration: BoxDecoration(
+                                                color: const Color.fromARGB(
+                                                    255, 237, 243, 249),
+                                                borderRadius:
+                                                    BorderRadius.circular(10)),
+                                          ),
+                                        ],
+                                      )
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        Container(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: <Widget>[
-                              Container(
-                                decoration: const BoxDecoration(
-                                    border: Border(
-                                        top: BorderSide(
-                                            color: Color.fromARGB(
-                                                255, 237, 243, 249)))),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                        flex: 1,
-                                        child: TextButton(
-                                          child: const Text(
-                                            '통계',
-                                            style: TextStyle(
-                                              color: const Color.fromARGB(
-                                                  255, 237, 243, 249),
-                                            ),
-                                          ),
-                                          onPressed: () =>
-                                              Navigator.pop(context, false),
-                                        )),
-                                    Container(
-                                      width: 1,
-                                      height: 14,
-                                      color: Colors.white,
-                                    ),
-                                    Expanded(
-                                        flex: 1,
-                                        child: TextButton(
-                                          child: const Text('설정',
-                                              style: TextStyle(
-                                                  color: const Color.fromARGB(
-                                                      255, 237, 243, 249))),
-                                          onPressed: () =>
-                                              Navigator.pop(context, true),
-                                        ))
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ],
+                        ],
+                      ),
                     ),
-                  )),
+                    Container(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Container(
+                            decoration: const BoxDecoration(
+                                border: Border(
+                                    top: BorderSide(
+                                        color: Color.fromARGB(
+                                            255, 237, 243, 249)))),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                    flex: 1,
+                                    child: TextButton(
+                                      child: const Text(
+                                        '통계',
+                                        style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 237, 243, 249),
+                                        ),
+                                      ),
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                    )),
+                                Container(
+                                  width: 1,
+                                  height: 14,
+                                  color: Colors.white,
+                                ),
+                                Expanded(
+                                    flex: 1,
+                                    child: TextButton(
+                                      child: const Text('설정',
+                                          style: TextStyle(
+                                              color: const Color.fromARGB(
+                                                  255, 237, 243, 249))),
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                    ))
+                              ],
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              )),
             ],
           ),
         ),
