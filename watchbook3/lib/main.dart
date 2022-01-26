@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:kakao_flutter_sdk/all.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udp/udp.dart';
 import 'package:watchbookapp/findId.dart';
@@ -15,10 +14,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'agreement.dart';
 import 'login.dart';
-import 'alarm.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'welcome.dart';
 import 'package:http/http.dart' as http;
 
@@ -288,7 +285,7 @@ class _MainPageState extends State<MainPage> {
                 )),
           ));
     } else {
-      if (isToken != true) {
+      if (isToken == true) {
         return WillPopScope(
           //웹뷰(웹에서 받아온 javascript값에 따라 루트 변경)
           onWillPop: () => _goBack(context),

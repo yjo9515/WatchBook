@@ -1,25 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:kakao_flutter_sdk/all.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watchbookapp/findId.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'agreement.dart';
 import 'login.dart';
-import 'alarm.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'member.dart';
-import 'welcome.dart';
 import 'package:http/http.dart' as http;
 
 late String joinId,joinPw,joinRepasswd,joinNickname,joinName,joinPhone,joinType;
