@@ -176,7 +176,7 @@ class _welcomePage extends State<WelcomePage> {
                   width: 600,
                   height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
                       .size
-                      .height-50,
+                      .height - 50,
                     child: InAppWebView(
                       initialOptions: options,
                       initialData: InAppWebViewInitialData(
