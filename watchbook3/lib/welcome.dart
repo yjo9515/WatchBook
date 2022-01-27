@@ -106,8 +106,7 @@ class _welcomePage extends State<WelcomePage> {
                     children: [
                       const Text('2. 유의사항')
                     ],
-                  )
-                  ,
+                  ),
                 ) :
                 Container(
                   child:

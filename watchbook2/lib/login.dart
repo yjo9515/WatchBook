@@ -69,8 +69,9 @@ Future<void> _naverLoginButtonPressed() async {
 
 Future<void> _facebookLoginButtonPressed() async {
   final LoginResult result = await FacebookAuth.instance
-      .login(); // by default we request the email and the public profile
-// or FacebookAuth.i.login()
+      .login();
+  // by default we request the email and the public profile
+  // or FacebookAuth.i.login()
   if (result.status == LoginStatus.success) {
     // you are logged
     final AccessToken accessToken = result.accessToken!;

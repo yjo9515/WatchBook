@@ -250,7 +250,7 @@ class _MainPageState extends State<MainPage> {
                 )),
           ));
     } else {
-      if (isToken == true) {
+      if (isToken != true) {
         return WillPopScope(
             onWillPop: () => _goBack(context),
             child: Scaffold(
