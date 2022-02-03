@@ -395,7 +395,7 @@ class _MainPageState extends State<MainPage> {
                                     .height - 177,
                                 child: SingleChildScrollView(
                                   child:Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
                                         height:596,
