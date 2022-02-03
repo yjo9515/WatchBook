@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,8 +18,6 @@ import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as status;
-
-//import http package manually
 import 'findId.dart';
 
 var channel;
@@ -74,7 +71,6 @@ Future<void> _naverLoginButtonPressed() async {
 Future<void> _facebookLoginButtonPressed() async {
   final LoginResult result = await FacebookAuth.instance
       .login(); // by default we request the email and the public profile
-// or FacebookAuth.i.login()
   if (result.status == LoginStatus.success) {
     // you are logged
     final AccessToken accessToken = result.accessToken!;
@@ -144,7 +140,6 @@ Future<void> _facebookLoginButtonPressed() async {
       channel.sink.close(status.goingAway);
     });
   }
-
 
   @override
   void initState() {

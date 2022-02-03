@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -22,6 +21,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print('Handling a background message ${message.messageId}');
 }
+//firebase 메세지 수신시 출력
 
 
 // 저장소권한요청
@@ -161,13 +161,13 @@ class _MainPageState extends State<MainPage> {
     var duration = const Duration(seconds: 2);
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? tokenValue = sharedPreferences.getString('token');
-    print(tokenValue);
-    if(tokenValue != null){
+    //저장된 토큰값 가져오기
+    print("토큰값 : ${tokenValue}");
+    if(tokenValue != null){//사용자 정보 전송
       String apiurl = 'https://www.watchbook.tv/test';
       var response = await http.post(Uri.parse(apiurl),
           headers: {HttpHeaders.authorizationHeader : "Bearer ${tokenValue}"}
       );
-      print(response.headers);
       print(response.headers);
       print(response.body);
     }
@@ -175,6 +175,7 @@ class _MainPageState extends State<MainPage> {
       duration,
       () {
         setState(() {
+          //타이머 시간이 지나면 스플래시 화면이 false로 (화면전환)
           loading = false;
           url = 'http://m.watchbook.tv/';
           if (tokenValue != null) {
@@ -250,7 +251,7 @@ class _MainPageState extends State<MainPage> {
                 )),
           ));
     } else {
-      if (isToken != true) {
+      if (isToken == true) {
         return WillPopScope(
             onWillPop: () => _goBack(context),
             child: Scaffold(
@@ -297,245 +298,223 @@ class _MainPageState extends State<MainPage> {
                             WidgetsBinding.instance!.window)
                             .size
                             .height,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Wrap(
-                                children: [
-                                  Container(
-                                    height: 128,
-                                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
-                                    decoration: const BoxDecoration(
-                                      color: Color.fromARGB(255, 217, 84, 84),
-                                    ),
-                                    child:
-                                    Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Column(
+                              children: [
+                                Container(
+                                  height: 128,
+                                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
+                                  decoration: const BoxDecoration(
+                                    color: Color.fromARGB(255, 217, 84, 84),
+                                  ),
+                                  child:
+                                  Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: <Widget>[
+                                      const Expanded(child: CircleAvatar(
+                                        radius: 40,
+                                      ),),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            const Text('박보영 님', style: TextStyle(fontSize: 21, color: Colors.white, fontFamily: 'ONE_Title')),
+                                            const Text('LV. 1', style: TextStyle(fontSize: 21, color: Colors.white,fontWeight: FontWeight.bold,fontFamily: 'ONE_Regular')),
+                                            const Text('', style: TextStyle(fontSize: 10, color: Colors.white)),
+                                            const Text('30 C', style: TextStyle(fontSize: 21, color: Colors.white,fontWeight: FontWeight.bold,fontFamily: 'ONE_Regular')),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                    height: 44,
+                                    child: Row(
                                       crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: <Widget>[
-                                        const Expanded(child: CircleAvatar(
-                                          radius: 40,
-                                        ),),
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
                                         Expanded(
-                                          child: Column(
-                                            mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: <Widget>[
-                                              const Text('박보영 님', style: TextStyle(fontSize: 21, color: Colors.white, fontFamily: 'ONE_Title')),
-                                              const Text('LV. 1', style: TextStyle(fontSize: 21, color: Colors.white,fontWeight: FontWeight.bold,fontFamily: 'ONE_Regular')),
-                                              const Text('', style: TextStyle(fontSize: 10, color: Colors.white)),
-                                              const Text('30 C', style: TextStyle(fontSize: 21, color: Colors.white,fontWeight: FontWeight.bold,fontFamily: 'ONE_Regular')),
-                                            ],
+                                          child: TextButton(
+                                            onPressed: () {
+                                              print('d');
+                                            },
+                                            child: const Text(
+                                              '내 정보',
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 17,
+                                                  fontFamily: 'ONE_Regular'
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 1,
+                                          height: 14,
+                                          color:
+                                          const Color.fromARGB(255, 207, 207, 207),
+                                        ),
+                                        Expanded(
+                                          child: TextButton(
+                                            onPressed: () {
+                                              print('d');
+                                            },
+                                            child: const Text(
+                                              '스토어',
+                                              style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 17,
+                                                  fontFamily: 'ONE_Regular'
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ],
-                                    ),
+                                    )),
+                                const Divider(
+                                    color: Color.fromARGB(255, 207, 207, 207)),
+                                ListTile(
+                                  dense: true,
+                                  title: const Text('내 강좌',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 0, 0, 0),
+                                          fontSize: 19,
+                                          fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
+                                  onTap: () => {print("")},
+                                  trailing: const Icon(
+                                    IconData(0xe15f,
+                                        fontFamily: 'MaterialIcons',
+                                        matchTextDirection: true),
+                                    color: const Color.fromARGB(255, 0, 0, 0),
                                   ),
-                                  Container(
-                                      height: 44,
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.center,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: TextButton(
-                                              onPressed: () {
-                                                print('d');
-                                              },
-                                              child: const Text(
-                                                '내 정보',
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 17,
-                                                    fontFamily: 'ONE_Regular'
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          Container(
-                                            width: 1,
-                                            height: 14,
-                                            color:
-                                            const Color.fromARGB(255, 207, 207, 207),
-                                          ),
-                                          Expanded(
-                                            child: TextButton(
-                                              onPressed: () {
-                                                print('d');
-                                              },
-                                              child: const Text(
-                                                '스토어',
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: 17,
-                                                    fontFamily: 'ONE_Regular'
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      )),
-                                  const Divider(
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      IconData(62268, fontFamily: 'MaterialIcons'),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('강좌',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                255, 0, 104, 166),
-                                            fontSize: 19,
-                                            fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
-                                    onTap: () => {print("")},
-                                    trailing: const Icon(
+                                ),
+                                const Divider(
+                                    indent: 20,
+                                    endIndent: 20,
+                                    color: Color.fromARGB(255, 207, 207, 207)),
+                                ListTile(
+                                  dense: true,
+                                  title: const Text('문제은행',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 0, 0, 0),
+                                          fontSize: 19,
+                                          fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
+                                  onTap: () => {print("settting")},
+                                  trailing: const Icon(
+                                    IconData(0xe15f,
+                                        fontFamily: 'MaterialIcons',
+                                        matchTextDirection: true),
+                                    color: const Color.fromARGB(255, 0, 104, 166),
+                                  ),
+                                ),
+                                const Divider(
+                                    indent: 20,
+                                    endIndent: 20,
+                                    color: Color.fromARGB(255, 207, 207, 207)),
+                                ListTile(
+                                  dense: true,
+                                  title: const Text('1:1 질문',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 0, 0, 0),
+                                          fontSize: 19,
+                                          fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
+                                  onTap: () => {print("Q&A")},
+                                  trailing: const Icon(
                                       IconData(0xe15f,
                                           fontFamily: 'MaterialIcons',
                                           matchTextDirection: true),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                  ),
-                                  const Divider(
-                                      indent: 20,
-                                      endIndent: 20,
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      Icons.edit,
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('모의고사',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                255, 0, 104, 166),
-                                            fontSize: 19,
-                                            fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
-                                    onTap: () => {print("settting")},
-                                    trailing: const Icon(
+                                      color:
+                                      const Color.fromARGB(255, 0, 0, 0)),
+                                ),
+                                const Divider(
+                                    indent: 20,
+                                    endIndent: 20,
+                                    color: Color.fromARGB(255, 207, 207, 207)),
+                                ListTile(
+                                  dense: true,
+                                  title: const Text('친구목록',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 0, 0, 0),
+                                          fontSize: 19,
+                                          fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
+                                  onTap: () async {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                Member()));
+                                  },
+                                  trailing: const Icon(
                                       IconData(0xe15f,
                                           fontFamily: 'MaterialIcons',
                                           matchTextDirection: true),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                  ),
-                                  const Divider(
-                                      indent: 20,
-                                      endIndent: 20,
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      IconData(0xeeb8, fontFamily: 'MaterialIcons'),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('자격증',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                255, 0, 104, 166),
-                                            fontSize: 19,
-                                            fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
-                                    onTap: () => {print("Q&A")},
-                                    trailing: const Icon(
-                                        IconData(0xe15f,
-                                            fontFamily: 'MaterialIcons',
-                                            matchTextDirection: true),
-                                        color:
-                                        const Color.fromARGB(255, 0, 104, 166)),
-                                  ),
-                                  const Divider(
-                                      indent: 20,
-                                      endIndent: 20,
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      IconData(0xeeb8, fontFamily: 'MaterialIcons'),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('전화번호부',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                255, 0, 104, 166),
-                                            fontSize: 19,
-                                            fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
-                                    onTap: () async {
-                                      Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (BuildContext context) =>
-                                                  Member()));
-                                    },
-                                    trailing: const Icon(
-                                        IconData(0xe15f,
-                                            fontFamily: 'MaterialIcons',
-                                            matchTextDirection: true),
-                                        color:
-                                        const Color.fromARGB(255, 0, 104, 166)),
-                                  ),
-                                  const Divider(
-                                      indent: 20,
-                                      endIndent: 20,
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      IconData(58173, fontFamily: 'MaterialIcons'),
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('고객센터',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                255, 0, 104, 166),
-                                            fontSize: 19,
-                                            fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
-                                    onTap: () => {print("Q&A")},
-                                    trailing: const Icon(
-                                        IconData(0xe15f,
-                                            fontFamily: 'MaterialIcons',
-                                            matchTextDirection: true),
-                                        color:
-                                        const Color.fromARGB(255, 0, 104, 166)),
-                                  ),
-                                  const Divider(
-                                      indent: 20,
-                                      endIndent: 20,
-                                      color: Color.fromARGB(255, 207, 207, 207)),
-                                  ListTile(
-                                    dense: true,
-                                    leading: const Icon(
-                                      Icons.help_outline,
-                                      color: const Color.fromARGB(255, 0, 104, 166),
-                                    ),
-                                    title: const Text('도움말',
-                                        style: TextStyle(
-                                            color: const Color.fromARGB(
-                                                255, 0, 104, 166),
-                                            fontSize: 19,
-                                            fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
-                                    onTap: () => {print("Q&A")},
-                                    trailing: const Icon(
-                                        IconData(0xe15f,
-                                            fontFamily: 'MaterialIcons',
-                                            matchTextDirection: true),
-                                        color:
-                                        const Color.fromARGB(255, 0, 104, 166)),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-                                decoration: const BoxDecoration(
-                                    border: Border(
-                                        top: BorderSide(
-                                          width: 1,
-                                          color: Color.fromARGB(255, 207, 207, 207),
-                                        ))),
+                                      color:
+                                      const Color.fromARGB(255, 0, 0, 0)),
+                                ),
+                                const Divider(
+                                    indent: 20,
+                                    endIndent: 20,
+                                    color: Color.fromARGB(255, 207, 207, 207)),
+                                ListTile(
+                                  dense: true,
+                                  title: const Text('고객센터',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 0, 0, 0),
+                                          fontSize: 19,
+                                          fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
+                                  onTap: () => {print("Q&A")},
+                                  trailing: const Icon(
+                                      IconData(0xe15f,
+                                          fontFamily: 'MaterialIcons',
+                                          matchTextDirection: true),
+                                      color:
+                                      const Color.fromARGB(255, 0, 0, 0)),
+                                ),
+                                const Divider(
+                                    indent: 20,
+                                    endIndent: 20,
+                                    color: Color.fromARGB(255, 207, 207, 207)),
+                                ListTile(
+                                  dense: true,
+                                  title: const Text('도움말',
+                                      style: TextStyle(
+                                          color: const Color.fromARGB(
+                                              255, 0, 0, 0),
+                                          fontSize: 19,
+                                          fontWeight: FontWeight.bold,fontFamily: 'ONE_Title')),
+                                  onTap: () => {print("Q&A")},
+                                  trailing: const Icon(
+                                      IconData(0xe15f,
+                                          fontFamily: 'MaterialIcons',
+                                          matchTextDirection: true),
+                                      color:
+                                      const Color.fromARGB(255, 0, 0, 0)),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                              decoration: const BoxDecoration(
+                                  border: Border(
+                                      top: BorderSide(
+                                        width: 1,
+                                        color: Color.fromARGB(255, 207, 207, 207),
+                                      ))),
+                              child: Container(
+                                height: 52,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
@@ -582,26 +561,26 @@ class _MainPageState extends State<MainPage> {
                                     )
                                   ],
                                 ),
-                              )
-                            ],
-                          ),
-                        ),
+                              ),
+                            )
+                          ],
+                        )
                       )
                     ],
                   ),
                 ),
-                bottomNavigationBar:
-                Container(
-                  color: const Color.fromARGB(255, 246, 249, 249),
-                  height: 26,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Text('watchbook@naver.com')
-                    ],
-                  ),
-                )
+                // bottomNavigationBar:
+                // Container(
+                //   color: const Color.fromARGB(255, 246, 249, 249),
+                //   height: 26,
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     crossAxisAlignment: CrossAxisAlignment.center,
+                //     children: [
+                //       const Text('watchbook@naver.com')
+                //     ],
+                //   ),
+                // )
             ));
       } else {
         return WillPopScope(

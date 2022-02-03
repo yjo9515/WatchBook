@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +26,6 @@ class MemberState extends State<Member> {
     _askPermissions();
     super.initState();
   }
-
   _askPermissions() async {
     PermissionStatus permissionStatus = await _getContactPermission();
     if (permissionStatus == PermissionStatus.granted) {
@@ -114,8 +112,6 @@ class MemberState extends State<Member> {
       print(base64.encode(result[11].avatar));
       String base = 'data:image/png;base64, ';
       print('${base+base64.encode(result[11].avatar)}');
-
-
       var response = await http.MultipartRequest("POST",Uri.parse(apiurl),
         );
         response.headers.addAll(headers);

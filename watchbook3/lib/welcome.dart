@@ -10,7 +10,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'login.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-
 Future<bool> _checkNotification() async {
   bool status = await Permission.notification.isGranted;
   print('알람 체크값 : ${status}');
@@ -22,7 +21,6 @@ Future<bool> _checkNotification() async {
 }
 
 class WelcomePage extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() {
     return _welcomePage();
@@ -96,8 +94,7 @@ class _welcomePage extends State<WelcomePage> {
                     children: [
                       const Text('1. 안내사항')
                     ],
-                  )
-                  ,
+                  ),
                 ) :
                 chk == 2 ?
                 Container(
@@ -114,8 +111,7 @@ class _welcomePage extends State<WelcomePage> {
                     children: [
                       const Text('3. 기능 설명')
                     ],
-                  ),)
-                ,
+                  ),),
                 SizedBox(
                   height: 48,
                   width: 120,
@@ -1479,7 +1475,6 @@ class _welcomePage extends State<WelcomePage> {
                             rs = args;
                           });
                           nextQuestion();
-                          // it will print: [1, true, [bar, 5], {foo: baz}, {bar: bar_value, baz: baz_value}]
                         });
                       },
                     )
@@ -1545,7 +1540,6 @@ class _welcomePage extends State<WelcomePage> {
                                           Container(
                                             width:100,
                                             child:const TextField(
-
                                             )
                                           )
                                         ],
@@ -1563,8 +1557,7 @@ class _welcomePage extends State<WelcomePage> {
                 )
               ],
             )
-          )
-          ,
+          ),
           appBar:
           AppBar(
             backgroundColor: Colors.white,
@@ -1602,6 +1595,10 @@ class _welcomePage extends State<WelcomePage> {
                     }else if(level == 2){
                       setState(() {
                         level = 3;
+                      });
+                    }else if(level == 3){
+                      setState(() {
+                        level = 0;
                       });
                     }
                   },
@@ -1702,8 +1699,8 @@ class _welcomePage extends State<WelcomePage> {
                   child: RaisedButton(
                     onPressed: () {
                       String requestColumn = r""" 
-     requestColumn(); 
-    """;
+                         requestColumn(); 
+                        """;
                       _webViewController!.callAsyncJavaScript(functionBody: requestColumn);
                     },
                     child: const Text(
@@ -1731,8 +1728,8 @@ class _welcomePage extends State<WelcomePage> {
                           child: RaisedButton(
                             onPressed: () {
                               String requestColumn = r""" 
-     requestPlus(); 
-    """;
+                               requestPlus(); 
+                              """;
                               _webViewController!.callAsyncJavaScript(functionBody: requestColumn);
                             },
                             child: const Text(
@@ -1754,8 +1751,8 @@ class _welcomePage extends State<WelcomePage> {
                           child: RaisedButton(
                             onPressed: () {
                               String requestColumn = r""" 
-     requestMinus(); 
-    """;
+                               requestMinus(); 
+                              """;
                               _webViewController!.callAsyncJavaScript(functionBody: requestColumn);
                             },
                             child: const Text(
@@ -1825,8 +1822,6 @@ class _welcomePage extends State<WelcomePage> {
         ));
   }
 
-
-
   Future<bool> _goBack(BuildContext context) async {
     return showDialog(
       context: context,
@@ -1855,10 +1850,9 @@ class _welcomePage extends State<WelcomePage> {
             builder: (BuildContext context) => MyApp()),
             (Route<dynamic> route) => false);
   }
+}
 
   void nextQuestion() {
 
-
   }
-}
 
