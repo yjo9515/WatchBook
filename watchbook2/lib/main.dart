@@ -514,6 +514,7 @@ class _MainPageState extends State<MainPage> {
                                         color: Color.fromARGB(255, 207, 207, 207),
                                       ))),
                               child: Container(
+                                
                                 height: 52,
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
