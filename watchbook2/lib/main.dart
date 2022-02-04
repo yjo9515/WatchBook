@@ -392,13 +392,13 @@ class _MainPageState extends State<MainPage> {
                                 height: MediaQueryData.fromWindow(
                                     WidgetsBinding.instance!.window)
                                     .size
-                                    .height - 177,
+                                    .height - 187,
                                 child: SingleChildScrollView(
                                   child:Column(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Container(
-                                        height:596,
+                                        height: 544,
                                         child: Column(
                                           children: [
                                             ListTile(
