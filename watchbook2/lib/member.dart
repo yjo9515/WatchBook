@@ -40,7 +40,7 @@ class MemberState extends State<Member> {
   Future<PermissionStatus> _getContactPermission() async {
     PermissionStatus permission = await Permission.contacts.status;
     if (permission != PermissionStatus.granted &&
-        permission != PermissionStatus.permanentlyDenied) {
+        permission != PermissionStatus.denied) {
       PermissionStatus permissionStatus = await Permission.contacts.request();
       return permissionStatus;
     } else {
@@ -52,11 +52,16 @@ class MemberState extends State<Member> {
     if (permissionStatus == PermissionStatus.denied) {
       const snackBar = const SnackBar(content: Text('연락처 데이터에 대한 액세스가 거부되었습니다.'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    } else if (permissionStatus == PermissionStatus.permanentlyDenied) {
-      const snackBar =
-      const SnackBar(content: Text('단말기에서 연락처 데이터를 사용할 수 없습니다.'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      openAppSettings();
+      Navigator.pop(context);
     }
+    // else if (permissionStatus == PermissionStatus.permanentlyDenied) {
+    //   const snackBar =
+    //   const SnackBar(content: Text('단말기에서 연락처 데이터를 사용할 수 없습니다.'));
+    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    //   openAppSettings();
+    //   Navigator.pop(context);
+    // }
   }
 
   @override
