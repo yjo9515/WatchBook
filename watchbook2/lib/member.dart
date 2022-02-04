@@ -50,12 +50,13 @@ class MemberState extends State<Member> {
 
   void _handleInvalidPermissions(PermissionStatus permissionStatus) {
     if (permissionStatus == PermissionStatus.denied) {
-      const snackBar = const SnackBar(content: Text('Access to contact data denied'));
+      const snackBar = const SnackBar(content: Text('연락처 데이터에 대한 액세스가 거부되었습니다.'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     } else if (permissionStatus == PermissionStatus.permanentlyDenied) {
-      const snackBar =
-      const SnackBar(content: Text('Contact data not available on device'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      // const snackBar =
+      // const SnackBar(content: Text('단말기에서 연락처 데이터를 사용할 수 없습니다.'));
+      // ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      openAppSettings();
     }
   }
 
