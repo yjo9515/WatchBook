@@ -52,8 +52,8 @@ class MemberState extends State<Member> {
     if (permissionStatus == PermissionStatus.denied) {
       const snackBar = const SnackBar(content: Text('연락처 데이터에 대한 액세스가 거부되었습니다.'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      openAppSettings();
-      Navigator.pop(context);
+      // openAppSettings();
+      // Navigator.pop(context);
     }
     // else if (permissionStatus == PermissionStatus.permanentlyDenied) {
     //   const snackBar =
