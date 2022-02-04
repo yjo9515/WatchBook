@@ -23,8 +23,8 @@ class MemberState extends State<Member> {
   bool chk = false; // 약관동의 및 전화전호부 등록
   @override
   void initState() {
-    _askPermissions();
     super.initState();
+    _askPermissions();
   }
   _askPermissions() async {
     PermissionStatus permissionStatus = await _getContactPermission();
