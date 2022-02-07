@@ -162,7 +162,6 @@ class MemberState extends State<Member> {
       String res = await send.stream.bytesToString();
       print(res);
       print(response.headers);
-
       setState(() {
         chk = true;
       });
