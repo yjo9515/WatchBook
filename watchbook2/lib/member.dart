@@ -47,6 +47,7 @@ class MemberState extends State<Member> {
       }
     }else{
       openAppSettings();
+      Navigator.pop(context);
     }
   }
 
