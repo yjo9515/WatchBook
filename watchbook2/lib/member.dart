@@ -58,9 +58,9 @@ class MemberState extends State<Member> {
   }
 
   Future<bool> _checkContact() async {
-    bool status = await Permission.contacts.isGranted;
+    var status = await Permission.contacts.status;
     print('연락처 체크값 : ${status}');
-    if (status == true) {
+    if (status.isGranted) {
       return Future.value(true);
     } else {
       return Future.value(false);
