@@ -28,7 +28,7 @@ class MemberState extends State<Member> {
       if (value == false)
         {_getStatuses(context)}
       else {
-        chk = true
+        downloadList()
       }
     });
   }
