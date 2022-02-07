@@ -36,7 +36,7 @@ class MemberState extends State<Member> {
   // 연락처권한요청
   Future<bool> _getStatuses(BuildContext context) async {
     Map<Permission, PermissionStatus> statuses =
-    await [Permission.storage].request();
+    await [Permission.photos].request();
     openAppSettings();
     if (await Permission.contacts.isGranted == true) {
       print('연락처 권한 동의');
