@@ -24,45 +24,75 @@ class MemberState extends State<Member> {
   @override
   void initState() {
     super.initState();
-    _askPermissions();
+    _checkContact().then((value) async => {
+      if (value == false)
+        {_getStatuses(context)}
+      else {
+        chk = true
+      }
+    });
   }
+
+  // 연락처권한요청
+  Future<bool> _getStatuses(BuildContext context) async {
+    Map<Permission, PermissionStatus> statuses =
+    await [Permission.contacts].request();
+    if (await Permission.storage.isGranted == true) {
+      print('연락처 권한 동의');
+      return Future.value(true);
+    } else {
+      print('연락처 권한 비동의');
+      return Future.value(false);
+    }
+  }
+
   _askPermissions() async {
-    PermissionStatus permissionStatus = await _getContactPermission();
-    if (permissionStatus == PermissionStatus.granted) {
-      downloadList();
-    } else {
-      _contact = await ContactsService.getContacts();
-      result = _contact.toList();
-      _handleInvalidPermissions(permissionStatus);
-    }
-  }
-
-  Future<PermissionStatus> _getContactPermission() async {
-    PermissionStatus permission = await Permission.contacts.status;
-    if (permission != PermissionStatus.granted &&
-        permission != PermissionStatus.denied) {
-      PermissionStatus permissionStatus = await Permission.contacts.request();
-      return permissionStatus;
-    } else {
-      return permission;
-    }
-  }
-
-  void _handleInvalidPermissions(PermissionStatus permissionStatus) {
-    if (permissionStatus == PermissionStatus.denied) {
-      const snackBar = const SnackBar(content: Text('연락처 데이터에 대한 액세스가 거부되었습니다.'));
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      // openAppSettings();
-      // Navigator.pop(context);
-    }
-    // else if (permissionStatus == PermissionStatus.permanentlyDenied) {
-    //   const snackBar =
-    //   const SnackBar(content: Text('단말기에서 연락처 데이터를 사용할 수 없습니다.'));
-    //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-    //   openAppSettings();
-    //   Navigator.pop(context);
+    // PermissionStatus permissionStatus = await _getContactPermission();
+    // if (permissionStatus == PermissionStatus.granted) {
+    //   downloadList();
+    // } else {
+    //   _contact = await ContactsService.getContacts();
+    //   result = _contact.toList();
+    //   _handleInvalidPermissions(permissionStatus);
     // }
   }
+
+  Future<bool> _checkContact() async {
+    bool status = await Permission.contacts.isGranted;
+    print('연락처 체크값 : ${status}');
+    if (status == true) {
+      return Future.value(true);
+    } else {
+      return Future.value(false);
+    }
+  }
+
+  // Future<PermissionStatus> _getContactPermission() async {
+  //   PermissionStatus permission = await Permission.contacts.status;
+  //   if (permission != PermissionStatus.granted &&
+  //       permission != PermissionStatus.denied) {
+  //     PermissionStatus permissionStatus = await Permission.contacts.request();
+  //     return permissionStatus;
+  //   } else {
+  //     return permission;
+  //   }
+  // }
+  //
+  // void _handleInvalidPermissions(PermissionStatus permissionStatus) {
+  //   if (permissionStatus == PermissionStatus.denied) {
+  //     const snackBar = const SnackBar(content: Text('연락처 데이터에 대한 액세스가 거부되었습니다.'));
+  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //     // openAppSettings();
+  //     // Navigator.pop(context);
+  //   }
+  //   // else if (permissionStatus == PermissionStatus.permanentlyDenied) {
+  //   //   const snackBar =
+  //   //   const SnackBar(content: Text('단말기에서 연락처 데이터를 사용할 수 없습니다.'));
+  //   //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //   //   openAppSettings();
+  //   //   Navigator.pop(context);
+  //   // }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -141,3 +171,4 @@ class MemberState extends State<Member> {
     }
   }
 }
+
