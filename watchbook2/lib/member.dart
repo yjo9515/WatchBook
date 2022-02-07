@@ -26,7 +26,7 @@ class MemberState extends State<Member> {
     super.initState();
     _checkContact().then((value) async => {
       if (value == false)
-        {_getStatuses(context)}
+        {_getStatuses()}
       else {
         downloadList()
       }
@@ -34,7 +34,7 @@ class MemberState extends State<Member> {
   }
 
   // 연락처권한요청
-  Future<bool> _getStatuses(BuildContext context) async {
+  Future<bool> _getStatuses() async {
     Map<Permission, PermissionStatus> statuses =
     await [Permission.contacts].request();
     if (await Permission.contacts.isGranted == true) {
