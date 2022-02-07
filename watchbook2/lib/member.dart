@@ -36,8 +36,8 @@ class MemberState extends State<Member> {
   // 연락처권한요청
   Future<bool> _getStatuses(BuildContext context) async {
     Map<Permission, PermissionStatus> statuses =
-    await [Permission.contacts].request();
-    if (await Permission.contacts.isGranted == true) {
+    await [Permission.storage].request();
+    if (await Permission.storage.isGranted == true) {
       print('연락처 권한 동의');
       return Future.value(true);
     } else {
@@ -58,7 +58,7 @@ class MemberState extends State<Member> {
   }
 
   Future<bool> _checkContact() async {
-    var status = await Permission.contacts.status;
+    var status = await Permission.storage.status;
     print('연락처 체크값 : ${status}');
     if (status.isGranted) {
       return Future.value(true);
