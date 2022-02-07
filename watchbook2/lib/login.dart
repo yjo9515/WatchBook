@@ -224,7 +224,7 @@ Future<void> _facebookLoginButtonPressed() async {
                               .size
                               .width,
                           child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
                                 Container(
