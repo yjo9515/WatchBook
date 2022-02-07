@@ -152,9 +152,7 @@ class MemberState extends State<Member> {
       String apiurl = 'https://api.watchbook.tv/Addressbook/joinsProcess?'; //토큰요청
       Map<String, String> headers = {HttpHeaders.authorizationHeader : "Bearer ${tokenValue}"};
       print(apiurl);
-      print(base64.encode(result[11].avatar));
       String base = 'data:image/png;base64, ';
-      print('${base+base64.encode(result[11].avatar)}');
       var response = await http.MultipartRequest("POST",Uri.parse(apiurl),
         );
         response.headers.addAll(headers);
