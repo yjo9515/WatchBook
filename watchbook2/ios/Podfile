@@ -74,7 +74,7 @@ config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
         # 'PERMISSION_MEDIA_LIBRARY=0',
 
         ## dart: PermissionGroup.sensors
-        # 'PERMISSION_SENSORS=0',
+        'PERMISSION_SENSORS=1',
 
         ## dart: PermissionGroup.bluetooth
         # 'PERMISSION_BLUETOOTH=0'
