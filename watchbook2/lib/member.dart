@@ -166,6 +166,8 @@ class MemberState extends State<Member> {
                 //     ? null :
                 // response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
 
+              }else {
+                print(i);
               }
             }
           }
