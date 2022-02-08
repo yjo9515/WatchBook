@@ -156,15 +156,17 @@ class MemberState extends State<Member> {
         response.headers.addAll(headers);
         print(result[0].displayName);
         setState(() {
-          for(int i = 0; i < result.length; i++) {
-            response.fields["cart[${i}]"] = "${i}";
-            response.fields["name[${i}]"] = "${result[i].displayName}";
-            if( !_contactMaps[i]['phones'][0]['value'].isNotEmpty){
-              response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
-              // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
-              //     ? null :
-              // response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
+          if(result.length != 0){
+            for(int i = 0; i < result.length; i++) {
+              response.fields["cart[${i}]"] = "${i}";
+              response.fields["name[${i}]"] = "${result[i].displayName}";
+              if( !_contactMaps[i]['phones'][0]['value'].isNotEmpty){
+                response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
+                // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
+                //     ? null :
+                // response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
 
+              }
             }
           }
           chk = true;
