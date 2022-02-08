@@ -150,21 +150,21 @@ class MemberState extends State<Member> {
       // print(rs);
       String apiurl = 'https://api.watchbook.tv/Addressbook/joinsProcess?'; //토큰요청
       Map<String, String> headers = {HttpHeaders.authorizationHeader : "Bearer ${tokenValue}"};
-      print(apiurl);
       String base = 'data:image/png;base64, ';
       var response = await http.MultipartRequest("POST",Uri.parse(apiurl),
         );
         response.headers.addAll(headers);
         print(result[0].displayName);
         print(_contactMaps[0]['phones'][0]['value']);
-      // for(int i = 0; i < result.length; i++) {
+      for(int i = 0; i < result.length; i++) {
+        print(result[i].displayName);
       //   response.fields["cart[${i}]"] = "${i}";
       //   response.fields["name[${i}]"] = "${result[i].displayName}";
       //   response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
       // //   (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
       // //       ? null :
       // //   response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
-      // }
+      }
       var send = await response.send();
       String res = await send.stream.bytesToString();
       print(res);
