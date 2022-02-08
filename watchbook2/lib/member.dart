@@ -163,7 +163,7 @@ class MemberState extends State<Member> {
               if( !_contactMaps[i]['phones'][0]['value'].isNotEmpty){
                 var k = _contactMaps[i]['phones'][0]['value'];
                 print(k);
-                response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
+                //response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
                 // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
                 //     ? null :
                 // response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
