@@ -137,16 +137,16 @@ class MemberState extends State<Member> {
       String? tokenValue = sharedPreferences.getString('token');
       String rs = '';
       String avatar = '';
-      for(int i = 0; i < result.length; i++ ){
-        // print('${i}');
-        // print(result[i].displayName);
-        // print(_contactMaps[i]['phones'][0]['value']);
-        //print('cart[]=${i}&name[${i}]=${result[i].displayName}&handphone[${i}]=${_contactMaps[i]['phones'][0]['value']}');
-        // print(result[i].avatar);
-        avatar = base64.encode(result[i].avatar);
-        rs = rs + 'cart[]=${i}&name[${i}]=${result[i].displayName}&handphone[${i}]=${_contactMaps[i]['phones'][0]['value']}&';
-        // print(cart);
-      }
+      // for(int i = 0; i < result.length; i++ ){
+      //   // print('${i}');
+      //   // print(result[i].displayName);
+      //   // print(_contactMaps[i]['phones'][0]['value']);
+      //   //print('cart[]=${i}&name[${i}]=${result[i].displayName}&handphone[${i}]=${_contactMaps[i]['phones'][0]['value']}');
+      //   // print(result[i].avatar);
+      //   avatar = base64.encode(result[i].avatar);
+      //   rs = rs + 'cart[]=${i}&name[${i}]=${result[i].displayName}&handphone[${i}]=${_contactMaps[i]['phones'][0]['value']}&';
+      //   // print(cart);
+      // }
       // print(rs);
       // String apiurl = 'https://api.watchbook.tv/Addressbook/joinsProcess?'; //토큰요청
       // Map<String, String> headers = {HttpHeaders.authorizationHeader : "Bearer ${tokenValue}"};
