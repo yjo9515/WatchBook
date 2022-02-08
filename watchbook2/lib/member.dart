@@ -162,6 +162,7 @@ class MemberState extends State<Member> {
               response.fields["cart[${i}]"] = "${i}";
               response.fields["name[${i}]"] = "${result[i].displayName}";
               if( !_contactMaps[i]['phones'][0]['value'].isNotEmpty){
+                print(_contactMaps[0]['phones'][0]['value']);
                 var k = _contactMaps[i]['phones'][0]['value'];
                 print(k);
                 //response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
