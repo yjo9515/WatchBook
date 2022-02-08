@@ -161,10 +161,10 @@ class MemberState extends State<Member> {
         response.fields["name[${i}]"] = "${result[i].displayName}";
         if(_contactMaps != null && _contactMaps.length != 0){
           response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
+          (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
+              ? null :
+          response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
         }
-        (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
-            ? null :
-        response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
       }
       var send = await response.send();
       String res = await send.stream.bytesToString();
