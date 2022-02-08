@@ -161,7 +161,7 @@ class MemberState extends State<Member> {
           for(int i = 0; i < result.length; i++) {
             response.fields["cart[${i}]"] = "${i}";
             response.fields["name[${i}]"] = "${result[i].displayName}";
-            if(!_contactMaps[i]['phones'][0]['value'].length != 0 && !_contactMaps[i]['phones'][0]['value'].isNotEmpty){
+            if( !_contactMaps[i]['phones'][0]['value'].isNotEmpty){
               response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
               // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
               //     ? null :
