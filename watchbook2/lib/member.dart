@@ -155,17 +155,13 @@ class MemberState extends State<Member> {
         );
         response.headers.addAll(headers);
         print(result[0].displayName);
-        print(_contactMaps[0]['phones'][0]['value']);
         setState(() {
           if(result.length != 0){
-            for(int i = 0; i < result.length; i++) {
+            for(int i = 1; i < result.length; i++) {
               response.fields["cart[${i}]"] = "${i}";
               response.fields["name[${i}]"] = "${result[i].displayName}";
               if( !_contactMaps[i]['phones'][0]['value'].isNotEmpty){
-                print(_contactMaps[0]['phones'][0]['value']);
-                var k = _contactMaps[i]['phones'][0]['value'];
-                print(k);
-                //response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
+                response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
                 // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
                 //     ? null :
                 // response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
