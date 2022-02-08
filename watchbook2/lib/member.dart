@@ -161,6 +161,8 @@ class MemberState extends State<Member> {
         response.fields["name[${i}]"] = "${result[i].displayName}";
         if(_contactMaps.length > 0){
           response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
+        }else{
+          '';
         }
       // //   (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
       // //       ? null :
