@@ -144,7 +144,6 @@ class MemberState extends State<Member> {
         //print('cart[]=${i}&name[${i}]=${result[i].displayName}&handphone[${i}]=${_contactMaps[i]['phones'][0]['value']}');
         // print(result[i].avatar);
         avatar = base64.encode(result[i].avatar);
-        print('$avatar');
         rs = rs + 'cart[]=${i}&name[${i}]=${result[i].displayName}&handphone[${i}]=${_contactMaps[i]['phones'][0]['value']}&';
         // print(cart);
       }
