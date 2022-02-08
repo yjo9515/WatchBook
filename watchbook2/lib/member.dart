@@ -130,6 +130,8 @@ class MemberState extends State<Member> {
       _contact = await ContactsService.getContacts();
       result = _contact.toList();
       print(chk);
+      List _contactMaps = result.map((e) => e.toMap()).toList();
+      print(_contactMaps);
       print(result.length);
       SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
       String? tokenValue = sharedPreferences.getString('token');
@@ -156,7 +158,6 @@ class MemberState extends State<Member> {
         setState(() {
           if(result.length != 0){
             for(int i = 0; i < result.length; i++) {
-              List _contactMaps = result.map((e) => e.toMap()).toList();
               response.fields["cart[${i}]"] = "${i}";
               response.fields["name[${i}]"] = "${result[i].displayName}";
               if( !_contactMaps[i]['phones'][0]['value'].isNotEmpty){
