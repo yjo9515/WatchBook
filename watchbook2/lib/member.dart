@@ -164,9 +164,9 @@ class MemberState extends State<Member> {
         );
         response.headers.addAll(headers);
         print(result[0].displayName);
-        print(result[0].phones = [Item()]);
+
           if(result.length > 1){
-            for(int i = 0; i < result.length; i++) {
+            for(int i = 0; i < result.length-1; i++) {
               response.fields["cart[${i}]"] = "${i}";
               response.fields["name[${i}]"] = "${result[i].displayName}";
               if( _contactMaps[i]['phones'][0]['value'] == null){
