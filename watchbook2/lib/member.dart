@@ -28,6 +28,7 @@ class MemberState extends State<Member> {
       if (value == false)
         {_getStatuses()}
       else {
+        _contact = await ContactsService.getContacts(),
         downloadList()
       }
     });
@@ -127,7 +128,7 @@ class MemberState extends State<Member> {
 
   downloadList() async {
     try{
-      _contact = await ContactsService.getContacts();
+
       result = _contact.toList();
       print(chk);
       List _contactMaps = result.map((e) => e.toMap()).toList();
@@ -155,7 +156,6 @@ class MemberState extends State<Member> {
       var response = await http.MultipartRequest("POST",Uri.parse(apiurl),
         );
         response.headers.addAll(headers);
-
         print(result[0].displayName);
         setState(() {
           if(result.length != 0){
@@ -164,7 +164,7 @@ class MemberState extends State<Member> {
               response.fields["name[${i}]"] = "${result[i].displayName}";
               if( _contactMaps[i]['phones'][0]['value']?.isEmpty){
                 print("${i}번 빔");
-              }else if(_contactMaps[i]['phones'][0]['value'] == _contactMaps[i+1]['phones'][0]['value']) {
+              }else {
                 print('유레카');
                 response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
                 // throw RangeError.index(result.length,'default');
