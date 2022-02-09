@@ -157,7 +157,7 @@ class MemberState extends State<Member> {
         );
         response.headers.addAll(headers);
         print(result[0].displayName);
-        setState(() {
+
           if(result.length > 1){
             for(int i = 0; i < result.length; i++) {
               response.fields["cart[${i}]"] = "${i}";
@@ -174,6 +174,7 @@ class MemberState extends State<Member> {
               }
             }
           }
+      setState(() {
           chk = true;
         });
 
