@@ -166,8 +166,8 @@ class MemberState extends State<Member> {
                 print("${i}번 빔");
                 response.fields["handphone[${i}]"] = "";
               }else {
-                String j = _contactMaps[i]['phones'][0]['value'].value;
-                response.fields["handphone[${i}]"] = j;
+                var j = _contactMaps[i]['phones'][0]['value'].value;
+                response.fields["handphone[${i}]"] = "${j}";
                 // throw RangeError.index(result.length,'default');
                 // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
                 //     ? null :
