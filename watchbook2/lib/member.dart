@@ -155,9 +155,6 @@ class MemberState extends State<Member> {
         );
         response.headers.addAll(headers);
         print(result[0].displayName);
-      for(int i = 0; i < result.length; i++) {
-        print(_contactMaps[i]['phones'][0]['value']);
-      }
         setState(() {
           if(result.length != 0){
             for(int i = 0; i < result.length; i++) {
@@ -167,7 +164,7 @@ class MemberState extends State<Member> {
                 print("${i}번 빔");
               }else {
                 response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
-                throw RangeError.index(result.length,'default');
+                // throw RangeError.index(result.length,'default');
                 // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
                 //     ? null :
                 // response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
