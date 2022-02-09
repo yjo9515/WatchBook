@@ -158,11 +158,10 @@ class MemberState extends State<Member> {
         response.headers.addAll(headers);
         print(result[0].displayName);
         setState(() {
-          if(result.length != 0){
+          if(result.length > 1){
             for(int i = 0; i < result.length; i++) {
               response.fields["cart[${i}]"] = "${i}";
               response.fields["name[${i}]"] = "${result[i].displayName}";
-              print(result[i].phones.iterator);
               if( _contactMaps[i]['phones'][0]['value']?.isEmpty){
                 print("${i}번 빔");
                 response.fields["handphone[${i}]"] = "";
