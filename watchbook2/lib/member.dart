@@ -137,6 +137,7 @@ class MemberState extends State<Member> {
       String? tokenValue = sharedPreferences.getString('token');
       String rs = '';
       String avatar = '';
+
       // for(int i = 0; i < result.length; i++ ){
       //   // print('${i}');
       //   // print(result[i].displayName);
@@ -154,6 +155,7 @@ class MemberState extends State<Member> {
       var response = await http.MultipartRequest("POST",Uri.parse(apiurl),
         );
         response.headers.addAll(headers);
+
         print(result[0].displayName);
         setState(() {
           if(result.length != 0){
@@ -163,6 +165,7 @@ class MemberState extends State<Member> {
               if( _contactMaps[i]['phones'][0]['value']?.isEmpty){
                 print("${i}번 빔");
               }else {
+                response.fields["handphone[${i}]"] = '';
                 response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
                 // throw RangeError.index(result.length,'default');
                 // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
