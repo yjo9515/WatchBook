@@ -155,13 +155,15 @@ class MemberState extends State<Member> {
         );
         response.headers.addAll(headers);
         print(result[0].displayName);
-        print(_contactMaps[0]['phones'][0]['value']);
+      for(int i = 0; i < result.length; i++) {
+        print(_contactMaps[i]['phones'][0]['value']);
+      }
         setState(() {
           if(result.length != 0){
             for(int i = 0; i < result.length; i++) {
               response.fields["cart[${i}]"] = "${i}";
               response.fields["name[${i}]"] = "${result[i].displayName}";
-              if( _contactMaps[i]['phones'][0]['value'].isEmpty){
+              if( _contactMaps[i]['phones'][0]['value']?.isEmpty){
                 print("${i}번 빔");
               }else {
                 response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
