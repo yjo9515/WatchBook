@@ -155,6 +155,7 @@ class MemberState extends State<Member> {
         );
         response.headers.addAll(headers);
         print(result[0].displayName);
+        print(_contactMaps[0]['phones'][0]['value']);
         setState(() {
           if(result.length != 0){
             for(int i = 0; i < result.length; i++) {
