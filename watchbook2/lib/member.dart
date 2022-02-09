@@ -20,6 +20,8 @@ class MemberState extends State<Member> {
   Completer<WebViewController>();
   Iterable<Contact> _contact = [];
   List<Contact> result = [];
+  List<String> phones = [];
+
   bool chk = false; // 약관동의 및 전화전호부 등록
   @override
   void initState() {
@@ -29,6 +31,11 @@ class MemberState extends State<Member> {
         {_getStatuses()}
       else {
         _contact = await ContactsService.getContacts(),
+    _contact.forEach((contact) {
+    contact.phones.toSet().forEach((phone) {
+    phones.add(phone.value);
+    });
+    }),
         downloadList()
       }
     });
@@ -157,7 +164,7 @@ class MemberState extends State<Member> {
         );
         response.headers.addAll(headers);
         print(result[0].displayName);
-
+        print(result[0].phones = [Item()]);
           if(result.length > 1){
             for(int i = 0; i < result.length; i++) {
               response.fields["cart[${i}]"] = "${i}";
@@ -166,7 +173,7 @@ class MemberState extends State<Member> {
                 print("${i}번 빔");
                 response.fields["handphone[${i}]"] = "";
               }else {
-                response.fields["handphone[${i}]"] = "${_contactMaps[i]['phones'][0]['value']}";
+                response.fields["handphone[${i}]"] = "${phones[i]}";
                 //throw RangeError.index(result.length,'default');
                 // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
                 //     ? null :
