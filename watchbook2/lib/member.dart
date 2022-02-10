@@ -82,7 +82,6 @@ class MemberState extends State<Member> {
       return Future.value(false);
     }
   }
-
   // Future<PermissionStatus> _getContactPermission() async {
   //   PermissionStatus permission = await Permission.contacts.status;
   //   if (permission != PermissionStatus.granted &&
