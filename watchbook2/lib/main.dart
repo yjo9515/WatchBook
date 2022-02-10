@@ -307,6 +307,7 @@ class _MainPageState extends State<MainPage> {
                                     children: [
                                       Container(
                                         height: 128,
+                                        padding: const EdgeInsets.only(top: 20),
                                         decoration: const BoxDecoration(
                                           color: Color.fromARGB(255, 217, 84, 84),
                                         ),

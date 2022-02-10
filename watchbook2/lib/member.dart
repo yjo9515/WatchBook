@@ -134,7 +134,6 @@ class MemberState extends State<Member> {
 
   downloadList() async {
     try{
-
       result = _contact.toList();
       print(chk);
       List _contactMaps = result.map((e) => e.toMap()).toList();
