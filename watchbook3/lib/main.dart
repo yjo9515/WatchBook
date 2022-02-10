@@ -284,7 +284,7 @@ class _MainPageState extends State<MainPage> {
                 )),
           ));
     } else {
-      if (isToken != true) {
+      if (isToken == true) {
         return WillPopScope(
           //웹뷰(웹에서 받아온 javascript값에 따라 루트 변경)
           onWillPop: () => _goBack(context),

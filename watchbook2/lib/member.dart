@@ -163,24 +163,23 @@ class MemberState extends State<Member> {
       var response = await http.MultipartRequest("POST",Uri.parse(apiurl),
         );
         response.headers.addAll(headers);
-        print(result[0].displayName);
-
-          if(result.length > 1){
-            for(int i = 0; i < result.length-1; i++) {
+            for(int i = 0; i < result.length; i++) {
               response.fields["cart[${i}]"] = "${i}";
               response.fields["name[${i}]"] = "${result[i].displayName}";
-              if( _contactMaps[i]['phones'][0]['value'] == null){
+              if( phones[i] == null){
                 print("${i}번 빔");
                 response.fields["handphone[${i}]"] = "";
               }else {
                 response.fields["handphone[${i}]"] = "${phones[i]}";
-                //throw RangeError.index(result.length,'default');
-                // (base64.encode(result[i].avatar) == null || base64.encode(result[i].avatar) == '')
-                //     ? null :
-                // response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
+                if(result[i].avatar == null){
+                  response.fields["picture[data][${i}]"] = "";
+                }else
+                  {
+                    response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
+                  }
               }
             }
-          }
+
       setState(() {
           chk = true;
         });
