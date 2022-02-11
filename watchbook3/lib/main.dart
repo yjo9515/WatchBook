@@ -225,6 +225,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     if (loading == true) {
       //스플래시 화면
       return WillPopScope(
