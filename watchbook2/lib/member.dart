@@ -54,6 +54,8 @@ class MemberState extends State<Member> {
         return Future.value(false);
       }
     }else{
+      Map<Permission, PermissionStatus> statuses =
+      await [Permission.contacts].request();
       const snackBar =
       const SnackBar(content: Text('연락처 권한을 동의해 주세요.'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
