@@ -130,7 +130,7 @@ class MemberState extends State<Member> {
               javascriptMode: JavascriptMode.unrestricted,
             )
           : const Center(
-              child: Text('불러오고 있어유'),
+              child: CircularProgressIndicator(),
             ),
     );
   }
