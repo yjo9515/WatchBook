@@ -223,6 +223,9 @@ Future<void> _facebookLoginButtonPressed() async {
                           MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
                               .size
                               .width,
+                          height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
+                              .size
+                              .height,
                           child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
