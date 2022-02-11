@@ -27,18 +27,19 @@ class MemberState extends State<Member> {
   void initState() {
     super.initState();
     _checkContact().then((value) async => {
-      if (value == false)
-        {_getStatuses()}
-      else {
-        _contact = await ContactsService.getContacts(),
-    _contact.forEach((contact) {
-    contact.phones.toSet().forEach((phone) {
-    phones.add(phone.value);
-    });
-    }),
-        downloadList()
-      }
-    });
+          if (value == false)
+            {_getStatuses()}
+          else
+            {
+              _contact = await ContactsService.getContacts(),
+              _contact.forEach((contact) {
+                contact.phones.toSet().forEach((phone) {
+                  phones.add(phone.value);
+                });
+              }),
+              downloadList()
+            }
+        });
   }
 
   // 연락처권한요청
@@ -113,25 +114,25 @@ class MemberState extends State<Member> {
 
   @override
   Widget build(BuildContext context) {
-   return Scaffold(
-     appBar: new AppBar(
-       title: const Text('전화번호부'),
-     ),
-     body:
-     chk == true
-     ?
-     WebView(
-       key: UniqueKey(),
-       initialUrl: 'https://m.watchbook.tv/friends/list',
-       onWebViewCreated: (WebViewController webViewController) {
-         _controllerCompleter.future
-             .then((value) => _webViewController = value);
-         _controllerCompleter.complete(webViewController);
-       },
-       javascriptMode: JavascriptMode.unrestricted,
-     )
-     : const Center(child: Text('불러오고 있어유'),),
-   );
+    return Scaffold(
+      appBar: new AppBar(
+        title: const Text('전화번호부'),
+      ),
+      body: chk == true
+          ? WebView(
+              key: UniqueKey(),
+              initialUrl: 'https://m.watchbook.tv/friends/list',
+              onWebViewCreated: (WebViewController webViewController) {
+                _controllerCompleter.future
+                    .then((value) => _webViewController = value);
+                _controllerCompleter.complete(webViewController);
+              },
+              javascriptMode: JavascriptMode.unrestricted,
+            )
+          : const Center(
+              child: Text('불러오고 있어유'),
+            ),
+    );
   }
 
   downloadList() async {
