@@ -65,6 +65,7 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft,DeviceOrientation.landscapeRight]);
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -161,7 +162,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft,DeviceOrientation.landscapeRight]);
     _checkStoarge().then((value) async => {
       if (value == false)
         {_getStatuses(context)}
@@ -225,7 +226,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft,DeviceOrientation.landscapeRight]);
     if (loading == true) {
       //스플래시 화면
       return WillPopScope(
