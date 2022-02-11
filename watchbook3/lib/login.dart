@@ -148,7 +148,8 @@ Future<void> _facebookLoginButtonPressed() async {
     errormsg = "";
     error = false;
     KakaoContext.clientId = 'e705415345f23aab069be7b7e95e9826';
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    // SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     super.initState();
   }
   @override
