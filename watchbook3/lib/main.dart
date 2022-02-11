@@ -160,6 +160,7 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
     _checkStoarge().then((value) async => {
       if (value == false)
         {_getStatuses(context)}
