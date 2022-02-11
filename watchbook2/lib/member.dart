@@ -54,8 +54,8 @@ class MemberState extends State<Member> {
         return Future.value(false);
       }
     }else{
-      Map<Permission, PermissionStatus> statuses =
-      await [Permission.contacts].request();
+      // Map<Permission, PermissionStatus> statuses =
+      // await [Permission.contacts].request();
       const snackBar =
       const SnackBar(content: Text('연락처 권한을 동의해 주세요.'));
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -157,32 +157,36 @@ class MemberState extends State<Member> {
       //   // print(cart);
       // }
       // print(rs);
-      String apiurl = 'https://api.watchbook.tv/Addressbook/joinsProcess?'; //토큰요청
-      Map<String, String> headers = {HttpHeaders.authorizationHeader : "Bearer ${tokenValue}"};
+      String apiurl =
+          'https://api.watchbook.tv/Addressbook/joinsProcess?'; //토큰요청
+      Map<String, String> headers = {
+        HttpHeaders.authorizationHeader: "Bearer ${tokenValue}"
+      };
       String base = 'data:image/png;base64, ';
-      var response = await http.MultipartRequest("POST",Uri.parse(apiurl),
-        );
-        response.headers.addAll(headers);
-            for(int i = 0; i < result.length; i++) {
-              response.fields["cart[${i}]"] = "${i}";
-              response.fields["name[${i}]"] = "${result[i].displayName}";
-              if( phones[i] == null){
-                print("${i}번 빔");
-                response.fields["handphone[${i}]"] = "";
-              }else {
-                response.fields["handphone[${i}]"] = "${phones[i]}";
-                if(result[i].avatar == null){
-                  response.fields["picture[data][${i}]"] = "";
-                }else
-                  {
-                    response.fields["picture[data][${i}]"] = "${base+base64.encode(result[i].avatar)}";
-                  }
-              }
-            }
-
+      var response = await http.MultipartRequest(
+        "POST",
+        Uri.parse(apiurl),
+      );
+      response.headers.addAll(headers);
+      for (int i = 0; i < result.length; i++) {
+        response.fields["cart[${i}]"] = "${i}";
+        response.fields["name[${i}]"] = "${result[i].displayName}";
+        if (phones[i] == null) {
+          print("${i}번 빔");
+          response.fields["handphone[${i}]"] = "";
+        } else {
+          response.fields["handphone[${i}]"] = "${phones[i]}";
+        }
+        if (result[i].avatar == null) {
+          response.fields["picture[data][${i}]"] = "";
+        } else {
+          response.fields["picture[data][${i}]"] =
+              "${base + base64.encode(result[i].avatar)}";
+        }
+      }
       setState(() {
           chk = true;
-        });
+      });
 
       var send = await response.send();
       String res = await send.stream.bytesToString();
