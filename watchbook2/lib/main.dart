@@ -579,7 +579,9 @@ class _MainPageState extends State<MainPage> {
                                                       fontSize: 14,
                                                       fontWeight: FontWeight.bold),
                                                 ),
-                                                onPressed: () {},
+                                                onPressed: () async {
+                                                  logoutProcess();
+                                                },
                                               )
                                             ],
                                           ),
