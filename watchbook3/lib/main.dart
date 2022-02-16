@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udp/udp.dart';
 import 'package:watchbookapp/findId.dart';
@@ -106,8 +107,6 @@ void main(List<String> args) async {
   receiver.asStream(timeout: const Duration(seconds: 20)).listen((datagram) {
     var str = String.fromCharCodes(datagram!.data);
     stdout.write(str);
-
-
   });
 
   RawDatagramSocket.bind(InternetAddress.ANY_IP_V4, 5000).then((RawDatagramSocket socket){
@@ -131,8 +130,8 @@ void main(List<String> args) async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Auth System",
+    return GetMaterialApp(
+      title: "WatchBook",
       debugShowCheckedModeBanner: false,
       home: MainPage(),
     );

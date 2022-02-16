@@ -115,13 +115,7 @@ class _MainPageState extends State<MainPage> {
   WebViewController? _webViewController;
   final Completer<WebViewController> _controllerCompleter =
       Completer<WebViewController>();
-  String id = '';
   String url = '';
-  String msg = '';
-  late Future<String?> currentUrl;
-
-
-  //Make sure this function return Future<bool> otherwise you will get an error
 
   @override
   void initState() {
@@ -913,8 +907,6 @@ class NewMemPage2 extends StatefulWidget {
 class NewMemPage2State extends State<NewMemPage2> {
   bool _isStudentChecked = true;
   bool _isTeacherChecked = false;
-  bool? value;
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
