@@ -35,24 +35,24 @@ class AppPages {
               name: Routes.NEWMEMBER,
               page: () => newMember_view(),
             ),
-            GetPage(
-              name: Routes.HOME,
-              page: () => home_view(),
-              children: [
-                GetPage(
-                    name: Routes.PUSH,
-                    page: () => push_view(),
-                    children: [
-                      GetPage(
-                        name: Routes.RESULT,
-                        page: () => result_view(),
-                      )
-                    ]
-                ),
-              ],
-            ),
           ],
         ),
+        GetPage(
+          name: Routes.HOME,
+          page: () => home_view(),
+          children: [
+            GetPage(
+                name: Routes.PUSH,
+                page: () => push_view(),
+                children: [
+                  GetPage(
+                    name: Routes.RESULT,
+                    page: () => result_view(),
+                  )
+                ]
+            ),
+          ],
+        )
       ]
     ),
   ];
