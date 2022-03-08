@@ -30,7 +30,7 @@ void main() {
   //     sound: true,
   //   );
   // }
-  runApp(GetMaterialApp(home: MainPage()));
+  runApp(GetMaterialApp(home: splash_view()));
 }
 
 class MainPage extends StatelessWidget{
