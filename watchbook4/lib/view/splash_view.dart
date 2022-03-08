@@ -26,7 +26,7 @@ class splash_view extends GetView<HomeController>{
                   .height,
               decoration: const BoxDecoration(
                 image:  DecorationImage(
-                  image: NetworkImage('https://watchbook.tv/image/app/default/logo.png'),
+                  image: NetworkImage('https://watchbook.tv/image/app/default/background.png'),
                   fit: BoxFit.fill,
                 ),
               ),
