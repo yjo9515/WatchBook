@@ -1,4 +1,8 @@
-class WatchbookMemberModel {
+
+
+import 'package:kakao_flutter_sdk/all.dart';
+
+class UserModel{
   late String joinType;
   late String joinId;
   late String joinPw;
@@ -7,7 +11,7 @@ class WatchbookMemberModel {
   late String joinNickname;
   late String joinPhone;
 
-  WatchbookMemberModel({
+  UserModel({
     required this.joinType,
     required this.joinId,
     required this.joinPw,
@@ -17,7 +21,7 @@ class WatchbookMemberModel {
     required this.joinPhone,
   });
 
-  WatchbookMemberModel.fromJson(Map<String, dynamic> json){
+  UserModel.fromJson(Map<String, dynamic> json){
     joinType = json['type'];
     joinId = json['id'];
     joinPw = json['passwd'];
@@ -26,6 +30,7 @@ class WatchbookMemberModel {
     joinName = json['name'];
     joinPhone = json['handphone'];
   }
+
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['type'] = this.joinType;
@@ -38,27 +43,4 @@ class WatchbookMemberModel {
     return data;
   }
 
-  String getId() => joinId;
-}
-
-class WatchbookCheckModel{
-  bool loading;
-  bool isToken;
-  String url;
-  bool isStudentChecked;
-  bool isTeacherChecked;
-  bool isAgree;
-  bool isEmailAgree;
-  bool isSMSAgree;
-
-  WatchbookCheckModel({
-    this.loading = true,
-    this.isToken = true,
-    this.url = 'http://m.watchbook.tv/',
-    this.isTeacherChecked = true,
-    this.isStudentChecked = false,
-    this.isAgree = false,
-    this.isEmailAgree = false,
-    this.isSMSAgree = false
-  });
 }

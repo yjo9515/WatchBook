@@ -11,6 +11,7 @@ class FindId extends StatefulWidget {
     return _FindId();
   }
 }
+
 class _FindId extends State<FindId> {
   String phone = '';
   String name = '';
