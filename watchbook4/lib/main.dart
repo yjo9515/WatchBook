@@ -30,7 +30,7 @@ void main() {
   //     sound: true,
   //   );
   // }
-  runApp(GetMaterialApp(home: splash_view()));
+  runApp(GetMaterialApp(home: MainPage()));
 }
 
 class MainPage extends StatelessWidget{
@@ -38,8 +38,10 @@ class MainPage extends StatelessWidget{
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: splash_view(),
+
       initialRoute: AppPages.INITIAL,
+      getPages: AppPages.routes
+      ,
     );
   }
 
