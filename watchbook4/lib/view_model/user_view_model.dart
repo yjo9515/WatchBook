@@ -43,8 +43,4 @@ class UserViewModel extends GetxController{
       }
     });
   }
-
-
-
-
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/routes/app_pages.dart';
+import 'package:watchbook4/view/splash_view.dart';
 
 void main() {
   // WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,7 @@ void main() {
   //     sound: true,
   //   );
   // }
-  runApp(GetMaterialApp(home: MainPage()));
+  runApp(GetMaterialApp(home: splash_view()));
 }
 
 class MainPage extends StatelessWidget{
@@ -37,7 +38,7 @@ class MainPage extends StatelessWidget{
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainPage(),
+      home: splash_view(),
       initialRoute: AppPages.INITIAL,
     );
   }
