@@ -30,20 +30,11 @@ void main() {
   //     sound: true,
   //   );
   // }
-  runApp(GetMaterialApp(home: splash_view()));
-}
-
-class MainPage extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-
-      initialRoute: AppPages.INITIAL,
-      getPages: AppPages.routes
-      ,
-    );
-  }
-
+  runApp(
+    GetMaterialApp(
+    debugShowCheckedModeBanner: false,
+    initialRoute: AppPages.INITIAL,
+    getPages: AppPages.routes,
+  ));
 }
 
