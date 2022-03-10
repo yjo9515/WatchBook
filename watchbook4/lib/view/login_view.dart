@@ -24,8 +24,8 @@ class login_view extends GetView<HomeController>{
   late String id, passwd;
   bool _isObscure = true;
 
-  final _id = TextEditingController();
-  final _passwd = TextEditingController();
+  var _id = TextEditingController();
+  var _passwd = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
