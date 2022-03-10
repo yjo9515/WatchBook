@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:watchbook4/binding/binding.dart';
 import 'package:watchbook4/routes/app_pages.dart';
 import 'package:watchbook4/view/splash_view.dart';
 
@@ -32,6 +33,7 @@ void main() {
   // }
   runApp(
     GetMaterialApp(
+      initialBinding: SplahBinding(),
       debugShowCheckedModeBanner: false,
       initialRoute: AppPages.INITIAL,
       getPages: AppPages.routes,
