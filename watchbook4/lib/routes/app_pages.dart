@@ -18,7 +18,7 @@ class AppPages {
     GetPage(
       name: Routes.SPLASH,
       page: () => splash_view(),
-      binding: HomeBinding(),
+      binding: SplahBinding(),
       children:
       [
         GetPage(
