@@ -39,6 +39,7 @@ void main() {
       initialRoute: AppPages.INITIAL,
       getPages: [GetPage(
           name: Routes.SPLASH,
+          binding: SplahBinding(),
           page: () => splash_view())],
     )
   );
