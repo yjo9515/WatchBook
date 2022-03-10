@@ -10,5 +10,6 @@ class SplashController extends GetxController {
     Timer(const Duration(seconds: 3),() => Get.offAll(login_view()));
     update();
     super.onInit();
+    print('dd');
   }
 }
