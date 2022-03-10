@@ -1,16 +1,30 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiServices extends GetxController {
-  TextEditingController _id = TextEditingController();
-  TextEditingController _passwd = TextEditingController();
 
+  loginStatus(tokenValue) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? tokenValue = sharedPreferences.getString('token');
+    //저장된 토큰값 가져오기
+    print("토큰값 : ${tokenValue}");
+    if (tokenValue != null) { //사용자 정보 전송
+      String apiurl = 'https://www.watchbook.tv/test';
+      var response = await http.post(Uri.parse(apiurl),
+          headers: {HttpHeaders.authorizationHeader: "Bearer ${tokenValue}"}
+      );
+      print(response.headers);
+      print(response.body);
+    }
+  }
 
-  Future login(_id,_passwd) async{
+  Future login(_id, _passwd) async {
     Get.dialog(Center(child: CircularProgressIndicator()),
         barrierDismissible: false);
     String apiurl = 'https://www.watchbook.tv/User/getToken'; //토큰요청
@@ -27,10 +41,10 @@ class ApiServices extends GetxController {
       //정상신호 일때
       print(response.body);
       Map<String, dynamic> jsondata = json.decode(response.body);
+
       return jsondata;
     } else {
       return false;
     }
-
   }
 }

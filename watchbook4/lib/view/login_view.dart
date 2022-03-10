@@ -27,7 +27,6 @@ class login_view extends GetView<HomeController>{
   final _id = TextEditingController();
   final _passwd = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
