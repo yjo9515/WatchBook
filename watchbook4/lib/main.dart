@@ -40,7 +40,7 @@ void main() {
       getPages: [GetPage(
           name: Routes.SPLASH,
           binding: BindingsBuilder((){
-            Get.put(SplashController());
+            Get.lazyPut<SplashController>(() => SplashController());
           }),
           page: () => splash_view())],
     )
