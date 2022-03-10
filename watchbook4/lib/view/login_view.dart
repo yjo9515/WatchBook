@@ -19,7 +19,7 @@ class login_view extends GetView<HomeController>{
   login_view({Key? key}) : super(key: key);
 
   final bool _isKakaoTalkInstalled = false;
-  late String errormsg;
+  late String errormsg = '';
   late bool error, showprogress;
   late String id, passwd;
   bool _isObscure = true;
@@ -53,8 +53,8 @@ class login_view extends GetView<HomeController>{
                           .width,
                       //make width of outer wrapper to 100%
                       decoration: const BoxDecoration(
-                        image: DecorationImage(
-                          image: AssetImage('images/default/background.png'),
+                        image:  DecorationImage(
+                          image: NetworkImage('https://watchbook.tv/image/app/default/background.png'),
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -85,8 +85,7 @@ class login_view extends GetView<HomeController>{
                                                 height: 34,
                                                 alignment: Alignment.centerLeft,
                                                 margin: const EdgeInsets.fromLTRB(0, 0, 110, 0),
-                                                child: Image.asset(
-                                                  'images/login_logo.png',
+                                                child:Image.network('https://watchbook.tv/image/app/default/logo.png',
                                                   fit: BoxFit.contain,
                                                   alignment: Alignment.centerLeft,
                                                 ) //title text
@@ -262,8 +261,8 @@ class login_view extends GetView<HomeController>{
                                                     crossAxisAlignment:
                                                     CrossAxisAlignment.center,
                                                     children: <Widget>[
-                                                      Image.asset(
-                                                        'images/login/kakao.png',
+                                                      Image.network(
+                                                        'https://watchbook.tv/image/app/login/kakao.png',
                                                         width: 36,
                                                         height: 36,
                                                         alignment: Alignment.bottomLeft,
@@ -296,8 +295,8 @@ class login_view extends GetView<HomeController>{
                                                     crossAxisAlignment:
                                                     CrossAxisAlignment.center,
                                                     children: <Widget>[
-                                                      Image.asset(
-                                                        'images/login/facebook.png',
+                                                      Image.network(
+                                                        'https://watchbook.tv/image/app/login/facebook.png',
                                                         width: 36,
                                                         height: 36,
                                                         alignment: Alignment.bottomLeft,
@@ -330,8 +329,8 @@ class login_view extends GetView<HomeController>{
                                                     crossAxisAlignment:
                                                     CrossAxisAlignment.center,
                                                     children: <Widget>[
-                                                      Image.asset(
-                                                        'images/login/naver.png',
+                                                      Image.network(
+                                                        'https://watchbook.tv/image/app/login/naver.png',
                                                         width: 36,
                                                         height: 36,
                                                         alignment: Alignment.bottomLeft,
