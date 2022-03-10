@@ -5,10 +5,8 @@ import 'package:watchbook4/view/login_view.dart';
 class SplashController extends GetxController {
   @override
   void onInit() {
-    print('dd');
-    print('dd');
+    print('스플레쉬 진입구간');
     Timer(const Duration(seconds: 3),() => Get.offAll(login_view()));
-    update();
     super.onInit();
   }
 }

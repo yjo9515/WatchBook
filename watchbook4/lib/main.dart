@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:watchbook4/binding/binding.dart';
-import 'package:watchbook4/controller/splash_controller.dart';
 import 'package:watchbook4/routes/app_pages.dart';
-import 'package:watchbook4/routes/app_routes.dart';
 import 'package:watchbook4/view/splash_view.dart';
 
 void main() {
@@ -37,12 +34,7 @@ void main() {
     GetMaterialApp(
       debugShowCheckedModeBanner: false,
       initialRoute: AppPages.INITIAL,
-      getPages: [GetPage(
-          name: Routes.SPLASH,
-          binding: BindingsBuilder((){
-            Get.lazyPut<SplashController>(() => SplashController());
-          }),
-          page: () => splash_view())],
+      getPages: AppPages.routes,
     )
   );
 }

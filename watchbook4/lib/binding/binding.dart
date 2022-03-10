@@ -5,8 +5,7 @@ import 'package:watchbook4/controller/splash_controller.dart';
 class SplahBinding implements Bindings{
   @override
   void dependencies() {
-    Get.lazyPut<SplashController>(() => SplashController());
-
+    Get.put(SplashController());
     Get.lazyPut<HomeController>(() => HomeController());
   }
 }
