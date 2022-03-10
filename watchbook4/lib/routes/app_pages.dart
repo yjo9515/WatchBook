@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:watchbook4/binding/binding.dart';
 import 'package:watchbook4/routes/app_routes.dart';
 import 'package:watchbook4/view/findId_view.dart';
 import 'package:watchbook4/view/findPw_view.dart';
@@ -17,6 +18,7 @@ class AppPages {
     GetPage(
       name: Routes.SPLASH,
       page: () => splash_view(),
+      binding: HomeBinding(),
       children:
       [
         GetPage(

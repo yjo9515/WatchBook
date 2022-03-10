@@ -32,9 +32,10 @@ void main() {
   // }
   runApp(
     GetMaterialApp(
-    debugShowCheckedModeBanner: false,
-    initialRoute: AppPages.INITIAL,
-    getPages: AppPages.routes,
-  ));
+      debugShowCheckedModeBanner: false,
+      initialRoute: AppPages.INITIAL,
+      getPages: AppPages.routes,
+    )
+  );
 }
 

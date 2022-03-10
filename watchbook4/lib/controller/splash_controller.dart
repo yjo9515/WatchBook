@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:watchbook4/view/login_view.dart';
 
 class SplashController extends GetxController {
+
   @override
   void onInit() {
     print('dd');
