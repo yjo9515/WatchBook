@@ -12,17 +12,14 @@ import 'package:watchbook4/controller/home_controller.dart';
 import 'package:watchbook4/view/findId_view.dart';
 import 'package:watchbook4/view/findPw_view.dart';
 import 'package:watchbook4/view/newMember_view.dart';
-import 'package:watchbook4/view_model/user_view_model.dart';
+import 'package:watchbook4/view_model/login_view_model.dart';
 
 class login_view extends GetView<HomeController>{
-
   login_view({Key? key}) : super(key: key);
-
-  final bool _isKakaoTalkInstalled = false;
-  late String errormsg = '';
-  late bool error, showprogress;
-  late String id, passwd;
+  bool _isKakaoTalkInstalled = false;
   bool _isObscure = true;
+  String id = '';
+  String passwd = '';
 
   var _id = TextEditingController();
   var _passwd = TextEditingController();
@@ -33,8 +30,9 @@ class login_view extends GetView<HomeController>{
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent
           //color set to transperent or set your own color
         ));
-    return GetBuilder<UserViewModel>(
-        builder: (userViewModel) =>
+    return GetBuilder<LoginViewModel>(
+        init: LoginViewModel(),
+        builder: (LoginViewModel) =>
             WillPopScope(
               onWillPop: () => _goBack(context),
               child: Scaffold(
@@ -93,7 +91,7 @@ class login_view extends GetView<HomeController>{
                                             Container(
                                               //show error message here
                                               padding: const EdgeInsets.all(10),
-                                              child: error ? errmsg(errormsg) : Container(),
+                                              child: LoginViewModel.error ? errmsg(LoginViewModel.errmsg) : Container(),
                                             ),
                                           ],
                                         ),
@@ -230,7 +228,7 @@ class login_view extends GetView<HomeController>{
                                           width: double.infinity,
                                           child: RaisedButton(
                                             onPressed: () {
-                                              userViewModel.login(_id, _passwd);
+                                              LoginViewModel.login(_id, _passwd,);
                                             },
                                             child: const Text(
                                               "로그인",
@@ -255,7 +253,9 @@ class login_view extends GetView<HomeController>{
                                               width: MediaQuery.of(context).size.width,
                                               height: 48,
                                               child: RaisedButton(
-                                                  onPressed: _kakaoLoginButtonPressed,
+                                                  onPressed:(){
+                                                    LoginViewModel.kakaoLoginButtonPressed();
+                                                  },
                                                   color: Colors.yellow,
                                                   child: Row(
                                                     crossAxisAlignment:
@@ -289,7 +289,9 @@ class login_view extends GetView<HomeController>{
                                               width: MediaQuery.of(context).size.width,
                                               height: 48,
                                               child: RaisedButton(
-                                                  onPressed: _facebookLoginButtonPressed,
+                                                  onPressed: (){
+                                                    LoginViewModel.facebookLoginButtonPressed();
+                                                  },
                                                   color: const Color.fromARGB(255, 60, 90, 154),
                                                   child: Row(
                                                     crossAxisAlignment:
@@ -323,7 +325,9 @@ class login_view extends GetView<HomeController>{
                                               width: MediaQuery.of(context).size.width,
                                               height: 48,
                                               child: RaisedButton(
-                                                  onPressed: _naverLoginButtonPressed,
+                                                  onPressed: () {
+                                                    LoginViewModel.naverLoginButtonPressed();
+                                                  },
                                                   color: const Color.fromARGB(255, 6, 190, 52),
                                                   child: Row(
                                                     crossAxisAlignment:
@@ -361,59 +365,6 @@ class login_view extends GetView<HomeController>{
               )
             )
     );
-  }
-
-  Future<void> _kakaoLoginButtonPressed() async {
-    final clientState = const Uuid().v4();
-    final url = Uri.https('kauth.kakao.com', '/oauth/authorize', {
-      'response_type': 'code',
-      'client_id': '66bae9d5fcdbfb877a8a74edabc18f7a',
-      'redirect_uri': 'https://www.watchbook.tv/oauth/kakao',
-      'state': clientState,
-    });
-    final result = await FlutterWebAuth.authenticate(
-        url: url.toString(), callbackUrlScheme: "webauthcallback");
-    final body = Uri.parse(result).queryParameters;
-    print(body);
-  }
-
-  Future<void> _naverLoginButtonPressed() async {
-    final clientState = const Uuid().v4();
-    final authUri = Uri.https('nid.naver.com', '/oauth2.0/authorize', {
-      'response_type': 'code',
-      'client_id': 'C_TAVu2tex3Yjadne2IQ',
-      'response_mode': 'form_post',
-      'redirect_uri': 'https://www.watchbook.tv/oauth/naver',
-      'state': clientState,
-    });
-    final authResponse = await FlutterWebAuth.authenticate(
-        url: authUri.toString(), callbackUrlScheme: "webauthcallback");
-    final code = Uri.parse(authResponse).queryParameters['code'];
-    final tokenUri = Uri.https('nid.naver.com', '/oauth2.0/token', {
-      'grant_type': 'authorization_code',
-      'client_id': 'C_TAVu2tex3Yjadne2IQ',
-      'client_secret': 'Z3ymBZN2Rd',
-      'code': code,
-      'state': clientState,
-    });
-    var tokenResult = await http.post(tokenUri);
-    final accessToken = json.decode(tokenResult.body)['access_token'];
-    final response = await http.get(Uri.parse(
-        'https://www.watchbook.tv/oauth/naver/token?accessToken=$accessToken'));
-  }
-
-  Future<void> _facebookLoginButtonPressed() async {
-    final LoginResult result = await FacebookAuth.instance
-        .login();
-    // by default we request the email and the public profile
-    // or FacebookAuth.i.login()
-    if (result.status == LoginStatus.success) {
-      // you are logged
-      final AccessToken accessToken = result.accessToken!;
-    } else {
-      print(result.status);
-      print(result.message);
-    }
   }
 
   Widget errmsg(String text) {

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/controller/home_controller.dart';
+import 'package:watchbook4/view/login_view.dart';
 
 class splash_view extends GetView<HomeController>{
   const splash_view({Key? key}) : super(key: key);
@@ -61,9 +62,6 @@ class splash_view extends GetView<HomeController>{
                           '즐겁고 재밌게.',
                           style: TextStyle(color: Colors.white, fontSize: 40),
                         ),
-                        RaisedButton(onPressed: () {
-                          Get.toNamed("/login_view");
-                        })
                       ],
                     ),
                   )

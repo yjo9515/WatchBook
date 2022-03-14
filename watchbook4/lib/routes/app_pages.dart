@@ -10,7 +10,6 @@ import 'package:watchbook4/view/push_view.dart';
 import 'package:watchbook4/view/result_view.dart';
 import 'package:watchbook4/view/splash_view.dart';
 
-
 class AppPages {
   static const INITIAL = Routes.SPLASH;
 
@@ -19,43 +18,32 @@ class AppPages {
       name: Routes.SPLASH,
       page: () => splash_view(),
       binding: SplahBinding(),
-      children:
-      [
-        GetPage(
-          name: Routes.LOGIN,
-          page: () => login_view(),
-          children: [
-            GetPage(
-              name: Routes.FINDID,
-              page: () => findId_view(),
-            ),
-            GetPage(
-              name: Routes.FINDPW,
-              page: () => findPw_view(),
-            ),
-            GetPage(
-              name: Routes.NEWMEMBER,
-              page: () => newMember_view(),
-            ),
-          ],
-        ),
-        GetPage(
-          name: Routes.HOME,
-          page: () => home_view(),
-          children: [
-            GetPage(
-                name: Routes.PUSH,
-                page: () => push_view(),
-                children: [
-                  GetPage(
-                    name: Routes.RESULT,
-                    page: () => result_view(),
-                  )
-                ]
-            ),
-          ],
-        )
-      ]
     ),
+    GetPage(
+      name: Routes.LOGIN,
+      page: () => login_view(),
+      binding: LoginBinding(),
+    ),
+    GetPage(
+      name: Routes.FINDID,
+      page: () => findId_view(),
+    ),
+    GetPage(
+      name: Routes.FINDPW,
+      page: () => findPw_view(),
+    ),
+    GetPage(
+      name: Routes.NEWMEMBER,
+      page: () => newMember_view(),
+    ),
+    GetPage(
+      name: Routes.HOME,
+      page: () => home_view(),
+    ),
+    GetPage(name: Routes.PUSH, page: () => push_view()),
+    GetPage(
+      name: Routes.RESULT,
+      page: () => result_view(),
+    )
   ];
 }

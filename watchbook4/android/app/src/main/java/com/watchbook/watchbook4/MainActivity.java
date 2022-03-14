@@ -1,4 +1,4 @@
-package com.example.watchbook4;
+package com.watchbook.watchbook4;
 
 import io.flutter.embedding.android.FlutterActivity;
 

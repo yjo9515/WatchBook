@@ -11,7 +11,7 @@ class ApiServices extends GetxController {
 
   loginStatus(tokenValue) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String? tokenValue = sharedPreferences.getString('token');
+    late String? tokenValue = sharedPreferences.getString('token');
     //저장된 토큰값 가져오기
     print("토큰값 : ${tokenValue}");
     if (tokenValue != null) { //사용자 정보 전송
@@ -36,7 +36,6 @@ class ApiServices extends GetxController {
           'passwd': _passwd.text.trim() //get passwd text
         }
     );
-
     if (response.statusCode == 200) {
       //정상신호 일때
       print(response.body);
