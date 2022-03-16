@@ -11,7 +11,7 @@ class ApiServices extends GetxController {
 
   loginStatus(tokenValue) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    late String? tokenValue = sharedPreferences.getString('token');
+    tokenValue = sharedPreferences.getString('token');
     //저장된 토큰값 가져오기
     print("토큰값 : ${tokenValue}");
     if (tokenValue != null) { //사용자 정보 전송
@@ -45,5 +45,61 @@ class ApiServices extends GetxController {
     } else {
       return false;
     }
+  }
+
+  Future findId(_name, _phone) async {
+    Get.dialog(Center(child: CircularProgressIndicator()),
+        barrierDismissible: false);
+    String apiurl = 'https://www.watchbook.tv/User/watchbookfindIdProcess'; //토큰요청
+    print(_name);
+    print(_phone);
+    var response = await http.post(Uri.parse(apiurl),
+        body: {
+          'name': _name.text.trim(),
+          'handphone': _phone.text.trim(),
+          'type' : 'handphone'
+        }
+    );
+    if (response.statusCode == 200) {
+      //정상신호 일때
+      print(response.body);
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    } else {
+      return false;
+    }
+  }
+
+  Future findPw(_id, _phone) async {
+    Get.dialog(Center(child: CircularProgressIndicator()),
+        barrierDismissible: false);
+    String apiurl = 'https://www.watchbook.tv/User/watchbookfindPasswdProcess'; //토큰요청
+    print(_id);
+    print(_phone);
+    var response = await http.post(Uri.parse(apiurl),
+        body: {
+          'id': _id.text.trim(),
+          'handphone': _phone.text.trim(),
+          'type' : 'handphone'
+        }
+    );
+    if (response.statusCode == 200) {
+      //정상신호 일때
+      print(response.body);
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    } else {
+      return false;
+    }
+  }
+
+
+  imagePush() async{
+    String apiurl = 'https://www.watchbook.tv/User/getToken';
+    var response = await http.post(Uri.parse(apiurl),
+        body: {
+
+        }
+    );
   }
 }

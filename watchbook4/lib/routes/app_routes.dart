@@ -7,4 +7,5 @@ abstract class Routes {
   static const FINDPW = '/findPw';
   static const PUSH = '/push';
   static const RESULT = '/result';
+  static const NAVIGATOR = '/navigator';
 }

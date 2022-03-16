@@ -1,22 +1,13 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
+
 import 'package:watchbook4/controller/home_controller.dart';
-import 'package:watchbook4/view/member_view.dart';
+import 'package:watchbook4/view/newmem_view.dart';
 import 'package:watchbook4/view_model/home_view_model.dart';
 
 class home_view extends GetView<HomeController>{
-  final ImagePicker _picker = ImagePicker();
-  late XFile? _image;
 
-  
-  Future _getImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    _image = image;
-  }
   
   @override
   Widget build(BuildContext context) {
@@ -27,14 +18,13 @@ class home_view extends GetView<HomeController>{
             onWillPop: () => _goBack(context),
             child: Scaffold(
               floatingActionButton: FloatingActionButton(
-                onPressed: _getImage,
+                onPressed: HomeViewModel.getImage,
                 child: Icon(Icons.add_a_photo),
               ),
               resizeToAvoidBottomInset: false,
               body: Center(
                 key: UniqueKey(),
-                child: _image != null ? Image.file(File(_image!.path)) : Text('이미지 없음'),
-
+                child: HomeViewModel.image != null ? Image.file(HomeViewModel.image) : Text('이미지 없음'),
               ),
               appBar:
               AppBar(

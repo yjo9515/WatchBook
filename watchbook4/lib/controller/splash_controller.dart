@@ -3,13 +3,12 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:watchbook4/api/api_services.dart';
 import 'package:watchbook4/view/home_view.dart';
-import 'package:watchbook4/view/login_view.dart';
+import 'package:watchbook4/view/navigator_view.dart';
 
 class SplashController extends GetxController {
   ApiServices api = ApiServices();
+  String? tokenValue;
 
-  get tokenValue => null;
-  
   @override
   void onInit() {
     print('스플래쉬 진입구간');
@@ -19,9 +18,10 @@ class SplashController extends GetxController {
       );
     }else{
       Timer(const Duration(seconds: 3), () =>
-          Get.offAll(() => login_view())
+          Get.offAll(() => navigator_view())
       );
     }
+
     super.onInit();
   }
 }

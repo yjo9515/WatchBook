@@ -5,6 +5,7 @@ import 'package:watchbook4/view/findId_view.dart';
 import 'package:watchbook4/view/findPw_view.dart';
 import 'package:watchbook4/view/home_view.dart';
 import 'package:watchbook4/view/login_view.dart';
+import 'package:watchbook4/view/navigator_view.dart';
 import 'package:watchbook4/view/newMember_view.dart';
 import 'package:watchbook4/view/push_view.dart';
 import 'package:watchbook4/view/result_view.dart';
@@ -40,7 +41,14 @@ class AppPages {
       name: Routes.HOME,
       page: () => home_view(),
     ),
-    GetPage(name: Routes.PUSH, page: () => push_view()),
+    GetPage(
+      name: Routes.PUSH,
+      page: () => push_view()
+    ),
+    GetPage(
+      name: Routes.NAVIGATOR,
+      page: () => navigator_view()
+    ),
     GetPage(
       name: Routes.RESULT,
       page: () => result_view(),

@@ -28,7 +28,7 @@ class LoginViewModel extends GetxController{
   late UserModel user;
   String errmsg = '';
   bool error = false;
-
+  String? tokenValue;
 
   // 내부저장소(Preference에 값추가)
   addPref(String key, String value ) async {
@@ -50,7 +50,7 @@ class LoginViewModel extends GetxController{
       } else {
         print(value);
         if(value['result'] == true) {
-          // addPref('id', apiId);
+          addPref('token', value['token']);
           update();
           Get.offAll(
                   () => home_view());

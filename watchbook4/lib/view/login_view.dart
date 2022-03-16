@@ -3,18 +3,14 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:get/get.dart';
-import 'package:uuid/uuid.dart';
-import 'package:http/http.dart' as http;
-import 'package:watchbook4/controller/home_controller.dart';
+import 'package:watchbook4/controller/login_controller.dart';
 import 'package:watchbook4/view/findId_view.dart';
 import 'package:watchbook4/view/findPw_view.dart';
 import 'package:watchbook4/view/newMember_view.dart';
 import 'package:watchbook4/view_model/login_view_model.dart';
 
-class login_view extends GetView<HomeController>{
+class login_view extends GetView<LoginController>{
   login_view({Key? key}) : super(key: key);
   bool _isKakaoTalkInstalled = false;
   bool _isObscure = true;
