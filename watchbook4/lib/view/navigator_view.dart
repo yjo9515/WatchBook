@@ -2,9 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:watchbook4/controller/navigatorController.dart';
+import 'package:watchbook4/controller/navigator_controller.dart';
 import 'package:watchbook4/view/login_view.dart';
-import 'package:watchbook4/view/newMember_view.dart';
+import 'package:watchbook4/view/intro_view.dart';
 
 class navigator_view extends GetView<NavigatorController>{
 
@@ -28,8 +28,8 @@ class navigator_view extends GetView<NavigatorController>{
                   .size
                   .height,
               decoration: const BoxDecoration(
-                image: const DecorationImage(
-                  image: const AssetImage('images/default/background.png'),
+                image: DecorationImage(
+                  image: NetworkImage('https://watchbook.tv/image/app/default/background.png'),
                   fit: BoxFit.fill,
                 ),
               ),
@@ -41,11 +41,10 @@ class navigator_view extends GetView<NavigatorController>{
                       width: 218,
                       height: 34,
                       alignment: Alignment.centerLeft,
-                      child: Image.asset(
-                        'images/login_logo.png',
+                      child:  Image.network('https://watchbook.tv/image/app/default/logo.png',
                         fit: BoxFit.contain,
                         alignment: Alignment.centerLeft,
-                      ) //title text
+                      ), //title text
                   ),
                   Container(
                     height: 200,
@@ -71,7 +70,7 @@ class navigator_view extends GetView<NavigatorController>{
                                 width: double.infinity,
                                 child: RaisedButton(
                                   onPressed: () {
-                                    Get.to(() => newMember_view());
+                                    Get.to(() => intro_view());
                                   },
                                   child: const Text(
                                     "네, 처음이에요.",

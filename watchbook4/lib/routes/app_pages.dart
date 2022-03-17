@@ -6,7 +6,8 @@ import 'package:watchbook4/view/findPw_view.dart';
 import 'package:watchbook4/view/home_view.dart';
 import 'package:watchbook4/view/login_view.dart';
 import 'package:watchbook4/view/navigator_view.dart';
-import 'package:watchbook4/view/newMember_view.dart';
+import 'package:watchbook4/view/intro_view.dart';
+import 'package:watchbook4/view/newMember1_view.dart';
 import 'package:watchbook4/view/push_view.dart';
 import 'package:watchbook4/view/result_view.dart';
 import 'package:watchbook4/view/splash_view.dart';
@@ -19,28 +20,37 @@ class AppPages {
       name: Routes.SPLASH,
       page: () => splash_view(),
       binding: SplahBinding(),
+      children: [
+        GetPage(
+          name: Routes.LOGIN,
+          page: () => login_view(),
+          binding: LoginBinding(),
+          children: [
+            GetPage(
+              name: Routes.FINDID,
+              page: () => findId_view(),
+            ),
+            GetPage(
+              name: Routes.FINDPW,
+              page: () => findPw_view(),
+            ),
+          ]
+        ),
+        GetPage(
+          name: Routes.HOME,
+          page: () => home_view(),
+        ),
+      ]
     ),
     GetPage(
-      name: Routes.LOGIN,
-      page: () => login_view(),
-      binding: LoginBinding(),
+      name: Routes.NEWMEMBER1,
+      page: () => newMember1_view(),
     ),
     GetPage(
-      name: Routes.FINDID,
-      page: () => findId_view(),
+      name: Routes.INTRO,
+      page: () => intro_view(),
     ),
-    GetPage(
-      name: Routes.FINDPW,
-      page: () => findPw_view(),
-    ),
-    GetPage(
-      name: Routes.NEWMEMBER,
-      page: () => newMember_view(),
-    ),
-    GetPage(
-      name: Routes.HOME,
-      page: () => home_view(),
-    ),
+
     GetPage(
       name: Routes.PUSH,
       page: () => push_view()

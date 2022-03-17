@@ -9,9 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiServices extends GetxController {
 
-  loginStatus(tokenValue) async {
+  Future loginStatus() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    tokenValue = sharedPreferences.getString('token');
+    String? tokenValue = sharedPreferences.getString('token');
+    update();
     //저장된 토큰값 가져오기
     print("토큰값 : ${tokenValue}");
     if (tokenValue != null) { //사용자 정보 전송
@@ -22,6 +23,13 @@ class ApiServices extends GetxController {
       print(response.headers);
       print(response.body);
     }
+    return tokenValue;
+  }
+
+  Future requestSendAuthProcess(_phone) async {
+    var timer = 300;//인증만료 시간 설정
+    String apiurl = 'https://www.watchbook.tv/User/sendSmsAuthProcess?name=${name}&handphone=${_phone}&expire=${timer}';
+
   }
 
   Future login(_id, _passwd) async {

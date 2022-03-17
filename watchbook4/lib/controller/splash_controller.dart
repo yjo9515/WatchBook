@@ -7,20 +7,22 @@ import 'package:watchbook4/view/navigator_view.dart';
 
 class SplashController extends GetxController {
   ApiServices api = ApiServices();
-  String? tokenValue;
-
+  String value = '';
   @override
   void onInit() {
     print('스플래쉬 진입구간');
-    if(api.loginStatus(tokenValue) == true) {
-      Timer(const Duration(seconds: 3), () =>
-          Get.offAll(() => home_view())
-      );
-    }else{
-      Timer(const Duration(seconds: 3), () =>
-          Get.offAll(() => navigator_view())
-      );
-    }
+    api.loginStatus().then((value) {
+      print(value);
+      if(value != null) {
+        Timer(const Duration(seconds: 3), () =>
+            Get.offAll(() => home_view())
+        );
+      }else{
+        Timer(const Duration(seconds: 3), () =>
+            Get.offAll(() => navigator_view())
+        );
+      }
+    });
 
     super.onInit();
   }

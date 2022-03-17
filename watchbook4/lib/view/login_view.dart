@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:watchbook4/controller/login_controller.dart';
 import 'package:watchbook4/view/findId_view.dart';
 import 'package:watchbook4/view/findPw_view.dart';
-import 'package:watchbook4/view/newMember_view.dart';
+import 'package:watchbook4/view/newMember1_view.dart';
 import 'package:watchbook4/view_model/login_view_model.dart';
 
 class login_view extends GetView<LoginController>{
@@ -210,7 +208,7 @@ class login_view extends GetView<LoginController>{
                                                   ),
                                                 ),
                                                 onPressed: () {
-                                                  Get.to(newMember_view());
+                                                  Get.to(newMember1_view());
                                                 },
                                               )
                                             ],

@@ -3,7 +3,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 
 import 'package:watchbook4/controller/home_controller.dart';
-import 'package:watchbook4/view/newmem_view.dart';
+import 'package:watchbook4/view/member_view.dart';
 import 'package:watchbook4/view_model/home_view_model.dart';
 
 class home_view extends GetView<HomeController>{
