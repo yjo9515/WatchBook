@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/view/login_view.dart';
+import 'package:watchbook4/view_model/newMem_view_model.dart';
 
-class InitialWidget extends StatelessWidget {
+class SendWidget extends StatelessWidget {
   final String serverMsg;
-  InitialWidget({
+  final int send;
+  SendWidget({
+    required this.send,
     required this.serverMsg,
   });
   @override
@@ -26,8 +29,12 @@ class InitialWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text(
-            serverMsg,
+          send == 2 ?
+          const Text(
+            "인증번호 전송을 실패하였습니다.\n관리자에게 문의해주세요.",
+          ):
+          const Text(
+            "핸드폰 번호로 인증번호를 발송했습니다.\n인증번호 입력 후 하단의 '확인' 버튼을 눌러주세요.",
           )
         ],
       ),

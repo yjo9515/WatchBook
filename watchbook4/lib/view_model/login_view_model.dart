@@ -10,9 +10,10 @@ import 'package:watchbook4/api/api_services.dart';
 import 'package:watchbook4/models/user_model.dart';
 import 'package:watchbook4/view/home_view.dart';
 import 'package:http/http.dart' as http;
-import 'package:watchbook4/view/splash_view.dart';
+import 'package:watchbook4/view/widgets/AlertWidget.dart';
 
 // 어떤 상태인지 열거
+
 enum UserEnums {Logout, Error, Initial , Waiting}
 
 class LoginViewModel extends GetxController{
@@ -28,6 +29,7 @@ class LoginViewModel extends GetxController{
   late UserModel user;
   String errmsg = '';
   bool error = false;
+
 
   // 내부저장소(Preference에 값추가)
   addPref(String key, String value ) async {
@@ -51,6 +53,8 @@ class LoginViewModel extends GetxController{
         if(value['result'] == true) {
           print(value['token']);
           addPref('token', value['token']);
+          addPref('id', apiId.text);
+          addPref('passwd', apiPassword.text);
           update();
           Get.offAll(
                   () => home_view());
@@ -117,7 +121,4 @@ class LoginViewModel extends GetxController{
       print(result.message);
     }
   }
-
-
-
 }

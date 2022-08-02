@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:watchbook4/models/user_model.dart';
+import 'package:watchbook4/view_model/newMem_view_model.dart';
 
 class ApiServices extends GetxController {
+  var authresponse;
 
   Future loginStatus() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -26,18 +29,117 @@ class ApiServices extends GetxController {
     return tokenValue;
   }
 
-  Future requestSendAuthProcess(_phone) async {
-    var timer = 300;//인증만료 시간 설정
-    String apiurl = 'https://www.watchbook.tv/User/sendSmsAuthProcess?name=${name}&handphone=${_phone}&expire=${timer}';
+  Future requestSendAuthProcess(phoneController,nameController) async {
 
+    var timer = 300;//인증만료 시간 설정
+    String apiurl = 'https://www.watchbook.tv/User/sendSmsAuthProcess?name=${nameController.text.trim()}&handphone=${phoneController.text.trim()}&expire=${timer}';
+
+    authresponse = await http.post(Uri.parse(apiurl),
+        body: {
+          'handphone': phoneController.text.trim(), //번호 가져오기
+        }
+    );
+    if (authresponse.statusCode == 200) {
+      //정상신호 일때
+      print(nameController.text.trim());
+      print(phoneController.text.trim());
+      print(authresponse.body);
+
+      Map<String, dynamic> jsondata = json.decode(authresponse.body);
+      return jsondata;
+    } else {
+      return false;
+    }
+  }
+
+  requestCheckName(nameController) async{
+    String url = 'https://www.watchbook.tv/User/watchbooknameCheck';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'name' : nameController.text.trim()
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestCheckAuthProcess(phoneAuthController) async{
+    Map<String, dynamic> jsondata = json.decode(authresponse.body);
+
+    if (authresponse.statusCode == 200) {
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestSearchId(idController) async{
+    String url = 'https://www.watchbook.tv/User/watchbooksearchId?id=${idController.text.trim()}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'id' : idController.text.trim()
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestSearchNickname(nicknameController) async{
+    String url = 'https://www.watchbook.tv/Person/searchNickname?nickname=${nicknameController.text.trim()}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'nickname' : nicknameController.text.trim()
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestJoinProcess(all) async{
+    String url = 'https://www.watchbook.tv/User/watchbookjoinProcess';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'type' : all[0],
+          'id' : all[1],
+          'passwd' : all[2],
+          'repasswd' : all[3],
+          'nickname' : all[4],
+          'name' : all[5],
+          'handphone': all[6],
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
   }
 
   Future login(_id, _passwd) async {
     Get.dialog(Center(child: CircularProgressIndicator()),
         barrierDismissible: false);
     String apiurl = 'https://www.watchbook.tv/User/getToken'; //토큰요청
-    print(_id);
-    print(_passwd);
     var response = await http.post(Uri.parse(apiurl),
         body: {
           'id': _id.text.trim(), //get the id text
@@ -96,6 +198,29 @@ class ApiServices extends GetxController {
       print(response.body);
       Map<String, dynamic> jsondata = json.decode(response.body);
       return jsondata;
+    } else {
+      return false;
+    }
+  }
+
+  Future getInfo() async {
+    Get.dialog(Center(child: CircularProgressIndicator()),
+        barrierDismissible: false);
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? id = sharedPreferences.getString('id');
+    String? passwd = sharedPreferences.getString('passwd');
+    String? tokenValue = sharedPreferences.getString('token');
+    print(id);
+    print(passwd);
+    String apiurl = 'https://www.watchbook.tv/User/getInfo'; //토큰요청
+    var response = await http.post(Uri.parse(apiurl),
+        headers: {HttpHeaders.authorizationHeader: "Bearer ${tokenValue}"}//넣어야 로그인 인증댐
+    );
+    if (response.statusCode == 200) {
+      //정상신호 일때
+      print(response.body);
+
+      return UserModel.fromJson(json.decode(response.body));
     } else {
       return false;
     }

@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
    <application
-        android:label="watchbook4"
+        android:label="와치북"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name="com.watchbook.watchbook4.MainActivity"

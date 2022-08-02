@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/controller/newMember_controller.dart';
 import 'package:watchbook4/view_model/newMem_view_model.dart';
 
 class newMember3_view extends GetView<NewMemberController>{
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
+
+
   @override
   Widget build(BuildContext context) {
     return GetBuilder<NewMemberViewModel>(
@@ -99,7 +97,7 @@ class newMember3_view extends GetView<NewMemberController>{
                                       style: TextStyle(fontSize: 20, color: Colors.white),
                                     ),
                                     decoration: const BoxDecoration(
-                                        color: const Color.fromARGB(
+                                        color: Color.fromARGB(
                                             255, 0, 104, 166),
                                         borderRadius: BorderRadius.only(
                                           topRight: Radius.circular(40),
@@ -118,11 +116,11 @@ class newMember3_view extends GetView<NewMemberController>{
                                       child: TextField(
                                           controller: NewMemberViewModel.nameController, //set id controller
                                           style: const TextStyle(
-                                              color: const Color.fromARGB(
+                                              color: Color.fromARGB(
                                                   255, 206, 206, 206), fontSize: 16),
                                           decoration: const InputDecoration(
                                               hintText: '성명을 입력해 주세요.',
-                                              hintStyle: TextStyle(color: const Color.fromARGB(
+                                              hintStyle: TextStyle(color: Color.fromARGB(
                                                   255, 206, 206, 206)),
                                               border: InputBorder.none
                                           ),
@@ -149,14 +147,16 @@ class newMember3_view extends GetView<NewMemberController>{
                                               child:  TextField(
                                                   controller: NewMemberViewModel.phoneController, //set id controller
                                                   style: const TextStyle(
-                                                      color: const Color.fromARGB(
+                                                      color: Color.fromARGB(
                                                           255, 206, 206, 206), fontSize: 16),
                                                   decoration: const InputDecoration(
                                                     border: InputBorder.none,
                                                     hintText: '- 없이 입력해주세요.',
-                                                    hintStyle: TextStyle(color: const Color.fromARGB(
+                                                    hintStyle: TextStyle(color: Color.fromARGB(
                                                         255, 206, 206, 206)),
                                                   ),
+                                                  keyboardType: TextInputType.number,
+                                                  inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
                                                   onChanged: (value) {
                                                     //변화된 id값 감지
                                                     NewMemberViewModel.phone = value;
@@ -164,18 +164,18 @@ class newMember3_view extends GetView<NewMemberController>{
                                             )),
                                         Expanded(
                                             flex: 26,
-                                            child: RaisedButton(onPressed:requestSendAuthProcess,
+                                            child: RaisedButton(onPressed:NewMemberViewModel.requestSendAuthProcess,
                                               padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
                                               child:
-                                              NewMemberViewModel.send ? const Text('재전송',
+                                              NewMemberViewModel.send == 1 ? const Text('재전송',
                                                 style: TextStyle
-                                                  (color: const Color.fromARGB(
+                                                  (color: Color.fromARGB(
                                                     255, 255, 255, 255)
                                                     ,fontSize: 16),
                                               ) :
                                               const Text('전송',
                                                   style: TextStyle
-                                                    (color: const Color.fromARGB(
+                                                    (color: Color.fromARGB(
                                                       255, 255, 255, 255)
                                                       ,fontSize: 16)),
                                               color: const Color.fromARGB(
@@ -189,7 +189,7 @@ class newMember3_view extends GetView<NewMemberController>{
                                   ),
                                   Container(
                                     margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                                    child: send ? Row(
+                                    child: NewMemberViewModel.send == 1 ? Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
@@ -214,23 +214,27 @@ class newMember3_view extends GetView<NewMemberController>{
                                                   )
                                               ),
                                               child: TextField(
-                                                  controller: _phoneAuth, //set id controller
+                                                  maxLength: 6,
+                                                  controller: NewMemberViewModel.phoneAuthController, //set id controller
                                                   style: const TextStyle(
-                                                      color: const Color.fromARGB(
+                                                      color: Color.fromARGB(
                                                           255, 206, 206, 206), fontSize: 16),
+                                                  keyboardType: TextInputType.number,
+                                                  inputFormatters: <TextInputFormatter>[FilteringTextInputFormatter.digitsOnly],
                                                   decoration: const InputDecoration(
+                                                    counterText: '',
                                                     border: InputBorder.none,
                                                     hintText: '인증번호를 입력해주세요.',
-                                                    hintStyle: TextStyle(color: const Color.fromARGB(
+                                                    hintStyle: TextStyle(color: Color.fromARGB(
                                                         255, 206, 206, 206)),
                                                   ),
                                                   onChanged: (value) {
                                                     //변화된 id값 감지
-                                                    phoneAuth = value;
+                                                    NewMemberViewModel.phoneAuth = value;
                                                   }),
                                             )),
                                         Expanded(
-                                            flex: 19,
+                                            flex: 21,
                                             child: Container(
                                               decoration: const BoxDecoration(
                                                   border: Border(
@@ -245,22 +249,23 @@ class newMember3_view extends GetView<NewMemberController>{
                                                   )
                                               ),
                                               padding:const EdgeInsets.fromLTRB(13, 16, 10, 16) ,
-                                              child: Text(timedisplay,
-                                                style: const TextStyle(
-                                                  color: Color.fromARGB(
-                                                      255, 255, 0, 0),
-                                                  fontSize: 14,
-                                                ),),
+                                              child:
+                                              Obx(() => Text('${NewMemberViewModel.min.value}분 ${NewMemberViewModel.sec.value}초',
+                                                  style: const TextStyle(
+                                                    color: Color.fromARGB(
+                                                        255, 255, 0, 0),
+                                                    fontSize: 14,
+                                                  ))),
                                             )
                                         ),
                                         Expanded(
                                             flex: 26,
-                                            child: RaisedButton(onPressed: requestCheckAuthProcess,
+                                            child: RaisedButton(onPressed: NewMemberViewModel.requestCheckAuthProcess,
                                               padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
                                               child:
                                               const Text('인증',
                                                 style: TextStyle
-                                                  (color: const Color.fromARGB(
+                                                  (color: Color.fromARGB(
                                                     255, 255, 255, 255)
                                                     ,fontSize: 16),
                                               ),
@@ -281,20 +286,20 @@ class newMember3_view extends GetView<NewMemberController>{
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        txt == 2 ?
+                                        Obx(() => NewMemberViewModel.txt.value == 2 ?
                                         const Text('* 인증번호가 일치하지 않습니다.',
                                             style: TextStyle(
                                                 color: Color.fromARGB(255, 255, 0, 0),
                                                 fontSize: 14
                                             ) )
                                             :
-                                        txt == 1 ?
+                                        NewMemberViewModel.txt.value == 1 ?
                                         const Text('* 인증완료 되었습니다.',
                                             style: TextStyle(
                                                 color: Color.fromARGB(255, 17, 255, 0),
                                                 fontSize: 14
                                             ) )
-                                            : const Text('', style: TextStyle(fontSize: 14),),
+                                            : const Text('', style: TextStyle(fontSize: 14),)),
                                         const Text('* 입력시간 내 인증번호 6자리를 입력해주세요.',
                                           style: TextStyle(fontSize: 14),),
                                         const Text("* 인증번호가 오지 않는 경우 '재전송'을 클릭해주세요",
@@ -319,7 +324,7 @@ class newMember3_view extends GetView<NewMemberController>{
                                   width: double.infinity,
                                   child: RaisedButton(
                                     onPressed: () {
-                                      requestCheckName();
+                                      NewMemberViewModel.requestCheckName();
                                     },
                                     child: const Text(
                                       "다음으로",
@@ -371,5 +376,5 @@ class newMember3_view extends GetView<NewMemberController>{
   Future<bool> _goBack(BuildContext context) async {
     return true;
   }
-  
+
 }

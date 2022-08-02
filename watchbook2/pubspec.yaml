@@ -48,6 +48,9 @@ dependencies:
   flutter_facebook_auth: ^3.5.6
   contacts_service: ^0.3.10
 
+dependency_overrides:
+  platform: ^3.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

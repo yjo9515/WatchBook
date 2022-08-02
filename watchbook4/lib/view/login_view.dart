@@ -237,120 +237,120 @@ class login_view extends GetView<LoginController>{
                                           ),
                                         ),
                                       ),
-                                      Container(
-                                        width: 320,
-                                        margin: const EdgeInsets.only(bottom: 45.00),
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: <Widget>[
-                                            SizedBox(
-                                              width: MediaQuery.of(context).size.width,
-                                              height: 48,
-                                              child: RaisedButton(
-                                                  onPressed:(){
-                                                    LoginViewModel.kakaoLoginButtonPressed();
-                                                  },
-                                                  color: Colors.yellow,
-                                                  child: Row(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                    children: <Widget>[
-                                                      Image.network(
-                                                        'https://watchbook.tv/image/app/login/kakao.png',
-                                                        width: 36,
-                                                        height: 36,
-                                                        alignment: Alignment.bottomLeft,
-                                                      ),
-                                                      const Expanded(
-                                                          child: Padding(
-                                                            padding: EdgeInsets.only(right: 36),
-                                                            child: Text(
-                                                              '카카오로 시작하기',
-                                                              textAlign: TextAlign.center,
-                                                              style: TextStyle(
-                                                                fontSize: 14,
-                                                                color: Colors.black87,
-                                                              ),
-                                                            ),
-                                                          )),
-                                                    ],
-                                                  )),
-                                            ),
-                                            Container(
-                                              height: 10,
-                                            ),
-                                            SizedBox(
-                                              width: MediaQuery.of(context).size.width,
-                                              height: 48,
-                                              child: RaisedButton(
-                                                  onPressed: (){
-                                                    LoginViewModel.facebookLoginButtonPressed();
-                                                  },
-                                                  color: const Color.fromARGB(255, 60, 90, 154),
-                                                  child: Row(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                    children: <Widget>[
-                                                      Image.network(
-                                                        'https://watchbook.tv/image/app/login/facebook.png',
-                                                        width: 36,
-                                                        height: 36,
-                                                        alignment: Alignment.bottomLeft,
-                                                      ),
-                                                      const Expanded(
-                                                          child: Padding(
-                                                            padding: EdgeInsets.only(right: 36),
-                                                            child: Text(
-                                                              '페이스북으로 시작하기',
-                                                              textAlign: TextAlign.center,
-                                                              style: TextStyle(
-                                                                fontSize: 14,
-                                                                color: Colors.white,
-                                                              ),
-                                                            ),
-                                                          )),
-                                                    ],
-                                                  )),
-                                            ),
-                                            Container(
-                                              height: 10,
-                                            ),
-                                            SizedBox(
-                                              width: MediaQuery.of(context).size.width,
-                                              height: 48,
-                                              child: RaisedButton(
-                                                  onPressed: () {
-                                                    LoginViewModel.naverLoginButtonPressed();
-                                                  },
-                                                  color: const Color.fromARGB(255, 6, 190, 52),
-                                                  child: Row(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                    children: <Widget>[
-                                                      Image.network(
-                                                        'https://watchbook.tv/image/app/login/naver.png',
-                                                        width: 36,
-                                                        height: 36,
-                                                        alignment: Alignment.bottomLeft,
-                                                      ),
-                                                      const Expanded(
-                                                          child: Padding(
-                                                            padding: EdgeInsets.only(right: 36),
-                                                            child: Text(
-                                                              '네이버로 시작하기',
-                                                              textAlign: TextAlign.center,
-                                                              style: TextStyle(
-                                                                fontSize: 14,
-                                                                color: Colors.white,
-                                                              ),
-                                                            ),
-                                                          )),
-                                                    ],
-                                                  )),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      // Container(
+                                      //   width: 320,
+                                      //   margin: const EdgeInsets.only(bottom: 45.00),
+                                      //   child: Column(
+                                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      //     children: <Widget>[
+                                      //       SizedBox(
+                                      //         width: MediaQuery.of(context).size.width,
+                                      //         height: 48,
+                                      //         child: RaisedButton(
+                                      //             onPressed:(){
+                                      //               LoginViewModel.kakaoLoginButtonPressed();
+                                      //             },
+                                      //             color: Colors.yellow,
+                                      //             child: Row(
+                                      //               crossAxisAlignment:
+                                      //               CrossAxisAlignment.center,
+                                      //               children: <Widget>[
+                                      //                 Image.network(
+                                      //                   'https://watchbook.tv/image/app/login/kakao.png',
+                                      //                   width: 36,
+                                      //                   height: 36,
+                                      //                   alignment: Alignment.bottomLeft,
+                                      //                 ),
+                                      //                 const Expanded(
+                                      //                     child: Padding(
+                                      //                       padding: EdgeInsets.only(right: 36),
+                                      //                       child: Text(
+                                      //                         '카카오로 시작하기',
+                                      //                         textAlign: TextAlign.center,
+                                      //                         style: TextStyle(
+                                      //                           fontSize: 14,
+                                      //                           color: Colors.black87,
+                                      //                         ),
+                                      //                       ),
+                                      //                     )),
+                                      //               ],
+                                      //             )),
+                                      //       ),
+                                      //       Container(
+                                      //         height: 10,
+                                      //       ),
+                                      //       SizedBox(
+                                      //         width: MediaQuery.of(context).size.width,
+                                      //         height: 48,
+                                      //         child: RaisedButton(
+                                      //             onPressed: (){
+                                      //               LoginViewModel.facebookLoginButtonPressed();
+                                      //             },
+                                      //             color: const Color.fromARGB(255, 60, 90, 154),
+                                      //             child: Row(
+                                      //               crossAxisAlignment:
+                                      //               CrossAxisAlignment.center,
+                                      //               children: <Widget>[
+                                      //                 Image.network(
+                                      //                   'https://watchbook.tv/image/app/login/facebook.png',
+                                      //                   width: 36,
+                                      //                   height: 36,
+                                      //                   alignment: Alignment.bottomLeft,
+                                      //                 ),
+                                      //                 const Expanded(
+                                      //                     child: Padding(
+                                      //                       padding: EdgeInsets.only(right: 36),
+                                      //                       child: Text(
+                                      //                         '페이스북으로 시작하기',
+                                      //                         textAlign: TextAlign.center,
+                                      //                         style: TextStyle(
+                                      //                           fontSize: 14,
+                                      //                           color: Colors.white,
+                                      //                         ),
+                                      //                       ),
+                                      //                     )),
+                                      //               ],
+                                      //             )),
+                                      //       ),
+                                      //       Container(
+                                      //         height: 10,
+                                      //       ),
+                                      //       SizedBox(
+                                      //         width: MediaQuery.of(context).size.width,
+                                      //         height: 48,
+                                      //         child: RaisedButton(
+                                      //             onPressed: () {
+                                      //               LoginViewModel.naverLoginButtonPressed();
+                                      //             },
+                                      //             color: const Color.fromARGB(255, 6, 190, 52),
+                                      //             child: Row(
+                                      //               crossAxisAlignment:
+                                      //               CrossAxisAlignment.center,
+                                      //               children: <Widget>[
+                                      //                 Image.network(
+                                      //                   'https://watchbook.tv/image/app/login/naver.png',
+                                      //                   width: 36,
+                                      //                   height: 36,
+                                      //                   alignment: Alignment.bottomLeft,
+                                      //                 ),
+                                      //                 const Expanded(
+                                      //                     child: Padding(
+                                      //                       padding: EdgeInsets.only(right: 36),
+                                      //                       child: Text(
+                                      //                         '네이버로 시작하기',
+                                      //                         textAlign: TextAlign.center,
+                                      //                         style: TextStyle(
+                                      //                           fontSize: 14,
+                                      //                           color: Colors.white,
+                                      //                         ),
+                                      //                       ),
+                                      //                     )),
+                                      //               ],
+                                      //             )),
+                                      //       ),
+                                      //     ],
+                                      //   ),
+                                      // ),
                                     ]),
                               ),
                             ]),

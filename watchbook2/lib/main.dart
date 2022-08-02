@@ -171,7 +171,7 @@ class _MainPageState extends State<MainPage> {
         setState(() {
           //타이머 시간이 지나면 스플래시 화면이 false로 (화면전환)
           loading = false;
-          url = 'http://m.watchbook.tv/';
+          url = 'http://watchbook.tv/vod/?studing_vod_id=1';
           if (tokenValue != null) {
             isToken = true;
           } else {
