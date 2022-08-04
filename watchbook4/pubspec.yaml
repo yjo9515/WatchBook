@@ -23,6 +23,7 @@ dependencies:
   flutter_web_auth: ^0.3.1
   image_picker: ^0.8.4+11
   webview_flutter: ^2.1.0
+  connectivity_plus: ^2.3.6
 
 
 dev_dependencies:
@@ -41,5 +42,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-
+  assets:
+    - images/
+    - images/default/
 

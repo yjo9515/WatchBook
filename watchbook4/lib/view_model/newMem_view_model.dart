@@ -341,6 +341,7 @@ class NewMemberViewModel extends GetxController{
     });
   }
 
+
   void authDialog(value) {
     Get.dialog(
         AlertWidget(serverMsg: msg, error: error)

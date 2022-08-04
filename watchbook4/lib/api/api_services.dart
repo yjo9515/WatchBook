@@ -11,7 +11,6 @@ import 'package:watchbook4/view_model/newMem_view_model.dart';
 
 class ApiServices extends GetxController {
   var authresponse;
-
   Future loginStatus() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? tokenValue = sharedPreferences.getString('token');

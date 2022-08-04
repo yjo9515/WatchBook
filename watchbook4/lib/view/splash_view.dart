@@ -29,7 +29,7 @@ class splash_view extends GetView<HomeController>{
                   .height,
               decoration: const BoxDecoration(
                 image:  DecorationImage(
-                  image: NetworkImage('https://watchbook.tv/image/app/default/background.png'),
+                  image: const AssetImage('images/default/background.png'),
                   fit: BoxFit.fill,
                 ),
               ),
@@ -41,10 +41,11 @@ class splash_view extends GetView<HomeController>{
                       width: 218,
                       height: 34,
                       alignment: Alignment.centerLeft,
-                      child:  Image.network('https://watchbook.tv/image/app/default/logo.png',
+                      child: Image.asset(
+                        'images/login_logo.png',
                         fit: BoxFit.contain,
                         alignment: Alignment.centerLeft,
-                      ),//title text
+                      ) ,//title text
                   ),
                   Container(
                     alignment: Alignment.centerLeft,
