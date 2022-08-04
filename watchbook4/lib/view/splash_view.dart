@@ -10,6 +10,7 @@ import 'package:watchbook4/view/login_view.dart';
 class splash_view extends GetView<HomeController>{
   const splash_view({Key? key}) : super(key: key);
   @override
+
   Widget build(BuildContext context) {
     return WillPopScope(
         onWillPop: () => _goBack(context),
