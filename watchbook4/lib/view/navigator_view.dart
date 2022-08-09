@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/controller/navigator_controller.dart';
@@ -12,6 +13,7 @@ class navigator_view extends GetView<NavigatorController>{
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return WillPopScope(
         onWillPop: () => _goBack(context),
         child: Scaffold(

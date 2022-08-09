@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/controller/newMember_controller.dart';
 import 'package:watchbook4/view/login_view.dart';
@@ -6,6 +7,7 @@ import 'package:watchbook4/view/login_view.dart';
 class newMember6_view extends GetView<NewMemberController> {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Container(

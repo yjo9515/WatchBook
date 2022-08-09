@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/binding/binding.dart';
 import 'package:watchbook4/routes/app_pages.dart';
@@ -31,6 +32,7 @@ void main() {
   //     sound: true,
   //   );
   // }
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(
     GetMaterialApp(
       debugShowCheckedModeBanner: false,

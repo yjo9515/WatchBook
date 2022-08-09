@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/view/login_view.dart';
 import 'package:watchbook4/view_model/newMem_view_model.dart';
@@ -12,6 +13,7 @@ class SendWidget extends StatelessWidget {
   });
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return AlertDialog(
       // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),

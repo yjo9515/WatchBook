@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/controller/findId_controller.dart';
@@ -12,6 +13,7 @@ class findId_view extends GetView<FindIdController>{
   var _name = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return GetBuilder<FindIdViewModel>(
         init: FindIdViewModel(),
         builder: (FindIdViewModel) =>

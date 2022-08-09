@@ -29,6 +29,16 @@ class LoginViewModel extends GetxController{
   late UserModel user;
   String errmsg = '';
   bool error = false;
+  RxBool isObscure = true.obs;
+
+  changeObscure() {
+    if(isObscure.value == true){
+      isObscure.value = false;
+    } else if(isObscure.value == false){
+      isObscure.value = true;
+    }
+    print(isObscure);
+  }
 
 
   // 내부저장소(Preference에 값추가)

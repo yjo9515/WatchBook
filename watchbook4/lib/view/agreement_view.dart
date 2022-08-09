@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/controller/login_controller.dart';
@@ -6,6 +7,7 @@ import 'package:watchbook4/controller/login_controller.dart';
 class agreement_view extends GetView<LoginController>{
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return WillPopScope(
         onWillPop: () => _goBack(context),
         child: Scaffold(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:watchbook4/controller/newMember_controller.dart';
 import 'package:watchbook4/view/newMember5_view.dart';
@@ -7,6 +8,7 @@ import 'package:watchbook4/view/widgets/AlertWidget.dart';
 
 class newMember4_view extends GetView<NewMemberController> {
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return GetBuilder<NewMemberViewModel>(
         init: NewMemberViewModel(),
         builder: (NewMemberViewModel) =>

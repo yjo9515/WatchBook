@@ -11,7 +11,7 @@ import 'package:watchbook4/view_model/login_view_model.dart';
 class login_view extends GetView<LoginController>{
   login_view({Key? key}) : super(key: key);
   bool _isKakaoTalkInstalled = false;
-  bool _isObscure = true;
+
   String id = '';
   String passwd = '';
 
@@ -20,6 +20,7 @@ class login_view extends GetView<LoginController>{
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setSystemUIOverlayStyle(
         const SystemUiOverlayStyle(statusBarColor: Colors.transparent
           //color set to transperent or set your own color
@@ -34,7 +35,7 @@ class login_view extends GetView<LoginController>{
                 body: InkWell(
                     onTap: () => _isKakaoTalkInstalled,
                     child: Container(
-                      padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                       constraints:
                       BoxConstraints(minHeight: MediaQuery.of(context).size.height
                         //set minimum height equal to 100% of VH
@@ -130,31 +131,31 @@ class login_view extends GetView<LoginController>{
                                               ),
                                               Expanded(
                                                 flex: 2,
-                                                child: TextField(
+                                                child: Obx(()=> TextField(
                                                   controller: _passwd,
                                                   //set passwd controller
                                                   style: const TextStyle(
                                                       color: Colors.white, fontSize: 16),
-                                                  obscureText: !_isObscure,
+                                                  obscureText: LoginViewModel.isObscure.isTrue,
                                                   decoration: InputDecoration(
                                                       enabledBorder: const UnderlineInputBorder(
                                                           borderSide:
                                                           BorderSide(color: Colors.white)),
                                                       suffixIcon: IconButton(
                                                         icon: Icon(
-                                                            _isObscure
+                                                            LoginViewModel.isObscure.isFalse
                                                                 ? Icons.visibility
                                                                 : Icons.visibility_off,
                                                             color: Colors.white),
                                                         onPressed: () {
-                                                            _isObscure = !_isObscure;
+                                                          LoginViewModel.changeObscure();
                                                         },
                                                       )),
                                                   onChanged: (value) {
                                                     // change passwd text
                                                     passwd = value;
                                                   },
-                                                ),
+                                                )),
                                               )
                                             ],
                                           )),
