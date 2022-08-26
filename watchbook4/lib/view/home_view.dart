@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -12,7 +13,6 @@ import 'package:watchbook4/view_model/home_view_model.dart';
 class home_view extends GetView<HomeController> {
   WebViewController? _webViewController;
   final Completer<WebViewController> _controllerCompleter = Completer<WebViewController>();
-
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -127,7 +127,10 @@ class home_view extends GetView<HomeController> {
                                                   style: ButtonStyle(
                                                       backgroundColor:
                                                           MaterialStateProperty.all(Color.fromARGB(255, 68, 68, 68))),
-                                                  onPressed: () {},
+                                                  onPressed: () {
+                                                    _webViewController!.loadUrl('https://app.watchbook.tv/mypage/index');
+                                                    Navigator.of(context).pop();
+                                                  },
                                                   child: const Text(
                                                     '내 정보',
                                                     style: TextStyle(
