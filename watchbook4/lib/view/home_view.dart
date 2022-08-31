@@ -28,6 +28,7 @@ class home_view extends GetView<HomeController> {
               resizeToAvoidBottomInset: false,
               body: WebView(
                 gestureNavigationEnabled: true,
+                
                 key: UniqueKey(),
                 initialUrl: 'https://app.watchbook.tv',
                 onWebViewCreated: (WebViewController webViewController) {
