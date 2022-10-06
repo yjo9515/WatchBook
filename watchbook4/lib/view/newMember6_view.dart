@@ -69,7 +69,7 @@ class newMember6_view extends GetView<NewMemberController> {
                     child: SizedBox(
                       height: 48,
                       width: double.infinity,
-                      child: RaisedButton(
+                      child: ElevatedButton(
                         onPressed: () {
                           Get.offAll(login_view());
                         },
@@ -77,11 +77,13 @@ class newMember6_view extends GetView<NewMemberController> {
                           "로그인",
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
-                        color: const Color.fromARGB(97, 255, 255, 255),
-                        shape: RoundedRectangleBorder(
-                          side: const BorderSide(color: Colors.white),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(97, 255, 255, 255),
+                          shape: RoundedRectangleBorder(
+                            side: const BorderSide(color: Colors.white),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        )
                       ),
                     ),
                   )

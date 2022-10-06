@@ -34,7 +34,7 @@ class AlertWidget extends StatelessWidget {
         ],
       ),
       actions: <Widget>[
-        FlatButton(
+        ElevatedButton(
           child: const Text("확인"),
           onPressed: () {
             error == false ? Get.offAll(() => login_view()) : Get.back();

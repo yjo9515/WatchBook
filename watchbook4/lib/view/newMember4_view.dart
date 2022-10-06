@@ -141,19 +141,22 @@ class newMember4_view extends GetView<NewMemberController> {
                                                       )),
                                                   Expanded(
                                                       flex: 26,
-                                                      child: RaisedButton(
+                                                      child: ElevatedButton(
                                                         onPressed: () {
                                                           NewMemberViewModel.requestSearchId();
                                                         },
-                                                        padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
                                                         child: const Text('중복확인',
                                                             style: TextStyle(
                                                                 color: const Color.fromARGB(255, 255, 255, 255),
                                                                 fontSize: 16)),
-                                                        color: const Color.fromARGB(255, 108, 158, 207),
-                                                        shape: const RoundedRectangleBorder(
-                                                            borderRadius: BorderRadius.zero),
-                                                      ))
+                                                          style: ElevatedButton.styleFrom(
+                                                            padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
+                                                            backgroundColor: const Color.fromARGB(255, 108, 158, 207),
+                                                            shape: const RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.zero),
+                                                          )
+                                                          )
+                                                      )
                                                 ],
                                               ),
                                             ),
@@ -236,18 +239,21 @@ class newMember4_view extends GetView<NewMemberController> {
                                                       )),
                                                   Expanded(
                                                       flex: 26,
-                                                      child: RaisedButton(
+                                                      child: ElevatedButton(
                                                         onPressed: () {
                                                           NewMemberViewModel.requestSearchNickname();
                                                         },
-                                                        padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
+
                                                         child: const Text('중복확인',
                                                             style: TextStyle(
                                                                 color: const Color.fromARGB(255, 255, 255, 255),
                                                                 fontSize: 16)),
-                                                        color: const Color.fromARGB(255, 108, 158, 207),
-                                                        shape: const RoundedRectangleBorder(
-                                                            borderRadius: BorderRadius.zero),
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor: const Color.fromARGB(255, 108, 158, 207),
+                                                            shape: const RoundedRectangleBorder(
+                                                                borderRadius: BorderRadius.zero),
+                                                            padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
+                                                          )
                                                       ))
                                                 ],
                                               ),
@@ -283,7 +289,7 @@ class newMember4_view extends GetView<NewMemberController> {
                                 SizedBox(
                                   height: 48,
                                   width: double.infinity,
-                                  child: RaisedButton(
+                                  child: ElevatedButton(
                                     onPressed: () {
                                       if (NewMemberViewModel.isUse == 1 && NewMemberViewModel.isUse2 == 1) {
                                         NewMemberViewModel.joinId = NewMemberViewModel.idController.text.trim();
@@ -303,17 +309,19 @@ class newMember4_view extends GetView<NewMemberController> {
                                       "다음으로",
                                       style: TextStyle(fontSize: 16, color: Colors.white),
                                     ),
-                                    color: const Color.fromARGB(255, 0, 104, 166),
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(color: Color.fromARGB(255, 0, 104, 166)),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(255, 0, 104, 166),
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(color: Color.fromARGB(255, 0, 104, 166)),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    )
                                   ),
                                 ),
                                 SizedBox(
                                   height: 48,
                                   width: double.infinity,
-                                  child: RaisedButton(
+                                  child: ElevatedButton(
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
@@ -321,11 +329,13 @@ class newMember4_view extends GetView<NewMemberController> {
                                       "이전으로",
                                       style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 104, 166)),
                                     ),
-                                    color: const Color.fromARGB(255, 255, 255, 255),
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(color: Color.fromARGB(255, 0, 104, 166)),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(color: Color.fromARGB(255, 0, 104, 166)),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    )
                                   ),
                                 )
                               ],

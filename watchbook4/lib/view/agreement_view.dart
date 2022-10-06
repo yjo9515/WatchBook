@@ -96,7 +96,7 @@ class agreement_view extends GetView<LoginController>{
                             SizedBox(
                               height: 48,
                               width: double.infinity,
-                              child: RaisedButton(
+                              child: ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context, true);
                                 },
@@ -105,20 +105,22 @@ class agreement_view extends GetView<LoginController>{
                                   style: TextStyle(
                                       fontSize: 16, color: Colors.white),
                                 ),
-                                color: const Color.fromARGB(
-                                    255, 0, 104, 166),
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      color: Color.fromARGB(
-                                          255, 0, 104, 166)),
-                                  borderRadius: BorderRadius.circular(10),
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                        color: Color.fromARGB(
+                                            255, 0, 104, 166)),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  backgroundColor: const Color.fromARGB(
+                                      255, 0, 104, 166),
                                 ),
                               ),
                             ),
                             SizedBox(
                               height: 48,
                               width: double.infinity,
-                              child: RaisedButton(
+                              child: FloatingActionButton(
                                 onPressed: () {
                                   Navigator.pop(context, false);
                                 },
@@ -128,7 +130,7 @@ class agreement_view extends GetView<LoginController>{
                                       fontSize: 16, color: Color.fromARGB(
                                       255, 0, 104, 166)),
                                 ),
-                                color: const Color.fromARGB(
+                                backgroundColor: const Color.fromARGB(
                                     255, 255, 255, 255),
                                 shape: RoundedRectangleBorder(
                                   side: const BorderSide(

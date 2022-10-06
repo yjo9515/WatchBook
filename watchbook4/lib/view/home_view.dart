@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class home_view extends GetView<HomeController> {
   final Completer<WebViewController> _controllerCompleter = Completer<WebViewController>();
   @override
   Widget build(BuildContext context) {
+    if(Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return GetBuilder<HomeViewModel>(
         init: HomeViewModel(),

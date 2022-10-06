@@ -32,7 +32,7 @@ class InitialWidget extends StatelessWidget {
         ],
       ),
       actions: <Widget>[
-        FlatButton(
+        ElevatedButton(
           child: const Text("확인"),
           onPressed: () {
             Get.back();

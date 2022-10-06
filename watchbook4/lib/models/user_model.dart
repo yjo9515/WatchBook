@@ -1,7 +1,5 @@
 
 
-import 'package:kakao_flutter_sdk/all.dart';
-
 class UserModel{
   late var user_id;
   late var person_id;

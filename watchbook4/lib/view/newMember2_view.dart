@@ -395,7 +395,7 @@ class newMember2_view extends GetView<NewMemberController>{
                             SizedBox(
                               height: 48,
                               width: double.infinity,
-                              child: RaisedButton(
+                              child: ElevatedButton(
                                 onPressed: () {
                                   if(NewMemberViewModel.isAgree){
                                     Get.to(newMember3_view());
@@ -408,20 +408,22 @@ class newMember2_view extends GetView<NewMemberController>{
                                   style: TextStyle(
                                       fontSize: 16, color: Colors.white),
                                 ),
-                                color: const Color.fromARGB(
-                                    255, 0, 104, 166),
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      color: Color.fromARGB(
-                                          255, 0, 104, 166)),
-                                  borderRadius: BorderRadius.circular(10),
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                        color: Color.fromARGB(
+                                            255, 0, 104, 166)),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  backgroundColor: const Color.fromARGB(
+                                      255, 0, 104, 166),
                                 ),
                               ),
                             ),
                             SizedBox(
                               height: 48,
                               width: double.infinity,
-                              child: RaisedButton(
+                              child: ElevatedButton(
                                 onPressed: () {
                                   Navigator.pop(context);
                                 },
@@ -431,13 +433,15 @@ class newMember2_view extends GetView<NewMemberController>{
                                       fontSize: 16, color: Color.fromARGB(
                                       255, 0, 104, 166)),
                                 ),
-                                color: const Color.fromARGB(
-                                    255, 255, 255, 255),
-                                shape: RoundedRectangleBorder(
-                                  side: const BorderSide(
-                                      color: Color.fromARGB(
-                                          255, 0, 104, 166)),
-                                  borderRadius: BorderRadius.circular(10),
+                                style: ElevatedButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    side: const BorderSide(
+                                        color: Color.fromARGB(
+                                            255, 0, 104, 166)),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  backgroundColor: const Color.fromARGB(
+                                      255, 0, 104, 166),
                                 ),
                               ),
                             )

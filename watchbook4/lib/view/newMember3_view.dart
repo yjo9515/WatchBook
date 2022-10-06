@@ -163,8 +163,7 @@ class newMember3_view extends GetView<NewMemberController>{
                                             )),
                                         Expanded(
                                             flex: 26,
-                                            child: RaisedButton(onPressed:NewMemberViewModel.requestSendAuthProcess,
-                                              padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
+                                            child: ElevatedButton(onPressed:NewMemberViewModel.requestSendAuthProcess,
                                               child:
                                               NewMemberViewModel.send == 1 ? const Text('재전송',
                                                 style: TextStyle
@@ -177,11 +176,14 @@ class newMember3_view extends GetView<NewMemberController>{
                                                     (color: Color.fromARGB(
                                                       255, 255, 255, 255)
                                                       ,fontSize: 16)),
-                                              color: const Color.fromARGB(
-                                                  255, 108, 158, 207),
-                                              shape: const RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.zero
-                                              ),
+                                                style: ElevatedButton.styleFrom(
+                                                  padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
+                                                  backgroundColor: const Color.fromARGB(
+                                                      255, 108, 158, 207),
+                                                  shape: const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.zero
+                                                  ),
+                                                )
                                             )
                                         )],
                                     ),
@@ -244,8 +246,7 @@ class newMember3_view extends GetView<NewMemberController>{
                                         ),
                                         Expanded(
                                             flex: 26,
-                                            child: RaisedButton(onPressed: NewMemberViewModel.requestCheckAuthProcess,
-                                              padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
+                                            child: ElevatedButton(onPressed: NewMemberViewModel.requestCheckAuthProcess,
                                               child:
                                               const Text('인증',
                                                 style: TextStyle
@@ -253,11 +254,14 @@ class newMember3_view extends GetView<NewMemberController>{
                                                     255, 255, 255, 255)
                                                     ,fontSize: 16),
                                               ),
-                                              color: const Color.fromARGB(
-                                                  255, 108, 158, 207),
-                                              shape: const RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.zero
-                                              ),
+                                                style: ElevatedButton.styleFrom(
+                                                  padding: const EdgeInsets.fromLTRB(0, 17, 0, 17),
+                                                  backgroundColor: const Color.fromARGB(
+                                                      255, 108, 158, 207),
+                                                  shape: const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.zero
+                                                  ),
+                                                )
                                             )
                                         )],
                                     ) : null,
@@ -306,7 +310,7 @@ class newMember3_view extends GetView<NewMemberController>{
                                 SizedBox(
                                   height: 48,
                                   width: double.infinity,
-                                  child: RaisedButton(
+                                  child: ElevatedButton(
                                     onPressed: () {
                                       NewMemberViewModel.requestCheckName();
                                     },
@@ -315,20 +319,22 @@ class newMember3_view extends GetView<NewMemberController>{
                                       style: TextStyle(
                                           fontSize: 16, color: Colors.white),
                                     ),
-                                    color: const Color.fromARGB(
-                                        255, 0, 104, 166),
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          color: Color.fromARGB(
-                                              255, 0, 104, 166)),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 0, 104, 166),
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 0, 104, 166)),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    )
                                   ),
                                 ),
                                 SizedBox(
                                   height: 48,
                                   width: double.infinity,
-                                  child: RaisedButton(
+                                  child: ElevatedButton(
                                     onPressed: () {
                                       Navigator.pop(context);
                                     },
@@ -338,14 +344,16 @@ class newMember3_view extends GetView<NewMemberController>{
                                           fontSize: 16, color: Color.fromARGB(
                                           255, 0, 104, 166)),
                                     ),
-                                    color: const Color.fromARGB(
-                                        255, 255, 255, 255),
-                                    shape: RoundedRectangleBorder(
-                                      side: const BorderSide(
-                                          color: Color.fromARGB(
-                                              255, 0, 104, 166)),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(
+                                          255, 255, 255, 255),
+                                      shape: RoundedRectangleBorder(
+                                        side: const BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 0, 104, 166)),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    )
                                   ),
                                 )
                               ],
