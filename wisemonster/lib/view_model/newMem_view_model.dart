@@ -9,6 +9,7 @@ import 'package:wisemonster/view/newMember4_view.dart';
 import 'package:wisemonster/view/newMember5_view.dart';
 import 'package:wisemonster/view/widgets/AlertWidget.dart';
 import 'package:wisemonster/view/widgets/InitialWidget.dart';
+import 'package:wisemonster/view/widgets/QuitWidget.dart';
 import 'package:wisemonster/view/widgets/SendWidget.dart';
 import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
 
@@ -307,7 +308,7 @@ class NewMemberViewModel extends GetxController{
     );
   }  void initDialog(value) {
     Get.dialog(
-        InitialWidget(serverMsg: msg)
+        QuitWidget(serverMsg: msg)
     );
   }
   void sendDialog(value) {

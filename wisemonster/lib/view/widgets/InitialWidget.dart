@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:wisemonster/view/login_view.dart';
 
 class InitialWidget extends StatelessWidget {
@@ -32,7 +33,12 @@ class InitialWidget extends StatelessWidget {
         ],
       ),
       actions: <Widget>[
-
+        TextButton(
+          child: const Text("설정하기"),
+          onPressed: () {
+            openAppSettings();
+          },
+        ),
       ],
     );
   }

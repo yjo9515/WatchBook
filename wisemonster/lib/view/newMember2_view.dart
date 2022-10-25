@@ -80,7 +80,7 @@ class newMember2_view extends GetView<NewMemberController>{
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
-                                Get.to(newMember3_view());
+                                Get.to(newMember4_view());
                               },
                               child: const Text(
                                 "본인 인증",

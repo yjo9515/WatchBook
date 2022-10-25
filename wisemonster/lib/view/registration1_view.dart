@@ -3,14 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/controller/newMember_controller.dart';
-import 'package:wisemonster/view/agreement_view.dart';
-import 'package:wisemonster/view/newMember3_view.dart';
-import 'package:wisemonster/view/newMember4_view.dart';
 import 'package:wisemonster/view/registration2_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/H2.dart';
-import 'package:wisemonster/view/widgets/NormalTextWidget.dart';
-import 'package:wisemonster/view_model/newMem_view_model.dart';
 
 class registration1_view extends GetView<NewMemberController>{
 
@@ -65,8 +60,8 @@ class registration1_view extends GetView<NewMemberController>{
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        H1(changeValue: 'STEP'),
-                                        H1(changeValue: '1/2'),
+                                        H1(changeValue: 'STEP',size: 20,),
+                                        H1(changeValue: '1/2',size: 20,),
                                       ],
                                     ),
                                     Container(height: 10,),

@@ -45,7 +45,6 @@ class AppPages {
       name: Routes.INTRO,
       page: () => intro_view(),
     ),
-
     GetPage(
       name: Routes.PUSH,
       page: () => push_view()

@@ -32,7 +32,12 @@ class QuitWidget extends StatelessWidget {
         ],
       ),
       actions: <Widget>[
-
+        TextButton(
+          child: const Text("확인"),
+          onPressed: () {
+            Get.back();
+          },
+        ),
       ],
     );
   }

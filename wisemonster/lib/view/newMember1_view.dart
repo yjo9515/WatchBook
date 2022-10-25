@@ -9,6 +9,8 @@ import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/H2.dart';
 import 'package:wisemonster/view_model/newMem_view_model.dart';
 
+import 'newMember3_view.dart';
+
 class newMember1_view extends GetView<NewMemberController>{
 
   @override
@@ -51,7 +53,7 @@ class newMember1_view extends GetView<NewMemberController>{
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                H1(changeValue: '이용 약관',),
+                                H1(changeValue: '이용 약관', size: 20,),
                                 Container(height: 10,),
                                 H2(changeValue: '약관 동의 후에 회원가입을 진행해주세요.',)
                               ],
@@ -158,7 +160,7 @@ class newMember1_view extends GetView<NewMemberController>{
                         child: ElevatedButton(
                           onPressed: () {
                             if(NewMemberViewModel.isAgree && NewMemberViewModel.isAgree2){
-                              Get.to(newMember2_view());
+                              Get.to(newMember3_view());
                             } else {
                               NewMemberViewModel.dialog();
                             }

@@ -56,7 +56,7 @@ class newMember5_view extends GetView<NewMemberController>{
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              H1(changeValue: '제품 등록'),
+                              H1(changeValue: '제품 등록',size: 20,),
                               Container(height: 15,),
                               Text('회원가입이 완료되었습니다.\n로그인 후 서비스를 이용해 주세요.',
                                   textAlign: TextAlign.center,

@@ -26,7 +26,14 @@ dependencies:
   webview_flutter: ^2.1.0
   connectivity_plus: ^2.3.6
   permission_handler: ^10.0.2
-
+  table_calendar: ^3.0.7
+  contacts_service: ^0.6.3
+  firebase_messaging: ^14.0.2
+  flutter_local_notifications: ^9.2.0
+  agora_rtc_engine: ^6.0.0
+  firebase_core: ^2.1.0
+  firebase_auth: ^4.0.2
+  firebase_in_app_messaging: ^0.7.0+2
 
 dev_dependencies:
   flutter_test:
@@ -47,4 +54,5 @@ flutter:
   assets:
     - images/
     - images/default/
+    - images/icon/
 

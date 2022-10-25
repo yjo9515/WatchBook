@@ -4,9 +4,11 @@ import 'package:flutter/services.dart';
 class H1 extends StatelessWidget {
   String changeValue = '';
 
-  String hintText = '';
+  double size;
+
   H1({
     required this.changeValue,
+  required this.size
   });
   @override
   Widget build(BuildContext context) {
@@ -15,7 +17,7 @@ class H1 extends StatelessWidget {
       changeValue,
       textAlign: TextAlign.left,
       style: TextStyle(
-          fontSize: 20,
+          fontSize: size,
           color: Color.fromARGB(255, 18, 136, 248)
       ),
     );

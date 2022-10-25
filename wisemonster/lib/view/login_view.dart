@@ -36,7 +36,7 @@ class login_view extends GetView<LoginController>{
                 body: InkWell(
                     onTap: () => _isKakaoTalkInstalled,
                     child: Container(
-                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                       constraints:
                       BoxConstraints(minHeight: MediaQuery.of(context).size.height
                         //set minimum height equal to 100% of VH
@@ -58,33 +58,25 @@ class login_view extends GetView<LoginController>{
                                     .width,
                                 height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
                                     .size
-                                    .height,
+                                    .height-20,
                                 child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: <Widget>[
                                       Container(
-                                        height: 127,
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Container(
-                                                width: 202,
-                                                height: 32,
-                                                alignment: Alignment.centerLeft,
-                                                child:Image.asset(
-                                                  'images/default/logo.png',
-                                                  fit: BoxFit.contain,
-                                                  alignment: Alignment.center,
-                                                )//title text
-                                            ),
-                                            Container(
-                                              //show error message here
-                                              padding: const EdgeInsets.all(10),
-                                              child: LoginViewModel.error ? errmsg(LoginViewModel.errmsg) : Container(),
-                                            ),
-                                          ],
-                                        ),
+                                        height: 70,
+                                      ),
+                                      Container(
+                                          width: 202,
+                                          height: 32,
+                                          alignment: Alignment.centerLeft,
+                                          child:Image.asset(
+                                            'images/default/logo.png',
+                                            fit: BoxFit.contain,
+                                            alignment: Alignment.center,
+                                          )//title text
+                                      ),
+                                      Container(
+                                        height: 50,
                                       ),
                                       Container(
                                         width: 264,
@@ -111,55 +103,83 @@ class login_view extends GetView<LoginController>{
                                             TextFieldWidget(tcontroller: _passwd, changeValue: passwd, hintText: '비밀번호를 입력해주세요.'),
                                             Container(height: 20),
                                             Row(
-                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              mainAxisSize: MainAxisSize.max,
                                               children: [
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Obx(() =>
-                                                        Transform.scale(
-                                                          scale: 1,
-                                                          child: Checkbox(
-                                                            side: BorderSide(width: 1, color: Color.fromARGB(255, 43, 43, 43)),
-                                                            checkColor: Colors.white,
+                                                Expanded(
+                                                  flex:1,
+                                                  child: Obx(() =>
+                                                      Transform.scale(
+                                                          scale: 0.8,
+                                                          child:
+                                                          ListTileTheme(
+                                                              horizontalTitleGap: 0,
+                                                              child:
+                                                          CheckboxListTile(
+                                                            contentPadding: EdgeInsets.zero,
+                                                            title: Text('아이디 저장',
+                                                              style: TextStyle(
+                                                                  fontSize: 18
+                                                              ),
+                                                            ),
+                                                            controlAffinity: ListTileControlAffinity.leading,
                                                             value: LoginViewModel.isObscure.isTrue,
                                                             onChanged: (value) {
                                                               LoginViewModel.changeObscure();
                                                             },
-
-                                                          ),
-                                                        ),
-                                                    ),
-                                                    Text('아이디 저장 '),
-                                                  ],
+                                                          )
+                                                        // Checkbox(
+                                                        //
+                                                        //   side: BorderSide(width: 1, color: Color.fromARGB(255, 43, 43, 43)),
+                                                        //   checkColor: Colors.white,
+                                                        //   value: LoginViewModel.isObscure.isTrue,
+                                                        //   onChanged: (value) {
+                                                        //     LoginViewModel.changeObscure();
+                                                        //   },
+                                                        //
+                                                        // ),
+                                                      ),
+                                                  ),)
                                                 ),
-                                                Row(
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Obx(() =>
-                                                        Transform.scale(
-                                                          scale: 1,
-                                                          child: Checkbox(
-                                                            side: BorderSide(width: 1, color: Color.fromARGB(255, 43, 43, 43)),
-                                                            checkColor: Colors.white,
+                                                Expanded(
+                                                  flex:1,
+                                                  child: Obx(() =>
+                                                      Transform.scale(
+                                                          scale: 0.8,
+                                                          child:
+                                                          ListTileTheme(
+                                                              horizontalTitleGap: 0,
+                                                              child:
+                                                          CheckboxListTile(
+                                                            contentPadding: EdgeInsets.zero,
+                                                            title: Text('자동 로그인',
+                                                            style: TextStyle(
+                                                              fontSize: 18
+                                                            ),
+                                                            ),
+                                                            controlAffinity: ListTileControlAffinity.leading,
                                                             value: LoginViewModel.isAuto.isTrue,
                                                             onChanged: (value) {
                                                               LoginViewModel.autoLogin();
                                                             },
-                                                          ),
-                                                        ),
-                                                    ),
-                                                    Text('자동 로그인 '),
-                                                  ],
+                                                          )
+                                                        // Checkbox(
+                                                        //   side: BorderSide(width: 1, color: Color.fromARGB(255, 43, 43, 43)),
+                                                        //   checkColor: Colors.white,
+                                                        //   value: LoginViewModel.isAuto.isTrue,
+                                                        //   onChanged: (value) {
+                                                        //     LoginViewModel.autoLogin();
+                                                        //   },
+                                                        // ),
+                                                      ),
+                                                  ),)
                                                 ),
                                               ],
                                             ),
                                           ],
                                         ),
                                       ),
-
                                       Container(
-
                                         margin: const EdgeInsets.fromLTRB(0, 80, 0, 10),
                                         width: 328,
                                         child: SizedBox(

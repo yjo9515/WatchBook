@@ -152,7 +152,7 @@ class home_view extends GetView<HomeController> {
                                                 child: TextButton(
                                                   style: ButtonStyle(
                                                       backgroundColor:
-                                                          MaterialStateProperty.all(Color.fromARGB(255, 68, 68, 68))),
+                                                          MaterialStateProperty.all(Color.fromARGB(255, 204, 204, 204))),
                                                   onPressed: () async {
                                                     HomeViewModel.logoutProcess();
                                                   },

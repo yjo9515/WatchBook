@@ -1,14 +1,10 @@
 import 'dart:async';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:wisemonster/controller/home_controller.dart';
 import 'package:wisemonster/controller/splash_controller.dart';
-import 'package:wisemonster/view/login_view.dart';
 
 class splash_view extends GetView<SplashController> {
   @override

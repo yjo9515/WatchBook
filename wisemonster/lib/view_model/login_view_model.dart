@@ -11,6 +11,8 @@ import 'package:wisemonster/models/user_model.dart';
 import 'package:wisemonster/view/home_view.dart';
 import 'package:http/http.dart' as http;
 import 'package:wisemonster/view/widgets/AlertWidget.dart';
+import 'package:wisemonster/view/widgets/QuitWidget.dart';
+import 'package:wisemonster/view_model/home_view_model.dart';
 
 // 어떤 상태인지 열거
 
@@ -31,6 +33,8 @@ class LoginViewModel extends GetxController{
   bool error = false;
   RxBool isObscure = false.obs;
   RxBool isAuto = false.obs;
+
+
 
   changeObscure() {
     if(isObscure.value == true){
@@ -60,34 +64,40 @@ class LoginViewModel extends GetxController{
   void login(apiId, apiPassword) {
     print(apiId);
     userEnums = UserEnums.Waiting;
-    update();
+
     api.login(apiId, apiPassword).then((value) {
-      Get.back();
       if (value == false) {
-        userEnums = UserEnums.Error;
-        errmsg = "서버 연결에 실패하였습니다.";
-        error = true;
+        Get.back();
+        Get.dialog(
+            QuitWidget(serverMsg: "서버 연결에 실패하였습니다.",)
+        );
         update();
       } else {
+
         print(value);
-        if(value['result'] == true) {
-          print(value['token']);
-          addPref('token', value['token']);
-          addPref('id', apiId.text);
-          addPref('passwd', apiPassword.text);
-          update();
-          Get.offAll(
-                  () => home_view());
-        }else{
-          userEnums = UserEnums.Error;
-          error = true;
-          errmsg = value['message'];
-          update();
-        }
-        //user = UserModel.fromJson(value);
+        print(value['token']);
+        addPref('token', value['token']);
+        addPref('id', apiId.text);
+
+        api.getInfo().then((value) {
+          if (value == false) {
+            Get.dialog(
+                QuitWidget(serverMsg: "로그인 토큰 발행에 실패하였습니다.",)
+            );
+            update();
+          } else {
+            addPref('name', value['personObj']['name'].toString());
+            Get.offAll(() => home_view(), arguments: value['personObj']['name'].toString());
+            update();
+            //user = UserModel.fromJson(value);
+          }
+        });
+
+
       }
-    });
+      });
   }
+
 
   Future<void> kakaoLoginButtonPressed() async {
     final clientState = const Uuid().v4();

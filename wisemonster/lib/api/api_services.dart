@@ -11,6 +11,7 @@ import 'package:wisemonster/view_model/newMem_view_model.dart';
 
 class ApiServices extends GetxController {
   var authresponse;
+  String sever = 'https://www.smartdoor.watchbook.tv';
   Future loginStatus() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? tokenValue = sharedPreferences.getString('token');
@@ -18,7 +19,7 @@ class ApiServices extends GetxController {
     //저장된 토큰값 가져오기
     print("토큰값 : ${tokenValue}");
     if (tokenValue != null) { //사용자 정보 전송
-      String apiurl = 'https://www.watchbook.tv/test';
+      String apiurl = '${sever}/test';
       var response = await http.post(Uri.parse(apiurl),
           headers: {HttpHeaders.authorizationHeader: "Bearer ${tokenValue}"}
       );
@@ -31,7 +32,7 @@ class ApiServices extends GetxController {
   Future requestSendAuthProcess(phoneController,nameController) async {
 
     var timer = 300;//인증만료 시간 설정
-    String apiurl = 'https://www.watchbook.tv/User/sendSmsAuthProcess?name=${nameController.text.trim()}&handphone=${phoneController.text.trim()}&expire=${timer}';
+    String apiurl = '${sever}/User/sendSmsAuthProcess?name=${nameController.text.trim()}&handphone=${phoneController.text.trim()}&expire=${timer}';
 
     authresponse = await http.post(Uri.parse(apiurl),
         body: {
@@ -52,7 +53,7 @@ class ApiServices extends GetxController {
   }
 
   requestCheckName(nameController) async{
-    String url = 'https://www.watchbook.tv/User/watchbooknameCheck';
+    String url = '${sever}/User/watchbooknameCheck';
     var response = await http.post(Uri.parse(url),
         body:{
           'name' : nameController.text.trim()
@@ -79,7 +80,7 @@ class ApiServices extends GetxController {
   }
 
   requestSearchId(idController) async{
-    String url = 'https://www.watchbook.tv/User/watchbooksearchId?id=${idController.text.trim()}';
+    String url = '${sever}/User/watchbooksearchId?id=${idController.text.trim()}';
     var response = await http.post(Uri.parse(url),
         body:{
           'id' : idController.text.trim()
@@ -96,7 +97,7 @@ class ApiServices extends GetxController {
   }
 
   requestSearchNickname(nicknameController) async{
-    String url = 'https://www.watchbook.tv/Person/searchNickname?nickname=${nicknameController.text.trim()}';
+    String url = '${sever}/Person/searchNickname?nickname=${nicknameController.text.trim()}';
     var response = await http.post(Uri.parse(url),
         body:{
           'nickname' : nicknameController.text.trim()
@@ -113,7 +114,7 @@ class ApiServices extends GetxController {
   }
 
   requestJoinProcess(all) async{
-    String url = 'https://www.watchbook.tv/User/watchbookjoinProcess';
+    String url = '${sever}/User/watchbookjoinProcess';
     var response = await http.post(Uri.parse(url),
         body:{
           // 'type' : all[0],
@@ -137,7 +138,7 @@ class ApiServices extends GetxController {
   Future login(_id, _passwd) async {
     Get.dialog(Center(child: CircularProgressIndicator()),
         barrierDismissible: false);
-    String apiurl = 'https://www.watchbook.tv/User/getToken'; //토큰요청
+    String apiurl = '${sever}/User/getToken'; //토큰요청
     var response = await http.post(Uri.parse(apiurl),
         body: {
           'id': _id.text.trim(), //get the id text
@@ -148,7 +149,7 @@ class ApiServices extends GetxController {
       //정상신호 일때
       print(response.body);
       Map<String, dynamic> jsondata = json.decode(response.body);
-
+      print('${jsondata} : 로그인쪽 ');
       return jsondata;
     } else {
       return false;
@@ -158,7 +159,7 @@ class ApiServices extends GetxController {
   Future findId(_name, _phone) async {
     Get.dialog(Center(child: CircularProgressIndicator()),
         barrierDismissible: false);
-    String apiurl = 'https://www.watchbook.tv/User/watchbookfindIdProcess'; //토큰요청
+    String apiurl = '${sever}/User/watchbookfindIdProcess'; //토큰요청
     print(_name);
     print(_phone);
     var response = await http.post(Uri.parse(apiurl),
@@ -181,7 +182,7 @@ class ApiServices extends GetxController {
   Future findPw(_id, _phone) async {
     Get.dialog(Center(child: CircularProgressIndicator()),
         barrierDismissible: false);
-    String apiurl = 'https://www.watchbook.tv/User/watchbookfindPasswdProcess'; //토큰요청
+    String apiurl = '${sever}/User/watchbookfindPasswdProcess'; //토큰요청
     print(_id);
     print(_phone);
     var response = await http.post(Uri.parse(apiurl),
@@ -210,15 +211,15 @@ class ApiServices extends GetxController {
     String? tokenValue = sharedPreferences.getString('token');
     print(id);
     print(passwd);
-    String apiurl = 'https://www.watchbook.tv/User/getInfo'; //토큰요청
+    String apiurl = '${sever}/User/getInfo'; //토큰요청
     var response = await http.post(Uri.parse(apiurl),
         headers: {HttpHeaders.authorizationHeader: "Bearer ${tokenValue}"}//넣어야 로그인 인증댐
     );
     if (response.statusCode == 200) {
       //정상신호 일때
-      print(response.body);
-
-      return UserModel.fromJson(json.decode(response.body));
+      print('${response.body} : 유저정보');
+      UserModel.fromJson(json.decode(response.body));
+      return response.body;
     } else {
       return false;
     }
@@ -226,7 +227,7 @@ class ApiServices extends GetxController {
 
 
   imagePush() async{
-    String apiurl = 'https://www.watchbook.tv/User/getToken';
+    String apiurl = '${sever}/User/getToken';
     var response = await http.post(Uri.parse(apiurl),
         body: {
 

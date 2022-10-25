@@ -3,6 +3,7 @@ class UserModel{
   late var person_id;
   late var type;
   late var id;
+  late var personObj;
   late var passwd;
   late var token;
   late var isUseMailling;
@@ -18,9 +19,11 @@ class UserModel{
   late var regDate;
   late var isUse;
 
+
   UserModel({
     required this.user_id,
     required this.person_id,
+    required this.personObj,
     required this.type,
     required this.id,
     required this.passwd,
@@ -42,6 +45,7 @@ class UserModel{
   UserModel.fromJson(Map<String, dynamic> json){
     user_id = json['user_id'];
     person_id = json['person_id'];
+    personObj = json['personObj'];
     type = json['type'];
     id = json['id'];
     passwd = json['passwd'];
@@ -64,6 +68,7 @@ class UserModel{
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['user_id'] = this.user_id;
     data['person_id'] = this.person_id;
+    data['personObj'] = this.personObj;
     data['type'] = this.type;
     data['id'] = this.id;
     data['passwd'] = this.passwd;
