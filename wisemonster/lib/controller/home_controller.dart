@@ -17,4 +17,11 @@ class HomeController extends GetxController{
     print('메인 진입');
     super.onInit();
   }
+
+  @override
+  void dispose() {
+    home.sController?.close();
+    home.pagecontroller?.dispose();
+    super.onClose();
+  }
 }

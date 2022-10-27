@@ -49,7 +49,6 @@ class SplashController extends GetxController {
     Map<Permission,PermissionStatus>statuses = await [
       Permission.storage,
       Permission.camera,
-      Permission.photos,
       Permission.phone,
       Permission.contacts,
       Permission.microphone].request();
@@ -62,7 +61,7 @@ class SplashController extends GetxController {
 
     if(statuses[Permission.camera]!.isGranted
         &&statuses[Permission.storage]!.isGranted
-        &&statuses[Permission.photos]!.isGranted
+        // &&statuses[Permission.photos]!.isGranted
         &&statuses[Permission.phone]!.isGranted
         &&statuses[Permission.contacts]!.isGranted
         &&statuses[Permission.microphone]!.isGranted

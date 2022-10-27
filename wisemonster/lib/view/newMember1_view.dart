@@ -4,12 +4,10 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/controller/newMember_controller.dart';
 import 'package:wisemonster/view/agreement_view.dart';
-import 'package:wisemonster/view/newMember2_view.dart';
+import 'package:wisemonster/view/newMember4_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/H2.dart';
 import 'package:wisemonster/view_model/newMem_view_model.dart';
-
-import 'newMember3_view.dart';
 
 class newMember1_view extends GetView<NewMemberController>{
 
@@ -160,7 +158,7 @@ class newMember1_view extends GetView<NewMemberController>{
                         child: ElevatedButton(
                           onPressed: () {
                             if(NewMemberViewModel.isAgree && NewMemberViewModel.isAgree2){
-                              Get.to(newMember3_view());
+                              Get.to(newMember4_view());
                             } else {
                               NewMemberViewModel.dialog();
                             }

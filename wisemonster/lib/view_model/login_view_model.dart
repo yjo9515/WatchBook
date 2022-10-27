@@ -87,7 +87,7 @@ class LoginViewModel extends GetxController{
             update();
           } else {
             addPref('name', value['personObj']['name'].toString());
-            Get.offAll(() => home_view(), arguments: value['personObj']['name'].toString());
+            Get.offAll(() => home_view());
             update();
             //user = UserModel.fromJson(value);
           }

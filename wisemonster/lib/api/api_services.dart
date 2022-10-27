@@ -224,7 +224,47 @@ class ApiServices extends GetxController {
       return false;
     }
   }
+  sendQRcode(code) async {
 
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var token = sharedPreferences.getString('token');
+    var scode = code.code.split('|');
+    print('${scode[0]} : 코드');
+    print('${scode[1]} : 코드');
+    print(token);
+    String url = '${sever}/ProductSncodePerson/joinProcess?pcode=${scode[0]}&sncode=${scode[1]}&token=${token}&resultType=json';
+    print(url);
+    var response = await http.get(Uri.parse(url),
+        headers: {HttpHeaders.authorizationHeader: "Bearer ${token.toString()}"},
+
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  // doorControl() async {
+  //
+  //   String url = '${sever}/ProductSncodePerson/joinProcess?pcode=${scode[0]}&sncode=${scode[1]}&token=${token}&resultType=json';
+  //   print(url);
+  //   var response = await http.get(Uri.parse(url),
+  //     headers: {HttpHeaders.authorizationHeader: "Bearer ${token.toString()}"},
+  //
+  //   );
+  //   print(response.body);
+  //
+  //   if (response.statusCode == 200) {
+  //     Map<String, dynamic> jsondata = json.decode(response.body);
+  //     return jsondata;
+  //   }else{
+  //     return false;
+  //   }
+  // }
 
   imagePush() async{
     String apiurl = '${sever}/User/getToken';

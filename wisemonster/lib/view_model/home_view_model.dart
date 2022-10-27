@@ -1,8 +1,13 @@
 
+import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qr_code_scanner/src/types/barcode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/api/api_services.dart';
 import 'package:wisemonster/models/user_model.dart';
@@ -18,11 +23,16 @@ class HomeViewModel extends GetxController{
   String? id;
   String? passwd;
   RxString userName = ''.obs;
-  String? userName2;
-  RxInt selectedIndex = 2.obs;
   String msg = '';
   bool error = false;
+  int register = 0;
 
+  Barcode? result;
+  QRViewController? qrcontroller;
+
+
+  final PageController pagecontroller = PageController(initialPage: 0, );
+  StreamController sController = StreamController<int>()..add(0);
 
   void logoutProcess() async {
     _sharedPreferences = await SharedPreferences.getInstance();
@@ -37,6 +47,7 @@ class HomeViewModel extends GetxController{
       if (value == false) {
         msg = "서버 연결에 실패하였습니다.";
         error = true;
+
         update();
       } else {
         // model(value);
@@ -44,19 +55,65 @@ class HomeViewModel extends GetxController{
         var user = UserModel.fromJson(userMap);
         print(user.personObj['name']);
         userName.value = user.personObj['name'].toString();
-        userName2 = user.personObj['name'].toString();
-        print(userName);
-        print('${userName2} 제바바ㅏ발');
+        print('전달할 유저 이름 : ${userName}');
         _sharedPreferences = await SharedPreferences.getInstance();
         _sharedPreferences.setString('name', userName.value);
         print(value);
+        if()
+
         update();
-        Get.offAll(() => home_view(), arguments: userName);
+        Get.offAll(() => home_view());
 
       }
     }
 
     );
+  }
+
+
+  sendCode (Barcode? result) {
+    api.sendQRcode(result).then((value) async {
+      if (value == false) {
+        msg = "인증에 실패하였습니다.\n창을 닫은 후 다시 촬영해주세요.";
+        error = true;
+        Get.dialog(QuitWidget(serverMsg: msg));
+        register = 0;
+        update();
+      } else {
+        // model(value);
+        print('리턴값 : ${value}');
+        print(value['params']['pcode']);
+        _sharedPreferences = await SharedPreferences.getInstance();
+        _sharedPreferences.setString('pcode', value['params']['pcode']);
+        _sharedPreferences.setString('sncode', value['params']['sncode']);
+        print(value);
+        register = 1;
+        update();
+        refresh();
+        print(register);
+        Get.back();
+      }
+    });
+  }
+
+  void onQRViewCreated(QRViewController controller) {
+    this.qrcontroller = controller;
+    controller.scannedDataStream.listen((scanData) {
+      if(scanData.code != null){
+        this.qrcontroller?.dispose();
+        result = scanData;
+        print(scanData.code);
+        sendCode(result);
+      }
+    });
+  }
+  void onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
+    log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
+    if (!p) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('권한이 없습니다.')),
+      );
+    }
   }
 
   model(value) async {
@@ -94,13 +151,8 @@ class HomeViewModel extends GetxController{
     }
   }
 
+
   static HomeViewModel get to => Get.find();
 
-
-  void changeIndex(int index) {
-    selectedIndex(index);
-    print(index);
-
-  }
 
 }

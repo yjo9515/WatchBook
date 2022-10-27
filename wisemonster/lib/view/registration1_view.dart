@@ -60,11 +60,10 @@ class registration1_view extends GetView<NewMemberController>{
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        H1(changeValue: 'STEP',size: 20,),
-                                        H1(changeValue: '1/2',size: 20,),
+                                        H1(changeValue: '제품 등록',size: 20,),
                                       ],
                                     ),
-                                    Container(height: 10,),
+                                    Container(height: 20,),
                                     Row(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [

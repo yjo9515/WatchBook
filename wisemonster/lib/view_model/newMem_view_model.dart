@@ -280,6 +280,7 @@ class NewMemberViewModel extends GetxController{
       } else {
         print(value);
         if(value['result'] == true) {
+
           Get.offAll(newMember5_view());
         }else{
           msg = value['message'];
@@ -287,7 +288,7 @@ class NewMemberViewModel extends GetxController{
           Get.snackbar(
               '알림',
               msg,
-              duration: Duration(seconds: 1),
+              duration: Duration(seconds: 3),
               backgroundColor: const Color.fromARGB(
               255, 39, 161, 220),
               icon: Icon(Icons.info_outline, color: Colors.white),

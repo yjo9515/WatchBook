@@ -1,13 +1,14 @@
-import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:wisemonster/controller/newMember_controller.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
+import 'package:wisemonster/view/widgets/QrWidget.dart';
 
-class registration2_view extends GetView<NewMemberController>{
+import '../controller/qr_controller.dart';
 
+
+class registration2_view extends GetView<QrController>{
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -53,87 +54,60 @@ class registration2_view extends GetView<NewMemberController>{
                             .width,
 
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                H1(changeValue: 'STEP',size: 20,),
-                                H1(changeValue: '2/2',size: 20,),
+                                H1(changeValue: '제품 등록',size: 20,),
+                                Container(height: 20,),
+                                Text('아래 QR코드 촬영 버튼을 누르고 미러 안내 화면에 표시된\n제품 등록 QR코드를 촬영하여 주십시오.'
+                                  ,style: TextStyle(
+                                      fontSize: 15,
+                                      height: 1.5
+                                  ),
+                                ),
                               ],
                             ),
-                            Container(height: 10,),
-                            Text('아래 wi-fi 연결 버튼을 누르고 미러 안내 화면에 표시된\n와이즈 몬스터 wi-fi에 연결 후 다음을 누르세요.'
-                            ,style: TextStyle(
-                                fontSize: 15,
-                                height: 1.5
-                              ),
-                            ),
-                            Container(height: 148,),
-                            Container(
-                              width: double.infinity,
-                              height: 60,
-                              child: TextButton.icon(
-                                style: TextButton.styleFrom(
-                                    side: BorderSide(
-                                        color: Color.fromARGB(
-                                          255, 18, 136, 248,),
-                                        width: 1
-                                    )
+                            Container(height: 82,),
+                            TextButton(
+                                style: ButtonStyle(
+                                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(120.0),
+                                  )),
                                 ),
-                                onPressed: AppSettings.openWIFISettings,
-                                icon: Icon(
-                                  Icons.wifi,
-                                  size: 20,
-                                  color: Color.fromARGB(
-                                      255, 18, 136, 248),
-                                ),
-                                label: Text(
-                                    'wi-fi 연결',
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      color: Color.fromARGB(
-                                          255, 18, 136, 248),
-                                    )
-                                ),
-                              ),
-                            ),
-                            Container(height: 20,),
-                            Container(
-                              width: double.infinity,
-                              child: Text('버튼을 누르면 와이파이 설정으로 이동합니다.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 14,
-                                ),
-                              ),
-                            )
+                                onPressed: () {
+                                  Get.dialog(QrWidget());
+                                },
+                                child: Container(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.qr_code_scanner,
+                                          size: 32, color: Color.fromARGB(255, 87, 132, 255)),
+                                      Text('QR코드 촬영',style: TextStyle(
+                                          fontSize: 14,
+                                          height: 1.5
+                                      ),)
+                                    ],
+                                  ),
+                                  margin: EdgeInsets.fromLTRB(25, 25, 25, 25),
+                                  width: 160,
+                                  height: 160,
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Color.fromARGB(255, 87, 132, 255)
+                                      ),
+                                      borderRadius: BorderRadius.all(Radius.circular(100))),
+                                ),)
                           ],
                         ),
                       ),
                     ],
                   )),
-              Container(
-                  height: 60,
-                  child:SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Get.to(registration2_view());
-                      },
-                      child: const Text(
-                        "다음",
-                        style: TextStyle(
-                            fontSize: 16, color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(
-                            255, 39, 161, 220),
-                      ),
-                    ),
-                  )
-              )
             ],
           ),
         ));
