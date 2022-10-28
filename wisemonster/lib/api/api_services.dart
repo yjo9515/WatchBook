@@ -7,7 +7,6 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/models/user_model.dart';
-import 'package:wisemonster/view_model/newMem_view_model.dart';
 
 class ApiServices extends GetxController {
   var authresponse;
@@ -225,21 +224,43 @@ class ApiServices extends GetxController {
     }
   }
   sendQRcode(code) async {
-
+    String another = 'another';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     var token = sharedPreferences.getString('token');
-    var scode = code.code.split('|');
-    print('${scode[0]} : 코드');
-    print('${scode[1]} : 코드');
-    print(token);
-    String url = '${sever}/ProductSncodePerson/joinProcess?pcode=${scode[0]}&sncode=${scode[1]}&token=${token}&resultType=json';
-    print(url);
-    var response = await http.get(Uri.parse(url),
+    if(code.code.contains("|")){
+      var scode = code.code.split('|');
+      print('${scode[0]} : 코드');
+      print('${scode[1]} : 코드');
+      print(token);
+      String url = '${sever}/ProductSncodePerson/joinProcess?pcode=${scode[0]}&sncode=${scode[1]}&token=${token}&resultType=json';
+      print(url);
+      var response = await http.get(Uri.parse(url),
         headers: {HttpHeaders.authorizationHeader: "Bearer ${token.toString()}"},
+      );
+      print(response.body);
 
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsondata = json.decode(response.body);
+        return jsondata;
+      }else{
+        return false;
+      }
+    } else {
+      Get.back();
+      return another;
+    }
+
+  }
+
+  doorControl() async {
+    String url = '${sever}/';
+    print(url);
+    var response = await http.post(Uri.parse(url),
+      body: {
+
+      }
     );
     print(response.body);
-
     if (response.statusCode == 200) {
       Map<String, dynamic> jsondata = json.decode(response.body);
       return jsondata;
@@ -247,24 +268,6 @@ class ApiServices extends GetxController {
       return false;
     }
   }
-
-  // doorControl() async {
-  //
-  //   String url = '${sever}/ProductSncodePerson/joinProcess?pcode=${scode[0]}&sncode=${scode[1]}&token=${token}&resultType=json';
-  //   print(url);
-  //   var response = await http.get(Uri.parse(url),
-  //     headers: {HttpHeaders.authorizationHeader: "Bearer ${token.toString()}"},
-  //
-  //   );
-  //   print(response.body);
-  //
-  //   if (response.statusCode == 200) {
-  //     Map<String, dynamic> jsondata = json.decode(response.body);
-  //     return jsondata;
-  //   }else{
-  //     return false;
-  //   }
-  // }
 
   imagePush() async{
     String apiurl = '${sever}/User/getToken';

@@ -46,7 +46,7 @@ class home_view extends GetView<HomeController> {
             body:
               SafeArea(
                   child:
-                  (HomeViewModel.register == 1)?
+                  (HomeViewModel.register)?
                   Container(
                       width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
                       height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 20,
@@ -415,7 +415,7 @@ class home_view extends GetView<HomeController> {
 
               ),
 
-            appBar: (HomeViewModel.register == 1)?AppBar(
+            appBar: (HomeViewModel.register)?AppBar(
               elevation: 0,
               backgroundColor: Color.fromARGB(255, 87, 132, 255),
               iconTheme: const IconThemeData(color: Color.fromARGB(255, 255, 255, 255)),
@@ -465,7 +465,7 @@ class home_view extends GetView<HomeController> {
                   ),
                 )
             ),
-            drawer: (HomeViewModel.register == 1) ?
+            drawer: (HomeViewModel.register) ?
             LeftSlideWidget() :
             null,
           )),

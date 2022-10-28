@@ -19,13 +19,13 @@ import 'dart:io';
 
 class HomeViewModel extends GetxController{
   ApiServices api = ApiServices();
-  late SharedPreferences _sharedPreferences;
+  late SharedPreferences sharedPreferences;
   String? id;
   String? passwd;
   RxString userName = ''.obs;
   String msg = '';
   bool error = false;
-  int register = 0;
+  bool register = false;
 
   Barcode? result;
   QRViewController? qrcontroller;
@@ -35,8 +35,8 @@ class HomeViewModel extends GetxController{
   StreamController sController = StreamController<int>()..add(0);
 
   void logoutProcess() async {
-    _sharedPreferences = await SharedPreferences.getInstance();
-    await _sharedPreferences.remove('token');
+    sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.remove('token');
     print('로그아웃');
     Get.offAll(() => login_view());
   }
@@ -47,21 +47,30 @@ class HomeViewModel extends GetxController{
       if (value == false) {
         msg = "서버 연결에 실패하였습니다.";
         error = true;
-
         update();
       } else {
-        // model(value);
         Map<String, dynamic> userMap = jsonDecode(value);
         var user = UserModel.fromJson(userMap);
-        print(user.personObj['name']);
         userName.value = user.personObj['name'].toString();
         print('전달할 유저 이름 : ${userName}');
-        _sharedPreferences = await SharedPreferences.getInstance();
-        _sharedPreferences.setString('name', userName.value);
-        print(value);
-        if()
-
-        update();
+        sharedPreferences = await SharedPreferences.getInstance();
+        sharedPreferences.setString('name', user.personObj['name'].toString());
+        String? pcode =  sharedPreferences.getString('pcode');
+        String? sncode =  sharedPreferences.getString('sncode');
+        print(pcode);
+        print(sncode);
+        Get.dialog(Center(child: CircularProgressIndicator()),
+            barrierDismissible: false);
+        if(pcode == null || sncode == null){
+          register = false;
+          print('등록 실패');
+          update();
+        }else if(pcode != null && sncode != null){
+          register = true;
+          print('등록 성공');
+          update();
+          refresh();
+        }
         Get.offAll(() => home_view());
 
       }
@@ -77,20 +86,34 @@ class HomeViewModel extends GetxController{
         msg = "인증에 실패하였습니다.\n창을 닫은 후 다시 촬영해주세요.";
         error = true;
         Get.dialog(QuitWidget(serverMsg: msg));
-        register = 0;
+        register = false;
+        update();
+      } else if (value == 'another') {
+        print('다른거');
+        Get.snackbar(
+          '알림',
+          '다른 QR코드를 촬영하셨거나 도어의 정보가 다릅니다.\n다시 촬영해주세요.',
+          duration: Duration(seconds: 3),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+        qrcontroller!.dispose();
+
         update();
       } else {
         // model(value);
         print('리턴값 : ${value}');
         print(value['params']['pcode']);
-        _sharedPreferences = await SharedPreferences.getInstance();
-        _sharedPreferences.setString('pcode', value['params']['pcode']);
-        _sharedPreferences.setString('sncode', value['params']['sncode']);
+        sharedPreferences = await SharedPreferences.getInstance();
+        sharedPreferences.setString('pcode', value['params']['pcode']);
+        sharedPreferences.setString('sncode', value['params']['sncode']);
         print(value);
-        register = 1;
+        register = true;
         update();
         refresh();
-        print(register);
         Get.back();
       }
     });
@@ -100,7 +123,7 @@ class HomeViewModel extends GetxController{
     this.qrcontroller = controller;
     controller.scannedDataStream.listen((scanData) {
       if(scanData.code != null){
-        this.qrcontroller?.dispose();
+        this.qrcontroller?.pauseCamera();
         result = scanData;
         print(scanData.code);
         sendCode(result);
@@ -132,9 +155,9 @@ class HomeViewModel extends GetxController{
   }
 
   chk() async {
-    _sharedPreferences = await SharedPreferences.getInstance();
-     id = _sharedPreferences.getString('id');
-     passwd = _sharedPreferences.getString('passwd');
+    sharedPreferences = await SharedPreferences.getInstance();
+     id = sharedPreferences.getString('id');
+     passwd = sharedPreferences.getString('passwd');
      print('chk');
   }
 

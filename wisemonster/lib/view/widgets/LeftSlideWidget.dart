@@ -10,10 +10,11 @@ import 'dart:io' as i;
 
 import '../../models/user_model.dart';
 
-class LeftSlideWidget extends StatelessWidget  {
+class LeftSlideWidget extends StatelessWidget {
   String userName = '';
+  final home = Get.put(HomeViewModel());
 
-  getName() async{
+  getName() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     userName = sharedPreferences.getString('name')!;
     print('회원이름 호출');
@@ -21,8 +22,6 @@ class LeftSlideWidget extends StatelessWidget  {
     return await userName;
   }
 
-
-  HomeViewModel home = HomeViewModel();
   // LeftSlideWidget({
   //   required this.serverMsg,
   //   required this.error,
@@ -45,8 +44,14 @@ class LeftSlideWidget extends StatelessWidget  {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                      width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
-                      height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 60,
+                      width: MediaQueryData
+                          .fromWindow(WidgetsBinding.instance!.window)
+                          .size
+                          .width,
+                      height: MediaQueryData
+                          .fromWindow(WidgetsBinding.instance!.window)
+                          .size
+                          .height - 60,
                       color: Color.fromARGB(255, 255, 255, 255),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -84,7 +89,9 @@ class LeftSlideWidget extends StatelessWidget  {
                             color: Color.fromARGB(255, 255, 255, 255),
                             child: Column(
                               children: [
-                                Container(
+                                TextButton(onPressed: () {
+                                  home.getImage();
+                                }, child: Container(
                                     width: 80,
                                     height: 80,
                                     decoration: BoxDecoration(
@@ -93,24 +100,31 @@ class LeftSlideWidget extends StatelessWidget  {
                                     ),
                                     child: home.image != null
                                         ? CircleAvatar(
-                                      backgroundImage: Image.file(
+                                      backgroundImage: Image
+                                          .file(
                                         i.File(home.image!.path),
                                         fit: BoxFit.cover,
-                                      ).image,
+                                      )
+                                          .image,
                                     )
-                                        : null),
+                                        : Icon(
+                                        Icons.add,
+                                            color: Colors.white,
+                                      size: 30,
+                                    )),),
+
                                 Container(
                                   height: 12,
                                 ),
                                 FutureBuilder(
-                                  future: getName(),
+                                    future: getName(),
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
                                         return Text('${snapshot.data} 님',
                                           style: TextStyle(
-                                          fontSize: 17,
-                                          color: Color.fromARGB(255, 43, 43, 43),
-                                        ),);
+                                            fontSize: 17,
+                                            color: Color.fromARGB(255, 43, 43, 43),
+                                          ),);
                                       } else {
                                         return Text('회원님',
                                           style: TextStyle(

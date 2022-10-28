@@ -73,82 +73,98 @@ class LoginViewModel extends GetxController{
         );
         update();
       } else {
-
         print(value);
         print(value['token']);
         addPref('token', value['token']);
         addPref('id', apiId.text);
 
-        api.getInfo().then((value) {
+        api.getInfo().then((value) async {
           if (value == false) {
             Get.dialog(
                 QuitWidget(serverMsg: "로그인 토큰 발행에 실패하였습니다.",)
             );
             update();
           } else {
-            addPref('name', value['personObj']['name'].toString());
+            final home = Get.put(HomeViewModel());
+            SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+            Map<String, dynamic> userMap = jsonDecode(value);
+            var user = UserModel.fromJson(userMap);
+            print(user.personObj['name']);
+            sharedPreferences.setString('name', user.personObj['name'].toString());
+            String? pcode =  sharedPreferences.getString('pcode');
+            String? sncode =  sharedPreferences.getString('sncode');
+            print(pcode);
+            print(sncode);
+            if(pcode == null || sncode == null){
+              home.register = false;
+              print('등록 실패');
+              update();
+            }else if(pcode != null && sncode != null){
+              home.register = true;
+              print('등록 성공');
+              update();
+              refresh();
+            }
             Get.offAll(() => home_view());
             update();
             //user = UserModel.fromJson(value);
           }
         });
-
-
       }
       });
   }
 
 
-  Future<void> kakaoLoginButtonPressed() async {
-    final clientState = const Uuid().v4();
-    final url = Uri.https('kauth.kakao.com', '/oauth/authorize', {
-      'response_type': 'code',
-      'client_id': '66bae9d5fcdbfb877a8a74edabc18f7a',
-      'redirect_uri': 'https://www.watchbook.tv/oauth/kakao',
-      'state': clientState,
-    });
-    final result = await FlutterWebAuth.authenticate(
-        url: url.toString(), callbackUrlScheme: "webauthcallback");
-    final body = Uri.parse(result).queryParameters;
-    print(body);
-  }
-
-  Future<void> naverLoginButtonPressed() async {
-    final clientState = const Uuid().v4();
-    final authUri = Uri.https('nid.naver.com', '/oauth2.0/authorize', {
-      'response_type': 'code',
-      'client_id': 'C_TAVu2tex3Yjadne2IQ',
-      'response_mode': 'form_post',
-      'redirect_uri': 'https://www.watchbook.tv/oauth/naver',
-      'state': clientState,
-    });
-    final authResponse = await FlutterWebAuth.authenticate(
-        url: authUri.toString(), callbackUrlScheme: "webauthcallback");
-    final code = Uri.parse(authResponse).queryParameters['code'];
-    final tokenUri = Uri.https('nid.naver.com', '/oauth2.0/token', {
-      'grant_type': 'authorization_code',
-      'client_id': 'C_TAVu2tex3Yjadne2IQ',
-      'client_secret': 'Z3ymBZN2Rd',
-      'code': code,
-      'state': clientState,
-    });
-    var tokenResult = await http.post(tokenUri);
-    final accessToken = json.decode(tokenResult.body)['access_token'];
-    final response = await http.get(Uri.parse(
-        'https://www.watchbook.tv/oauth/naver/token?accessToken=$accessToken'));
-  }
-
-  Future<void> facebookLoginButtonPressed() async {
-    final LoginResult result = await FacebookAuth.instance
-        .login();
-    // by default we request the email and the public profile
-    // or FacebookAuth.i.login()
-    if (result.status == LoginStatus.success) {
-      // you are logged
-      final AccessToken accessToken = result.accessToken!;
-    } else {
-      print(result.status);
-      print(result.message);
-    }
-  }
+  // Future<void> kakaoLoginButtonPressed() async {
+  //   final clientState = const Uuid().v4();
+  //   final url = Uri.https('kauth.kakao.com', '/oauth/authorize', {
+  //     'response_type': 'code',
+  //     'client_id': '66bae9d5fcdbfb877a8a74edabc18f7a',
+  //     'redirect_uri': 'https://www.watchbook.tv/oauth/kakao',
+  //     'state': clientState,
+  //   });
+  //   final result = await FlutterWebAuth.authenticate(
+  //       url: url.toString(), callbackUrlScheme: "webauthcallback");
+  //   final body = Uri.parse(result).queryParameters;
+  //   print(body);
+  // }
+  //
+  // Future<void> naverLoginButtonPressed() async {
+  //   final clientState = const Uuid().v4();
+  //   final authUri = Uri.https('nid.naver.com', '/oauth2.0/authorize', {
+  //     'response_type': 'code',
+  //     'client_id': 'C_TAVu2tex3Yjadne2IQ',
+  //     'response_mode': 'form_post',
+  //     'redirect_uri': 'https://www.watchbook.tv/oauth/naver',
+  //     'state': clientState,
+  //   });
+  //   final authResponse = await FlutterWebAuth.authenticate(
+  //       url: authUri.toString(), callbackUrlScheme: "webauthcallback");
+  //   final code = Uri.parse(authResponse).queryParameters['code'];
+  //   final tokenUri = Uri.https('nid.naver.com', '/oauth2.0/token', {
+  //     'grant_type': 'authorization_code',
+  //     'client_id': 'C_TAVu2tex3Yjadne2IQ',
+  //     'client_secret': 'Z3ymBZN2Rd',
+  //     'code': code,
+  //     'state': clientState,
+  //   });
+  //   var tokenResult = await http.post(tokenUri);
+  //   final accessToken = json.decode(tokenResult.body)['access_token'];
+  //   final response = await http.get(Uri.parse(
+  //       'https://www.watchbook.tv/oauth/naver/token?accessToken=$accessToken'));
+  // }
+  //
+  // Future<void> facebookLoginButtonPressed() async {
+  //   final LoginResult result = await FacebookAuth.instance
+  //       .login();
+  //   // by default we request the email and the public profile
+  //   // or FacebookAuth.i.login()
+  //   if (result.status == LoginStatus.success) {
+  //     // you are logged
+  //     final AccessToken accessToken = result.accessToken!;
+  //   } else {
+  //     print(result.status);
+  //     print(result.message);
+  //   }
+  // }
 }
