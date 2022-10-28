@@ -102,80 +102,80 @@ class login_view extends GetView<LoginController>{
                                             Container(height: 30),
                                             TextFieldWidget(tcontroller: _passwd, changeValue: passwd, hintText: '비밀번호를 입력해주세요.'),
                                             Container(height: 20),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              mainAxisSize: MainAxisSize.max,
-                                              children: [
-                                                Expanded(
-                                                  flex:1,
-                                                  child: Obx(() =>
-                                                      Transform.scale(
-                                                          scale: 0.8,
-                                                          child:
-                                                          ListTileTheme(
-                                                              horizontalTitleGap: 0,
-                                                              child:
-                                                          CheckboxListTile(
-                                                            contentPadding: EdgeInsets.zero,
-                                                            title: Text('아이디 저장',
-                                                              style: TextStyle(
-                                                                  fontSize: 18
-                                                              ),
-                                                            ),
-                                                            controlAffinity: ListTileControlAffinity.leading,
-                                                            value: LoginViewModel.isObscure.isTrue,
-                                                            onChanged: (value) {
-                                                              LoginViewModel.changeObscure();
-                                                            },
-                                                          )
-                                                        // Checkbox(
-                                                        //
-                                                        //   side: BorderSide(width: 1, color: Color.fromARGB(255, 43, 43, 43)),
-                                                        //   checkColor: Colors.white,
-                                                        //   value: LoginViewModel.isObscure.isTrue,
-                                                        //   onChanged: (value) {
-                                                        //     LoginViewModel.changeObscure();
-                                                        //   },
-                                                        //
-                                                        // ),
-                                                      ),
-                                                  ),)
-                                                ),
-                                                Expanded(
-                                                  flex:1,
-                                                  child: Obx(() =>
-                                                      Transform.scale(
-                                                          scale: 0.8,
-                                                          child:
-                                                          ListTileTheme(
-                                                              horizontalTitleGap: 0,
-                                                              child:
-                                                          CheckboxListTile(
-                                                            contentPadding: EdgeInsets.zero,
-                                                            title: Text('자동 로그인',
-                                                            style: TextStyle(
-                                                              fontSize: 18
-                                                            ),
-                                                            ),
-                                                            controlAffinity: ListTileControlAffinity.leading,
-                                                            value: LoginViewModel.isAuto.isTrue,
-                                                            onChanged: (value) {
-                                                              LoginViewModel.autoLogin();
-                                                            },
-                                                          )
-                                                        // Checkbox(
-                                                        //   side: BorderSide(width: 1, color: Color.fromARGB(255, 43, 43, 43)),
-                                                        //   checkColor: Colors.white,
-                                                        //   value: LoginViewModel.isAuto.isTrue,
-                                                        //   onChanged: (value) {
-                                                        //     LoginViewModel.autoLogin();
-                                                        //   },
-                                                        // ),
-                                                      ),
-                                                  ),)
-                                                ),
-                                              ],
-                                            ),
+                                            // Row(
+                                            //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            //   mainAxisSize: MainAxisSize.max,
+                                            //   children: [
+                                            //     Expanded(
+                                            //       flex:1,
+                                            //       child: Obx(() =>
+                                            //           Transform.scale(
+                                            //               scale: 0.8,
+                                            //               child:
+                                            //               ListTileTheme(
+                                            //                   horizontalTitleGap: 0,
+                                            //                   child:
+                                            //               CheckboxListTile(
+                                            //                 contentPadding: EdgeInsets.zero,
+                                            //                 title: Text('아이디 저장',
+                                            //                   style: TextStyle(
+                                            //                       fontSize: 18
+                                            //                   ),
+                                            //                 ),
+                                            //                 controlAffinity: ListTileControlAffinity.leading,
+                                            //                 value: LoginViewModel.isObscure.isTrue,
+                                            //                 onChanged: (value) {
+                                            //                   LoginViewModel.changeObscure();
+                                            //                 },
+                                            //               )
+                                            //             // Checkbox(
+                                            //             //
+                                            //             //   side: BorderSide(width: 1, color: Color.fromARGB(255, 43, 43, 43)),
+                                            //             //   checkColor: Colors.white,
+                                            //             //   value: LoginViewModel.isObscure.isTrue,
+                                            //             //   onChanged: (value) {
+                                            //             //     LoginViewModel.changeObscure();
+                                            //             //   },
+                                            //             //
+                                            //             // ),
+                                            //           ),
+                                            //       ),)
+                                            //     ),
+                                            //     Expanded(
+                                            //       flex:1,
+                                            //       child: Obx(() =>
+                                            //           Transform.scale(
+                                            //               scale: 0.8,
+                                            //               child:
+                                            //               ListTileTheme(
+                                            //                   horizontalTitleGap: 0,
+                                            //                   child:
+                                            //               CheckboxListTile(
+                                            //                 contentPadding: EdgeInsets.zero,
+                                            //                 title: Text('자동 로그인',
+                                            //                 style: TextStyle(
+                                            //                   fontSize: 18
+                                            //                 ),
+                                            //                 ),
+                                            //                 controlAffinity: ListTileControlAffinity.leading,
+                                            //                 value: LoginViewModel.isAuto.isTrue,
+                                            //                 onChanged: (value) {
+                                            //                   LoginViewModel.autoLogin();
+                                            //                 },
+                                            //               )
+                                            //             // Checkbox(
+                                            //             //   side: BorderSide(width: 1, color: Color.fromARGB(255, 43, 43, 43)),
+                                            //             //   checkColor: Colors.white,
+                                            //             //   value: LoginViewModel.isAuto.isTrue,
+                                            //             //   onChanged: (value) {
+                                            //             //     LoginViewModel.autoLogin();
+                                            //             //   },
+                                            //             // ),
+                                            //           ),
+                                            //       ),)
+                                            //     ),
+                                            //   ],
+                                            // ),
                                           ],
                                         ),
                                       ),
