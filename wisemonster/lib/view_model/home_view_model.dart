@@ -37,6 +37,13 @@ class HomeViewModel extends GetxController{
   void logoutProcess() async {
     sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.remove('token');
+    await sharedPreferences.remove('name');
+    await sharedPreferences.remove('pcode');
+    await sharedPreferences.remove('sncode');
+    await sharedPreferences.remove('id');
+    await sharedPreferences.remove('passwd');
+
+
     print('로그아웃');
     Get.offAll(() => login_view());
   }
@@ -65,6 +72,7 @@ class HomeViewModel extends GetxController{
           register = false;
           print('등록 실패');
           update();
+          refresh();
         }else if(pcode != null && sncode != null){
           register = true;
           print('등록 성공');
@@ -100,8 +108,8 @@ class HomeViewModel extends GetxController{
           forwardAnimationCurve: Curves.easeOutBack,
           colorText: Colors.white,
         );
+        register = false;
         qrcontroller!.dispose();
-
         update();
       } else {
         // model(value);
@@ -112,8 +120,10 @@ class HomeViewModel extends GetxController{
         sharedPreferences.setString('sncode', value['params']['sncode']);
         print(value);
         register = true;
+        print('${register} : QR인증완료');
         update();
         refresh();
+        qrcontroller!.dispose();
         Get.back();
       }
     });

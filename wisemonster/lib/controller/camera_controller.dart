@@ -11,12 +11,11 @@ import 'package:wisemonster/view/camera_view.dart';
 import '../view_model/camera_view_model.dart';
 
 class CameraController extends GetxController{
-  // CameraViewModel cam = CameraViewModel();
-  String appId = "com.wikibox.wisemonster";
-  String channelName = "<--Insert channel name here-->";
-  String token = "<--Insert authentication token here-->";
+  String appId = "554d4edeb650484c92fd9a6e48ff67bf";
+  String channelName = "wisemonster";
+  String token = "007eJxTYLB0u7DkymcN9mdhc2wsRbcLL1IPTdk6Y01A7Jz/eYfDD79UYDA1NUkxSU1JTTIzNTCxMEm2NEpLsUw0SzWxSEszM09K05wSn9wQyMjwxPQEEyMDBIL43AzlmcWpufl5xSWpRQwMAGIQI10=";
 
-  int uid = 0; // uid of the local user
+  RxInt uid = 0.obs; // uid of the local user
 
   RxInt remoteUid = 0.obs; // uid of the remote user
   RxBool isJoined = false.obs; // Indicates if the local user has joined the channel
@@ -32,13 +31,17 @@ class CameraController extends GetxController{
       return AgoraVideoView(
         controller: VideoViewController(
           rtcEngine: agoraEngine,
-          canvas: VideoCanvas(uid: uid),
+          canvas: VideoCanvas(uid: uid.value),
         ),
       );
     } else {
-      return const Text(
-        'Join a channel',
+      return Text(
+        '통화 버튼을 눌러 도어와 연결해주세요.',
         textAlign: TextAlign.center,
+        style:TextStyle(
+            color: Color.fromARGB(255, 44, 233, 94),
+            fontSize: 20
+        )
       );
     }
   }
@@ -55,7 +58,7 @@ class CameraController extends GetxController{
       );
     } else {
       String msg = '';
-      if (isJoined.isTrue) msg = 'Waiting for a remote user to join';
+      if (isJoined.isTrue) msg = '유저연결을 기다리는 중 입니다.';
       return Text(
         msg,
         textAlign: TextAlign.center,
@@ -76,7 +79,7 @@ class CameraController extends GetxController{
       token: token,
       channelId: channelName,
       options: options,
-      uid: uid,
+      uid: uid.value,
     );
   }
 
@@ -100,7 +103,7 @@ class CameraController extends GetxController{
     //create an instance of the Agora engine
     agoraEngine = createAgoraRtcEngine();
     await agoraEngine.initialize(const RtcEngineContext(
-        appId: 'com.wikibox.wisemonster'
+        appId: '554d4edeb650484c92fd9a6e48ff67bf'
     ));
 
     await agoraEngine.enableVideo();
@@ -118,7 +121,7 @@ class CameraController extends GetxController{
         },
         onUserOffline: (RtcConnection connection, int remoteUid3,
             UserOfflineReasonType reason) {
-          showMessage("Remote user uid:$remoteUid left the channel");
+          showMessage("Remote user uid:$remoteUid3 left the channel");
           remoteUid = 0.obs;
         },
       ),
@@ -131,4 +134,13 @@ class CameraController extends GetxController{
     print('엔진');
 
   }
+  @override
+  void onClose() async{
+    // destroy sdk
+    print('엔진 끄기');
+    await agoraEngine.leaveChannel(options: LeaveChannelOptions(stopAllEffect: true));
+    super.onClose();
+
+  }
+
 }

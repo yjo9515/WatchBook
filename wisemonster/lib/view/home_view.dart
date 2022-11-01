@@ -46,7 +46,7 @@ class home_view extends GetView<HomeController> {
             body:
               SafeArea(
                   child:
-                  (HomeViewModel.register)?
+                  (HomeViewModel.register == true)?
                   Container(
                       width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
                       height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 20,
@@ -264,7 +264,7 @@ class home_view extends GetView<HomeController> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 H2(changeValue: '2. ',),
-                                                Expanded(child: H2(changeValue: '미러 안내 화면에서 와이즈 몬스터 wifi 화면이 보이면\n아래 다음을 누르고 진행해주세요.',))
+                                                Expanded(child: H2(changeValue: '미러 안내 화면에서 와이즈 몬스터 QR 등록 화면이 보이면\n아래 다음을 누르고 진행해주세요.',))
                                               ],
                                             ),
                                             Container(height: 30,),

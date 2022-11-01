@@ -141,6 +141,21 @@ class LeftSlideWidget extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               Get.to(calendar_view());
+                            },
+                            style: TextButton.styleFrom(
+                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
+                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
+                            child: Text(
+                              '공지사항',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 18, 136, 248),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Get.to(calendar_view());
                               print('캘린더');
                             },
                             style: TextButton.styleFrom(
@@ -175,7 +190,7 @@ class LeftSlideWidget extends StatelessWidget {
                                 padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
                                 backgroundColor: Color.fromARGB(255, 255, 255, 255)),
                             child: Text(
-                              '게스트 키',
+                              '출입기록',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Color.fromARGB(255, 18, 136, 248),
@@ -188,7 +203,7 @@ class LeftSlideWidget extends StatelessWidget {
                                 padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
                                 backgroundColor: Color.fromARGB(255, 255, 255, 255)),
                             child: Text(
-                              '게스트 키',
+                              '구성원',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Color.fromARGB(255, 18, 136, 248),
@@ -197,13 +212,28 @@ class LeftSlideWidget extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              home.getImage();
+
                             },
                             style: TextButton.styleFrom(
                                 padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
                                 backgroundColor: Color.fromARGB(255, 255, 255, 255)),
                             child: Text(
-                              '게스트 키',
+                              '내 프로필',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 18, 136, 248),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+
+                            },
+                            style: TextButton.styleFrom(
+                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
+                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
+                            child: Text(
+                              '설정',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Color.fromARGB(255, 18, 136, 248),

@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/controller/newMember_controller.dart';
 import 'package:wisemonster/view/agreement_view.dart';
+import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view/newMember3_view.dart';
 import 'package:wisemonster/view/newMember4_view.dart';
 import 'package:wisemonster/view/registration1_view.dart';
@@ -72,10 +73,10 @@ class newMember5_view extends GetView<NewMemberController>{
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
-                                Get.to(registration1_view());
+                                Get.to(login_view());
                               },
                               child: const Text(
-                                "제품 등록",
+                                "로그인",
                                 style: TextStyle(
                                     fontSize: 16, color: Colors.white),
                               ),
