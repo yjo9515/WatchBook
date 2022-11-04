@@ -23,8 +23,7 @@ class CameraController extends GetxController{
 
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey
   = GlobalKey<ScaffoldMessengerState>(); // Global key to access the scaffold
-
-
+  
 // Display local video preview
   Widget localPreview() {
     if (isJoined.isTrue) {
