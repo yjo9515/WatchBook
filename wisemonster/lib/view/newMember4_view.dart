@@ -38,13 +38,8 @@ class newMember4_view extends GetView<NewMemberController> {
                           height: MediaQueryData
                               .fromWindow(WidgetsBinding.instance!.window)
                               .size
-                              .height - 350,
+                              .height - 140,
                           color: Colors.white,
-                          child:Container(
-                            height: MediaQueryData
-                                .fromWindow(WidgetsBinding.instance!.window)
-                                .size
-                                .height - 350,
                             child: SingleChildScrollView(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,6 +50,9 @@ class newMember4_view extends GetView<NewMemberController> {
                                     H1(changeValue: '아이디',size: 20,),
                                     TextFieldWidget(tcontroller: NewMemberViewModel.idController, changeValue: NewMemberViewModel.id, hintText: '아이디를 입력해주세요.',),
                                     Container(height: 30,),
+                                    H1(changeValue: '휴대폰 번호',size: 20,),
+                                    TextFieldWidget(tcontroller: NewMemberViewModel.phoneController, changeValue: NewMemberViewModel.phone, hintText: '휴대폰 번호를 입력해주세요.',),
+                                    Container(height: 30,),
                                     H1(changeValue: '비밀번호',size: 20,),
                                     TextFieldWidget(tcontroller: NewMemberViewModel.passwdController, changeValue: NewMemberViewModel.passwd, hintText: '영문, 숫자, 특수문자 포함 8~16자 이내',),
                                     Container(height: 30,),
@@ -62,7 +60,7 @@ class newMember4_view extends GetView<NewMemberController> {
                                     TextFieldWidget(tcontroller: NewMemberViewModel.pwcheckController, changeValue: NewMemberViewModel.pwcheck, hintText: '비밀번호를 한 번 더 입력해주세요.',),
                                   ],
                                 )),
-                          )),
+                          ),
                       Container(
                           height: 60,
                           child:SizedBox(
@@ -70,10 +68,6 @@ class newMember4_view extends GetView<NewMemberController> {
                             child: ElevatedButton(
                               onPressed: () {
                                 NewMemberViewModel.requestJoinProcess();
-
-                                // ScaffoldMessenger.of(context).showSnackBar(
-                                //   SnackBar(content: Text('${NewMemberViewModel.msg}'))
-                                // );
                               },
                               child: const Text(
                                 "회원가입",

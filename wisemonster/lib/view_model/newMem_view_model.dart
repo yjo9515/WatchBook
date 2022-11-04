@@ -56,6 +56,7 @@ class NewMemberViewModel extends GetxController{
   RxBool isObscure2 = true.obs;
   var passwdController = TextEditingController();
   var pwcheckController = TextEditingController();
+
   String passwd= '';
   String pwcheck = '';
   bool _allPass = false;
@@ -263,12 +264,14 @@ class NewMemberViewModel extends GetxController{
     joinName = nameController.text.trim();
     joinId = idController.text.trim();
     joinPw = passwdController.text.trim();
+    joinPhone = phoneController.text.trim();
     joinRepasswd = pwcheckController.text.trim();
     List all = [];
     all.add(joinId);
     all.add(joinPw);
     all.add(joinRepasswd);
     all.add(joinName);
+    all.add(joinPhone);
     // all.add(joinPhone);
     // 보내야할거 리스트에 담아서 전송
     api.requestJoinProcess(all).then((value) {

@@ -121,7 +121,7 @@ class ApiServices extends GetxController {
           'passwd' : all[1],
           'repasswd' : all[2],
           'name' : all[3],
-          // 'handphone': all[6],
+          'handphone': all[4],
         }
     );
     print(response.body);
