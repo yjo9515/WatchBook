@@ -8,9 +8,14 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:wisemonster/view/camera_view.dart';
 
+import '../api/api_services.dart';
+import '../view/widgets/SnackBarWidget.dart';
 import '../view_model/camera_view_model.dart';
 
 class CameraController extends GetxController{
+  ApiServices api = ApiServices();
+  bool door = true;
+
   String appId = "554d4edeb650484c92fd9a6e48ff67bf";
   String channelName = "wisemonster";
   String token = "007eJxTYLB0u7DkymcN9mdhc2wsRbcLL1IPTdk6Y01A7Jz/eYfDD79UYDA1NUkxSU1JTTIzNTCxMEm2NEpLsUw0SzWxSEszM09K05wSn9wQyMjwxPQEEyMDBIL43AzlmcWpufl5xSWpRQwMAGIQI10=";
@@ -126,6 +131,17 @@ class CameraController extends GetxController{
       ),
     );
   }
+
+  control(){
+    api.doorControl(door).then((value) async {
+      if(value != false){
+        SnackBarWidget(serverMsg: value['data'],);
+      }else{
+        SnackBarWidget(serverMsg: '에러가 발생했습니다.\n관리자에게 문의해주세요.',);
+      }
+    });
+  }
+
   @override
   void onInit() {
     setupVideoSDKEngine();

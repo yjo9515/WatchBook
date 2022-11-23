@@ -22,6 +22,7 @@ class HomeController extends GetxController{
     home.sController?.close();
     home.pagecontroller?.dispose();
     home.qrcontroller?.dispose();
+    print('메인종료');
     super.onClose();
   }
 }

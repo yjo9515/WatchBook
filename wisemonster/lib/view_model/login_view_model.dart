@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -64,7 +64,6 @@ class LoginViewModel extends GetxController{
   void login(apiId, apiPassword) {
     print(apiId);
     userEnums = UserEnums.Waiting;
-
     api.login(apiId, apiPassword).then((value) {
       if (value == false) {
         Get.back();

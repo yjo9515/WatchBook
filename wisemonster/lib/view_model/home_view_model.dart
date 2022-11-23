@@ -13,6 +13,7 @@ import 'package:wisemonster/api/api_services.dart';
 import 'package:wisemonster/models/user_model.dart';
 import 'package:wisemonster/view/home_view.dart';
 import 'package:wisemonster/view/widgets/QuitWidget.dart';
+import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
 import '../view/login_view.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -34,6 +35,8 @@ class HomeViewModel extends GetxController{
   final PageController pagecontroller = PageController(initialPage: 0, );
   StreamController sController = StreamController<int>()..add(0);
 
+  bool door = true;
+
   void logoutProcess() async {
     sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.remove('token');
@@ -42,8 +45,6 @@ class HomeViewModel extends GetxController{
     await sharedPreferences.remove('sncode');
     await sharedPreferences.remove('id');
     await sharedPreferences.remove('passwd');
-
-
     print('로그아웃');
     Get.offAll(() => login_view());
   }
@@ -80,7 +81,6 @@ class HomeViewModel extends GetxController{
           refresh();
         }
         Get.offAll(() => home_view());
-
       }
     }
 
@@ -182,6 +182,23 @@ class HomeViewModel extends GetxController{
       print(base64Image);
       update();
     }
+  }
+
+  control(){
+    if(door){
+      door = false;
+      update();
+    }else{
+      door = true;
+      update();
+    }
+    api.doorControl(door).then((value) async {
+      if(value != false){
+        SnackBarWidget(serverMsg: value['data'],);
+      }else{
+        SnackBarWidget(serverMsg: '에러가 발생했습니다.\n관리자에게 문의해주세요.',);
+      }
+    });
   }
 
 

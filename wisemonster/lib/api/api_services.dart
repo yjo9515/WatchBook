@@ -252,12 +252,19 @@ class ApiServices extends GetxController {
 
   }
 
-  doorControl() async {
-    String url = '${sever}/';
+  doorControl(con) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? pcode =  sharedPreferences.getString('pcode');
+    String? url;
+    if(con){
+      url = '${sever}/ProductSncode/doorOpenProcess';
+    }else{
+      url = '${sever}/ProductSncode/doorCloseProcess';
+    }
     print(url);
     var response = await http.post(Uri.parse(url),
       body: {
-
+        'code' : pcode,
       }
     );
     print(response.body);

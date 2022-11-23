@@ -19,14 +19,8 @@ import '../main.dart';
 
 
 class QrController extends GetxController {
-
-
   @override
   onInit() {
-
-
     super.onInit();
   }
-
-
 }

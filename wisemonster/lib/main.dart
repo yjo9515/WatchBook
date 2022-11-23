@@ -20,8 +20,8 @@ late AndroidNotificationChannel channel;
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
 
+  WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(
         options: const FirebaseOptions(
             apiKey: 'AIzaSyC82k385JVg5-Dpcid3WRfF1JpdwH4viO0', // google-service.json 파일에 값 확인가능
@@ -30,9 +30,6 @@ Future<void> main() async {
             messagingSenderId: '',
             projectId: 'wisemonster-27620')
     );
-
-
-
   await FirebaseMessaging.instance.requestPermission(
       alert: true,
       announcement: true,

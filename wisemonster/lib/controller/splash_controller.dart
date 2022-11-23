@@ -50,12 +50,14 @@ class SplashController extends GetxController {
       Permission.storage,
       Permission.camera,
       Permission.phone,
+      Permission.location,
       Permission.contacts,
       Permission.microphone].request();
     print(statuses[Permission.storage]);
     print(statuses[Permission.camera]);
-    print(statuses[Permission.photos]);
+    // print(statuses[Permission.photos]);
     print(statuses[Permission.phone]);
+    print('${statuses[Permission.location]} : 위치정보');
     print(statuses[Permission.contacts]);
     print(statuses[Permission.microphone]);
 
@@ -63,6 +65,7 @@ class SplashController extends GetxController {
         &&statuses[Permission.storage]!.isGranted
         // &&statuses[Permission.photos]!.isGranted
         &&statuses[Permission.phone]!.isGranted
+        &&statuses[Permission.location]!.isGranted
         &&statuses[Permission.contacts]!.isGranted
         &&statuses[Permission.microphone]!.isGranted
     ){
@@ -105,6 +108,7 @@ class SplashController extends GetxController {
     var result = await checkConnectionStatus();
     if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) {
       getPermission().then((value) {
+        print(value);
         if(value == true) {
           updateProgress();
           api.loginStatus().then((value) {

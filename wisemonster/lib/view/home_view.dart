@@ -17,12 +17,12 @@ import 'package:wisemonster/view/widgets/LeftSlideWidget.dart';
 import 'package:wisemonster/view/widgets/QrWidget.dart';
 import 'package:wisemonster/view_model/home_view_model.dart';
 
+import 'ble_view.dart';
 import 'camera_view.dart';
 
 class home_view extends GetView<HomeController> {
   home_view({Key? key}) : super(key: key);
   String userName = '';
-
 
   getName() async{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -80,7 +80,7 @@ class home_view extends GetView<HomeController> {
                                           )),
                                         ),
                                         onPressed: () {
-
+                                          HomeViewModel.control();
                                         },
                                         child: Container(
                                           width: 220,
@@ -90,14 +90,21 @@ class home_view extends GetView<HomeController> {
                                               borderRadius: BorderRadius.all(Radius.circular(120))),
                                           child: Container(
                                             child: Container(
-                                              child: Icon(Icons.lock_open,
-                                                  size: 40, color: Color.fromARGB(255, 255, 255, 255)),
+                                              child: HomeViewModel.door ? Icon(Icons.lock_open,
+                                                  size: 40, color: Color.fromARGB(255, 255, 255, 255)):
+                                              Icon(Icons.lock,
+                                                  size: 40, color: Color.fromARGB(255, 87, 132, 255))
+                                              ,
                                               margin: EdgeInsets.fromLTRB(25, 25, 25, 25),
                                               width: 120,
                                               height: 120,
-                                              decoration: BoxDecoration(
+                                              decoration:HomeViewModel.door ? BoxDecoration(
                                                   color: Color.fromARGB(255, 14, 39, 158),
-                                                  borderRadius: BorderRadius.all(Radius.circular(100))),
+                                                  borderRadius: BorderRadius.all(Radius.circular(100))) :
+                                              BoxDecoration(
+                                                  color: Color.fromARGB(255, 255, 255, 255),
+                                                  borderRadius: BorderRadius.all(Radius.circular(100)))
+                                              ,
                                             ),
                                             margin: EdgeInsets.fromLTRB(25, 25, 25, 25),
                                             width: 170,
@@ -172,7 +179,9 @@ class home_view extends GetView<HomeController> {
                                         shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(Radius.circular(30)))),
                                       ),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        // Get.to(ble_view());
+                                      },
                                       child: Text('출입이력',
                                           style: TextStyle(
                                             fontSize: 17,
@@ -285,6 +294,7 @@ class home_view extends GetView<HomeController> {
                                                 ))
                                               ],
                                             ),
+                                            Container(height: 30,),
                                           ],
                                         ),
                                       ),

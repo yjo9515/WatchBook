@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/view_model/camera_view_model.dart';
+import 'package:wisemonster/view_model/home_view_model.dart';
 
 import '../controller/camera_controller.dart';
 
@@ -80,7 +81,7 @@ class camera_view extends GetView<CameraController> {
                             size: 24,
                           )),),
                     TextButton(
-                      onPressed: (){CameraController.leave();},
+                      onPressed: (){CameraController.control();},
                       child: Container(
                           width: 84,
                           height: 36,
