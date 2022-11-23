@@ -117,11 +117,17 @@ class home_view extends GetView<HomeController> {
                                     Container(
                                       height: 20,
                                     ),
-                                    Text('도어락이 열려있습니다.',
+                                    HomeViewModel.door?
+                                    Text('도어가 열려있습니다.',
                                         style: TextStyle(
                                           fontSize: 17,
                                           color: Color.fromARGB(255, 255, 255, 255),
-                                        )),
+                                        )):
+                                  Text('도어가 닫혀있습니다.',
+                                  style: TextStyle(
+                                  fontSize: 17,
+                                  color: Color.fromARGB(255, 255, 255, 255),
+                      )),
                                   ],
                                 ),
                               )),
