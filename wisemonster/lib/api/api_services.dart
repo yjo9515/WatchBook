@@ -5,11 +5,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/models/user_model.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 
 class ApiServices extends GetxController {
   var authresponse;
+
   String sever = 'https://www.smartdoor.watchbook.tv';
   Future loginStatus() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -27,6 +30,7 @@ class ApiServices extends GetxController {
     }
     return tokenValue;
   }
+
 
   Future requestSendAuthProcess(phoneController,nameController) async {
 
@@ -134,6 +138,296 @@ class ApiServices extends GetxController {
     }
   }
 
+  requestNickNameProcess(nicknameController) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? personId = sharedPreferences.getString('person_id');
+    String url = '${sever}/Person/saveAll';
+
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'nickname' : nicknameController,
+          'person_id' : personId
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  //소지품전송
+  requestTagProcess(route,tag) async{
+    String url = '${sever+route}';
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(url),
+        body:{
+           'family_item_id':sharedPreferences.getString('family_item_id').toString(),
+           'family_person_id':sharedPreferences.getString('family_person_id').toString(),
+          'name' : tag,
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  //읽기
+  requestRead(route) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'family_person_id':sharedPreferences.getString('family_person_id').toString(),
+          'isAll' : '1'
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+
+  //사진
+  requestImageProcess(route,base64Image) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body: {
+          'picture[data]': base64Image,
+          'person_id' : sharedPreferences.getString('person_id'),
+          'isDelPicture' : '1',
+          'resultType' : 'json'
+        }
+    );
+    if (response.statusCode == 200) {
+      //정상신호 일때
+      print(response.body);
+      Map<String, dynamic> jsondata = json.decode(response.body);
+
+      return jsondata;
+    } else {
+      return false;
+    }
+  }
+
+  requestFaceProcess(route,base64Image) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body: {
+          'face[data]': base64Image,
+          'person_id' : sharedPreferences.getString('person_id'),
+          'resultType' : 'json'
+        }
+    );
+    if (response.statusCode == 200) {
+      //정상신호 일때
+      print(response.body);
+      Map<String, dynamic> jsondata = json.decode(response.body);
+
+      return jsondata;
+    } else {
+      return false;
+    }
+  }
+
+  requestDateRead(route,date) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? token = sharedPreferences.getString('token');
+    String? familyId = sharedPreferences.getString('family_id');
+    String? familyPersonId = sharedPreferences.getString('family_person_id');
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        headers: {HttpHeaders.authorizationHeader: "Bearer ${token}"},
+        body:{
+          'family_id' : familyId,
+          'family_person_id' : familyPersonId,
+          'startDate' : date.toString(),
+          'stopDate' : date.toString(),
+        }
+    );
+    // print(response.body);
+
+    if (response.statusCode == 200) {
+
+      List<dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestSchedule(addurl,title,startDate,stopDate,level,place,comment,argument) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? token = sharedPreferences.getString('token');
+    String? familyId = sharedPreferences.getString('family_id');
+    String? familyPersonId = sharedPreferences.getString('family_person_id');
+    String? familyScheduleId = sharedPreferences.getString('family_schedule_id');
+    print(addurl);
+    print(title);
+    print(startDate);
+    print(stopDate);
+    print(level);
+    print(place);
+    print(comment);
+
+
+
+    String url = '${sever+addurl}';
+    print(url);
+    print(token);
+    print(familyId);
+    print(familyPersonId);
+    if(argument == 'create'){
+    var response = await http.post(Uri.parse(url),
+        headers: {HttpHeaders.authorizationHeader: "Bearer ${token}"},
+        body:{
+          'family_id' : familyId,
+          'family_person_id' : familyPersonId,
+          'name' : title,
+          'startDate' : startDate,
+          'stopDate' : stopDate,
+          'level' : level,
+          'place': place,
+          'comment' : comment
+        }
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+    }else{
+      print(familyScheduleId);
+      var response = await http.post(Uri.parse(url),
+          headers: {HttpHeaders.authorizationHeader: "Bearer ${token}"},
+          body:{
+            'family_schedule_id' : familyScheduleId,
+            'family_id' : familyId,
+            'family_person_id' : familyPersonId,
+            'name' : title,
+            'startDate' : startDate,
+            'stopDate' : stopDate,
+            'level' : level,
+            'data[place]': place,
+            'comment' : comment
+          }
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsondata = json.decode(response.body);
+        return jsondata;
+      }else{
+        return false;
+      }
+    }
+
+
+  }
+
+  getKey(route) async{
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'pk' : route,
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestDelete(route,familyScheduleId) async{
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'family_schedule_id' : familyScheduleId,
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestFaceDelete(route) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'person_id' : sharedPreferences.getString('person_id'),
+          'resultType' : 'json'
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestNoticeDelete(route,familyScheduleId) async{
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'family_notice_id' : familyScheduleId,
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestDeleteTag(route,familyScheduleId) async{
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'family_item_id' : familyScheduleId,
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
   Future login(_id, _passwd) async {
     Get.dialog(Center(child: CircularProgressIndicator()),
         barrierDismissible: false);
@@ -146,6 +440,7 @@ class ApiServices extends GetxController {
     );
     if (response.statusCode == 200) {
       //정상신호 일때
+      print(response.headers);
       print(response.body);
       Map<String, dynamic> jsondata = json.decode(response.body);
       print('${jsondata} : 로그인쪽 ');
@@ -158,13 +453,13 @@ class ApiServices extends GetxController {
   Future findId(_name, _phone) async {
     Get.dialog(Center(child: CircularProgressIndicator()),
         barrierDismissible: false);
-    String apiurl = '${sever}/User/watchbookfindIdProcess'; //토큰요청
+    String apiurl = '${sever}/User/findIdProcess'; //토큰요청
     print(_name);
     print(_phone);
     var response = await http.post(Uri.parse(apiurl),
         body: {
-          'name': _name.text.trim(),
-          'handphone': _phone.text.trim(),
+          'name': _name,
+          'handphone': _phone,
           'type' : 'handphone'
         }
     );
@@ -202,15 +497,11 @@ class ApiServices extends GetxController {
   }
 
   Future getInfo() async {
-    Get.dialog(Center(child: CircularProgressIndicator()),
-        barrierDismissible: false);
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? id = sharedPreferences.getString('id');
-    String? passwd = sharedPreferences.getString('passwd');
     String? tokenValue = sharedPreferences.getString('token');
     print(id);
-    print(passwd);
-    String apiurl = '${sever}/User/getInfo'; //토큰요청
+    String apiurl = '${sever}/User/getInfoAtFamily'; //토큰요청
     var response = await http.post(Uri.parse(apiurl),
         headers: {HttpHeaders.authorizationHeader: "Bearer ${tokenValue}"}//넣어야 로그인 인증댐
     );
@@ -218,7 +509,7 @@ class ApiServices extends GetxController {
       //정상신호 일때
       print('${response.body} : 유저정보');
       UserModel.fromJson(json.decode(response.body));
-      return response.body;
+      return json.decode(response.body);
     } else {
       return false;
     }
@@ -232,12 +523,13 @@ class ApiServices extends GetxController {
       print('${scode[0]} : 코드');
       print('${scode[1]} : 코드');
       print(token);
-      String url = '${sever}/ProductSncodePerson/joinProcess?pcode=${scode[0]}&sncode=${scode[1]}&token=${token}&resultType=json';
+      String url = '${sever}/ProductSncodeFamily/joinProcess?pcode=${scode[0]}&sncode=${scode[1]}&token=${token}&resultType=json';
       print(url);
+
       var response = await http.get(Uri.parse(url),
         headers: {HttpHeaders.authorizationHeader: "Bearer ${token.toString()}"},
       );
-      print(response.body);
+      print('${response.body}');
 
       if (response.statusCode == 200) {
         Map<String, dynamic> jsondata = json.decode(response.body);
@@ -247,30 +539,99 @@ class ApiServices extends GetxController {
       }
     } else {
       Get.back();
+
       return another;
     }
 
   }
 
-  doorControl(con) async {
+  //공지 등록
+  requestNoticeProcess(title,comment,argument) async{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String? pcode =  sharedPreferences.getString('pcode');
-    String? url;
-    if(con){
-      url = '${sever}/ProductSncode/doorOpenProcess';
-    }else{
-      url = '${sever}/ProductSncode/doorCloseProcess';
-    }
-    print(url);
-    var response = await http.post(Uri.parse(url),
-      body: {
-        'code' : pcode,
+    String? token = sharedPreferences.getString('token');
+    String? familyNoticeId = sharedPreferences.getString('family_notice_id');
+    String? familyId = sharedPreferences.getString('family_id');
+    String? personId = sharedPreferences.getString('person_id');
+    if(argument == 'create'){
+      print('생성');
+      String url = '${sever}/FamilyNotice/saveAll';
+      var response = await http.post(Uri.parse(url),
+          headers: {HttpHeaders.authorizationHeader: "Bearer ${token}"},
+          body:{
+            'family_id' : familyId,
+            'person_id' : personId,
+            'title' : title,
+            'comment' : comment
+          }
+      );
+      print(response.body);
+
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsondata = json.decode(response.body);
+        return jsondata;
+      }else{
+        return false;
       }
+    }else {
+      print('수정');
+      print(familyNoticeId);
+      String url = '${sever}/FamilyNotice/saveAll';
+      var response = await http.post(Uri.parse(url),
+          headers: {HttpHeaders.authorizationHeader: "Bearer ${token}"},
+          body:{
+            'family_notice_id' : familyNoticeId,
+            'family_id' : familyId,
+            'person_id' : personId,
+            'title' : title,
+            'comment' : comment
+          }
+      );
+      print(response.body);
+      if (response.statusCode == 200) {
+        Map<String, dynamic> jsondata = json.decode(response.body);
+        return jsondata;
+      }else{
+        return false;
+      }
+    }
+
+  }
+
+  requestNoticeRead(route) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'family_id':sharedPreferences.getString('family_id').toString(),
+          'isAll' : '1',
+          'rowsPerPage' : '4'
+        }
+    );
+    print(sharedPreferences.getString('family_id').toString());
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  doorControl(con) async {
+    String apiurl = '${sever+con}';
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var response = await http.post(Uri.parse(apiurl),
+        body: {
+          'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),
+          'person_id':sharedPreferences.getString('person_id').toString(),
+        }
     );
     print(response.body);
+
     if (response.statusCode == 200) {
-      Map<String, dynamic> jsondata = json.decode(response.body);
-      return jsondata;
+
+      return  json.decode(response.body);;
     }else{
       return false;
     }
@@ -283,5 +644,131 @@ class ApiServices extends GetxController {
 
         }
     );
+  }
+
+  //읽기
+  requestEntranceRead(route) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'family_id':sharedPreferences.getString('family_id').toString(),
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      List<dynamic> jsondata = json.decode(response.body);
+      return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  sendFcmToken(route) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'person_id':sharedPreferences.getString('person_id').toString(),
+          'token':sharedPreferences.getString('FCMtoken').toString(),
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      // List<dynamic> jsondata = json.decode(response.body);
+      return jsonDecode(response.body);
+    }else{
+      return false;
+    }
+  }
+
+  requestRTCToken(route) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      // List<dynamic> jsondata = json.decode(response.body);
+      //jsonDecode(response.body)
+      return response.body;
+    }else{
+      return false;
+    }
+  }
+
+  //읽기
+  requestConfigRead(route) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    print('${sharedPreferences.getString('product_sncode_id').toString()} product_sncode_id');
+
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),
+          'family_id' : sharedPreferences.getString('family_id').toString()
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      // List<dynamic> jsondata = json.decode(response.body);
+      return jsonDecode(response.body);
+    }else{
+      return false;
+    }
+  }
+
+  requestConfigSend(route,type,toggle) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    print('${sharedPreferences.getString('product_sncode_id').toString()} product_sncode_id');
+    String? toggleValue;
+    if(toggle == true){
+      toggleValue = '1';
+    } else {
+      toggleValue = '0';
+    }
+
+    var response;
+    if(type == 'isDoorbell'){
+     response = await http.post(Uri.parse(url),
+        body:{
+          'isDoorbell': toggleValue,
+          'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),
+        }
+    );
+    print(response.body);
+    }else if(type == 'isAccessRecord'){
+       response = await http.post(Uri.parse(url),
+      body:{
+        'isAccessRecord': toggleValue,
+        'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),
+    }
+      );
+      print(response.body);
+    }else if(type == 'isMotionDetect'){
+       response = await http.post(Uri.parse(url),
+          body:{
+            'isMotionDetect': toggleValue,
+            'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),
+          }
+      );
+      print(response.body);
+    }
+
+
+    if (response.statusCode == 200) {
+      // List<dynamic> jsondata = json.decode(response.body);
+      return jsonDecode(response.body);
+    }else{
+      return false;
+    }
   }
 }

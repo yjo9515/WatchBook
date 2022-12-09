@@ -26,7 +26,7 @@ class key_view extends GetView<MemberController> {
         actions: [
           TextButton(
               onPressed: () {
-                Get.to(addkey_view());
+                Get.to(addkey_view(),arguments: 'create');
               },
               child: Text(
                 '추가',

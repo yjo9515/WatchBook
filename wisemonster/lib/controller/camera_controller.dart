@@ -1,41 +1,41 @@
-
-
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:table_calendar/table_calendar.dart';
-import 'package:wisemonster/view/camera_view.dart';
+import 'dart:async';
 
 import '../api/api_services.dart';
 import '../view/widgets/SnackBarWidget.dart';
 import '../view_model/camera_view_model.dart';
-
+import '../view_model/home_view_model.dart';
 class CameraController extends GetxController{
   ApiServices api = ApiServices();
   bool door = true;
 
+
   String appId = "554d4edeb650484c92fd9a6e48ff67bf";
   String channelName = "wisemonster";
-  String token = "007eJxTYLB0u7DkymcN9mdhc2wsRbcLL1IPTdk6Y01A7Jz/eYfDD79UYDA1NUkxSU1JTTIzNTCxMEm2NEpLsUw0SzWxSEszM09K05wSn9wQyMjwxPQEEyMDBIL43AzlmcWpufl5xSWpRQwMAGIQI10=";
+  String token = "";
+  String token2 = "007eJxTYPBqO6r2zMDy127em7Ezr8+748e5lK18kmzGg1znhLkGunsUGExNTVJMUlNSk8xMDUwsTJItjdJSLBPNUk0s0tLMzJPS7p3vS24IZGRw6sxnYIRCEJ+boTyzODU3P6+4JLWIgQEAQtMi6Q==";
 
-  RxInt uid = 0.obs; // uid of the local user
+  int uid = 0; // uid of the local user
 
-  RxInt remoteUid = 0.obs; // uid of the remote user
-  RxBool isJoined = false.obs; // Indicates if the local user has joined the channel
-  RtcEngine agoraEngine = createAgoraRtcEngine(); // Agora engine instance
+  int? remoteUid; // uid of the remote user
+  bool isJoined = false; // Indicates if the local user has joined the channel
+  late RtcEngine agoraEngine; // Agora engine instance
+
 
   final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey
   = GlobalKey<ScaffoldMessengerState>(); // Global key to access the scaffold
 
 // Display local video preview
   Widget localPreview() {
-    if (isJoined.isTrue) {
+    if (isJoined == true) {
       return AgoraVideoView(
         controller: VideoViewController(
           rtcEngine: agoraEngine,
-          canvas: VideoCanvas(uid: uid.value),
+          canvas: VideoCanvas(uid: uid),
         ),
       );
     } else {
@@ -48,6 +48,7 @@ class CameraController extends GetxController{
         )
       );
     }
+
   }
 
 // Display remote user's video
@@ -56,13 +57,13 @@ class CameraController extends GetxController{
       return AgoraVideoView(
         controller: VideoViewController.remote(
           rtcEngine: agoraEngine,
-          canvas: VideoCanvas(uid: remoteUid.value),
+          canvas: VideoCanvas(uid: remoteUid),
           connection: RtcConnection(channelId: channelName),
         ),
       );
     } else {
       String msg = '';
-      if (isJoined.isTrue) msg = '유저연결을 기다리는 중 입니다.';
+      if (isJoined) msg = '유저연결을 기다리는 중 입니다.';
       return Text(
         msg,
         textAlign: TextAlign.center,
@@ -72,44 +73,71 @@ class CameraController extends GetxController{
 
   void join() async {
     await agoraEngine.startPreview();
-
     // Set channel options including the client role and channel profile
     ChannelMediaOptions options = const ChannelMediaOptions(
       clientRoleType: ClientRoleType.clientRoleBroadcaster,
       channelProfile: ChannelProfileType.channelProfileCommunication,
     );
 
+    print(token);
+    print(channelName);
+    print(uid);
+
     await agoraEngine.joinChannel(
-      token: token,
+      token: token2,
       channelId: channelName,
       options: options,
-      uid: uid.value,
+      uid: uid,
     );
   }
 
-  void leave() {
-    isJoined.value = false;
-    remoteUid.value = 0;
-
-    agoraEngine.leaveChannel();
+   void leave() async {
+    isJoined = false;
+    remoteUid = null;
+    await agoraEngine.leaveChannel();
+    update();
+    Get.back();
   }
 
   showMessage(String message) {
-    scaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
-      content: Text(message),
-    ));
+    Get.snackbar(
+      '알림',
+      // '다른 QR코드를 촬영하셨거나 도어의 정보가 다릅니다.\n다시 촬영해주세요.'
+      message
+      ,
+      duration: Duration(seconds: 5),
+      backgroundColor: const Color.fromARGB(
+          255, 39, 161, 220),
+      icon: Icon(Icons.info_outline, color: Colors.white),
+      forwardAnimationCurve: Curves.easeOutBack,
+      colorText: Colors.white,
+    );
   }
 
   Future<void> setupVideoSDKEngine() async {
     // retrieve or request camera and microphone permissions
     await [Permission.microphone, Permission.camera].request();
-
+    Get.snackbar(
+      '알림',
+      // '다른 QR코드를 촬영하셨거나 도어의 정보가 다릅니다.\n다시 촬영해주세요.'
+      token2
+      ,
+      duration: Duration(seconds: 5),
+      backgroundColor: const Color.fromARGB(
+          255, 39, 161, 220),
+      icon: Icon(Icons.info_outline, color: Colors.white),
+      forwardAnimationCurve: Curves.easeOutBack,
+      colorText: Colors.white,
+    );
     //create an instance of the Agora engine
     agoraEngine = createAgoraRtcEngine();
     await agoraEngine.initialize(const RtcEngineContext(
-        appId: '554d4edeb650484c92fd9a6e48ff67bf'
+        appId: '554d4edeb650484c92fd9a6e48ff67bf',
+
+      channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
     ));
 
+    // await agoraEngine.setClientRole( role: ClientRoleType.clientRoleBroadcaster);
     await agoraEngine.enableVideo();
 
     // Register the event handler
@@ -117,45 +145,82 @@ class CameraController extends GetxController{
       RtcEngineEventHandler(
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
           showMessage("Local user uid:${connection.localUid} joined the channel");
-          isJoined = true.obs;
+          isJoined = true;
+          print('조인완료');
+          update();
         },
-        onUserJoined: (RtcConnection connection, int remoteUid2, int elapsed) {
-          showMessage("Remote user uid:$remoteUid2 joined the channel");
-          remoteUid = remoteUid2.obs;
+        onUserJoined: (RtcConnection connection, int _remoteUid, int elapsed) {
+          showMessage("Remote user uid:$_remoteUid joined the channel");
+          remoteUid = _remoteUid;
+          update();
         },
-        onUserOffline: (RtcConnection connection, int remoteUid3,
+        onUserOffline: (RtcConnection connection, int _remoteUid,
             UserOfflineReasonType reason) {
-          showMessage("Remote user uid:$remoteUid3 left the channel");
-          remoteUid = 0.obs;
+          showMessage("Remote user uid:$_remoteUid left the channel");
+          remoteUid = null;
+          update();
+        },
+        onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
+          debugPrint(
+              '[onTokenPrivilegeWillExpire] connection: ${connection.toJson()}, token: $token');
         },
       ),
     );
+
+    await agoraEngine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
+    await agoraEngine.enableVideo();
   }
 
   control(){
-    api.doorControl(door).then((value) async {
-      if(value != false){
-        SnackBarWidget(serverMsg: value['data'],);
-      }else{
-        SnackBarWidget(serverMsg: '에러가 발생했습니다.\n관리자에게 문의해주세요.',);
-      }
-    });
+    var home = Get.put(HomeViewModel());
+    if(door){
+
+
+        home.publish(door);
+
+    }else{
+      home.publish(door);
+    }
+
   }
 
   @override
   void onInit() {
-    setupVideoSDKEngine();
     super.onInit();
-    print('엔진');
+    api.requestRTCToken('/ProductSncode/getAgoraToken').then((value) {
+      // if (value['result'] == false) {
+      //   Get.snackbar(
+      //     '알림',
+      //     value['message']
+      //     ,
+      //     duration: Duration(seconds: 5),
+      //     backgroundColor: const Color.fromARGB(
+      //         255, 39, 161, 220),
+      //     icon: Icon(Icons.info_outline, color: Colors.white),
+      //     forwardAnimationCurve: Curves.easeOutBack,
+      //     colorText: Colors.white,
+      //   );
+      // }else{
+      if(value != null){
+        print(value);
+        token = value.trim();
+        update();
+        setupVideoSDKEngine();
+      }
+    });
 
+    print('엔진');
   }
   @override
-  void onClose() async{
+  void onClose() {
     // destroy sdk
     print('엔진 끄기');
-    await agoraEngine.leaveChannel(options: LeaveChannelOptions(stopAllEffect: true));
+    agoraEngine.leaveChannel();
+    // agoraEngine.leaveChannel(options: LeaveChannelOptions(stopAllEffect: true));
     super.onClose();
 
   }
+
+
 
 }

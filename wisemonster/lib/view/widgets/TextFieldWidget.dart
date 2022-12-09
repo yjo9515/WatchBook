@@ -27,10 +27,10 @@ class TextFieldWidget extends StatelessWidget {
               borderSide:
               BorderSide(color: Color.fromARGB(255, 43, 43, 43))),
         ),
-
         onChanged: (value) {
           //변화된 id값 감지
           changeValue = value;
+          print(changeValue);
         });
   }
 }

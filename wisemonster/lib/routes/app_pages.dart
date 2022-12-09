@@ -5,10 +5,6 @@ import 'package:wisemonster/view/findId_view.dart';
 import 'package:wisemonster/view/findPw_view.dart';
 import 'package:wisemonster/view/home_view.dart';
 import 'package:wisemonster/view/login_view.dart';
-import 'package:wisemonster/view/navigator_view.dart';
-import 'package:wisemonster/view/intro_view.dart';
-import 'package:wisemonster/view/push_view.dart';
-import 'package:wisemonster/view/result_view.dart';
 import 'package:wisemonster/view/splash_view.dart';
 
 class AppPages {
@@ -41,21 +37,6 @@ class AppPages {
         ),
       ]
     ),
-    GetPage(
-      name: Routes.INTRO,
-      page: () => intro_view(),
-    ),
-    GetPage(
-      name: Routes.PUSH,
-      page: () => push_view()
-    ),
-    GetPage(
-      name: Routes.NAVIGATOR,
-      page: () => navigator_view()
-    ),
-    GetPage(
-      name: Routes.RESULT,
-      page: () => result_view(),
-    )
+
   ];
 }

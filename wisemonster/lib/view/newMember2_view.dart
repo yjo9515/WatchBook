@@ -4,7 +4,6 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/controller/newMember_controller.dart';
 import 'package:wisemonster/routes/app_pages.dart';
-import 'package:wisemonster/view/agreement_view.dart';
 import 'package:wisemonster/view/newMember3_view.dart';
 import 'package:wisemonster/view/newMember4_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';

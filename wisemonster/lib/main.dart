@@ -3,18 +3,29 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/binding/binding.dart';
 import 'package:wisemonster/routes/app_pages.dart';
+import 'package:wisemonster/view/camera_view.dart';
+import 'package:wisemonster/view/home_view.dart';
 import 'package:wisemonster/view/splash_view.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
+import 'package:wisemonster/models/mqtt.dart';
+import 'package:mqtt_client/mqtt_client.dart';
+import 'package:mqtt_client/mqtt_server_client.dart';
+
+import 'api/api_services.dart';
 
 
-
+ApiServices api = ApiServices();
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('Handling a background message ${message.messageId}');
+  print(message.data);
+
 }
 late AndroidNotificationChannel channel;
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -22,6 +33,7 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 Future<void> main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
+
     await Firebase.initializeApp(
         options: const FirebaseOptions(
             apiKey: 'AIzaSyC82k385JVg5-Dpcid3WRfF1JpdwH4viO0', // google-service.json 파일에 값 확인가능
@@ -30,6 +42,7 @@ Future<void> main() async {
             messagingSenderId: '',
             projectId: 'wisemonster-27620')
     );
+
   await FirebaseMessaging.instance.requestPermission(
       alert: true,
       announcement: true,
@@ -73,7 +86,15 @@ Future<void> main() async {
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onSelectNotification: (String? payload) async {}
+
+      onSelectNotification: (String? payload) async {
+        print(payload);
+        print('포그라운드클릭');
+        if (payload != null) {
+          Get.to(camera_view());
+        }
+      },
+
     );
 
     await FirebaseMessaging.instance
@@ -82,22 +103,73 @@ Future<void> main() async {
       badge: true,
       sound: true,
     );
-
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
+      // save token to server
+      sharedPreferences.setString('FCMtoken', newToken!);
+    });
     String? token = await FirebaseMessaging.instance.getToken();
 
     print("token : ${token ?? 'token NULL!'}");
 
+    sharedPreferences.setString('FCMtoken', token!);
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+
+      AndroidNotification? android = message.notification?.android;
+      var androidNotiDetails = AndroidNotificationDetails(
+        channel.id,
+        channel.name,
+        channelDescription: channel.description,
+        icon: '@mipmap/ic_launcher',
+      );
+      var iOSNotiDetails = const IOSNotificationDetails();
+      var details =
+      NotificationDetails(android: androidNotiDetails, iOS: iOSNotiDetails);
+      if (message.notification != null) {
+        flutterLocalNotificationsPlugin.show(
+          message.notification.hashCode,
+          message.notification?.title,
+          message.notification?.body,
+          details,
+          payload:message.data['click_action']
+        );
+      }
+      print('포그라운드');
+      print(message.data);
+      print(message.data['click_action']);
+
+
+    });
+
+
+    void _handleMessage(RemoteMessage message) {
+      print('message = ${message.notification!.title}');
+      Get.off(home_view());
+    }
+
+      RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+
+      // 종료상태에서 클릭한 푸시 알림 메세지 핸들링
+      if (initialMessage != null) _handleMessage(initialMessage);
+
+      // 앱이 백그라운드 상태에서 푸시 알림 클릭 하여 열릴 경우 메세지 스트림을 통해 처리
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     initializeDateFormatting().then((_) =>
         runApp(
-            GetMaterialApp(
+          Phoenix(
+            child:GetMaterialApp(
               debugShowCheckedModeBanner: false,
               getPages: AppPages.routes,
               initialBinding: SplahBinding(),
               home: splash_view(),
-            )
+            ) ,
+          )
         )
   );
   }
 }
+
 

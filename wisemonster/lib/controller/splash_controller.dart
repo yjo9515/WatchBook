@@ -5,15 +5,15 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/api/api_services.dart';
-import 'package:wisemonster/controller/home_controller.dart';
 import 'package:wisemonster/view/home_view.dart';
 import 'package:wisemonster/view/login_view.dart';
-import 'package:wisemonster/view/navigator_view.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:wisemonster/view/registration1_view.dart';
 import 'package:wisemonster/view/splash_view.dart';
 import 'package:wisemonster/view/widgets/InitialWidget.dart';
 import 'package:wisemonster/view/widgets/QuitWidget.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
 
 import '../main.dart';
 
@@ -79,30 +79,9 @@ class SplashController extends GetxController {
 
   @override
   Future<void> onInit() async {
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      var androidNotiDetails = AndroidNotificationDetails(
-        channel.id,
-        channel.name,
-        channelDescription: channel.description,
-      );
-      var iOSNotiDetails = const IOSNotificationDetails();
-      var details =
-      NotificationDetails(android: androidNotiDetails, iOS: iOSNotiDetails);
-      if (notification != null) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          details,
-        );
-      }
-    });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
-      print(message);
-    });
+
+
 
     print('스플래쉬 진입구간');
     var result = await checkConnectionStatus();
@@ -111,17 +90,18 @@ class SplashController extends GetxController {
         print(value);
         if(value == true) {
           updateProgress();
-          api.loginStatus().then((value) {
+          api.loginStatus().then((value) async{
             print('${value} : 스플래쉬');
             if(value != null) {
-
-              Timer(const Duration(seconds: 3), () =>
-                  Get.put(HomeController())
-              );
+              SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+                  // Get.put(HomeController())
+              if(sharedPreferences.getString('pcode')==null && sharedPreferences.getString('sncode')==null){
+              Timer(const Duration(seconds: 3), () =>Get.offAll(() => registration1_view()) );
+              }else if(sharedPreferences.getString('pcode') !=null && sharedPreferences.getString('sncode') !=null) {
+              Timer(const Duration(seconds: 3), () =>Get.offAll(() => home_view()) );
+              }
             }else{
-              Timer(const Duration(seconds: 3), () =>
-                  Get.offAll(() => login_view())
-              );
+              Timer(const Duration(seconds: 3), () =>Get.offAll(() => login_view()) );
             }
           });
         } else {

@@ -265,6 +265,145 @@ class DeviceController extends GetxController {
     return returnValue ?? Future.value(false);
   }
 
+  Future<bool> connectWIFI() async {
+    Future<bool>? returnValue;
+
+    /* 상태 표시를 Connecting으로 변경 */
+    stateText = 'Connecting';
+    update();
+
+    /*
+      타임아웃을 10초(10000ms)로 설정 및 autoconnect 해제
+       참고로 autoconnect가 true되어있으면 연결이 지연되는 경우가 있음.
+     */
+    await device
+        .connect(autoConnect: false)
+        .timeout(Duration(milliseconds: 15000), onTimeout: () {
+      //타임아웃 발생
+      //returnValue를 false로 설정
+      returnValue = Future.value(false);
+      debugPrint('timeout failed');
+
+      //연결 상태 disconnected로 변경
+      setBleConnectionState(BluetoothDeviceState.disconnected);
+    }).then((data) async {
+      if (returnValue == null) {
+        //returnValue가 null이면 timeout이 발생한 것이 아니므로 연결 성공
+        debugPrint('connection successful');
+
+        List<BluetoothService> bleServices =
+        await device.discoverServices();
+        bluetoothService = bleServices;
+        update();
+        // 각 속성을 디버그에 출력
+        for (BluetoothService service in bleServices) {
+          print('============================================');
+          print('Service UUID: ${service.uuid}');
+          for (BluetoothCharacteristic c in service.characteristics) {
+            print('\tcharacteristic UUID: ${c.uuid.toString()}');
+            print('\t\twrite: ${c.properties.write}');
+            print('\t\tread: ${c.properties.read}');
+            print('\t\tnotify: ${c.properties.notify}');
+            print('\t\tisNotifying: ${c.isNotifying}');
+            print(
+                '\t\twriteWithoutResponse: ${c.properties.writeWithoutResponse}');
+            print('\t\tindicate: ${c.properties.indicate}');
+
+            // notify나 indicate가 true면 디바이스에서 데이터를 보낼 수 있는 캐릭터리스틱이니 활성화 한다.
+            // 단, descriptors가 비었다면 notify를 할 수 없으므로 패스!
+            if (c.properties.notify && c.descriptors.isNotEmpty) {
+              // 진짜 0x2902 가 있는지 단순 체크용!
+              for (BluetoothDescriptor d in c.descriptors) {
+                print('BluetoothDescriptor uuid ${d.uuid}');
+                if (d.uuid == BluetoothDescriptor.cccd) {
+                  print('d.lastValue: ${d.lastValue}');
+                }
+              }
+
+              if (!c.isNotifying) {
+                try {
+                  await c.setNotifyValue(true);
+                  // 받을 데이터 변수 Map 형식으로 키 생성
+                  notifyDatas[c.uuid.toString()] = List.empty();
+                  c.value.listen((value)  {
+                    // 데이터 읽기 처리!
+                    print('${c.uuid}: $value');
+                    // 받은 데이터 저장 화면 표시용
+                    notifyDatas[c.uuid.toString()] = value;
+                    if ((isfirstRes == false && isEncodeRes == false) == true) {
+                      print('암호화 안함');
+                      // 초기 데이터 저장
+                      iniData = value;
+                      ivKey = [
+                        iniData[3],
+                        iniData[4],
+                        iniData[5],
+                        iniData[6],
+                        iniData[7],
+                        iniData[8],
+                        iniData[9],
+                        iniData[10],
+                        61, 62, 63, 64, 65, 66, 67, 68
+                      ];
+                      iv = en.IV.fromBase64(base64.encode(ivKey));
+                      print('초기(합친) 키 값 : ${ivKey}');
+                    } else if ((isfirstRes == true && isEncodeRes == true) == true) {
+                      print(value);
+                      print('암호화 함');
+                      // print(base64.encode(value));
+                      // print(hex.encode(value));
+
+                      final encryptedText = en.Encrypted(Uint8List.fromList(value));
+                      final ctr = pc.CTRStreamCipher(pc.AESFastEngine())
+                        ..init(false, pc.ParametersWithIV(pc.KeyParameter(key.bytes), iv.bytes));
+                      Uint8List decrypted = ctr.process(encryptedText.bytes);
+
+                      print(Uint8List.fromList(value));
+                      print('${decrypted} 왓냐');
+                      // // print('${stringToBase64.decode(encoded)} 지지지');
+                      // // print(de);
+                      // print(utf8.decode(de));
+                      // // print(String.fromCharCodes(de));
+                      // // print(String.fromCharCodes(ctr.process(en.Encrypted.fromBase64(encoded).bytes)));
+                      // // // final encrypter2 = en.Encrypter(en.AES(key,padding : 'PKCS7'));
+                      // //
+                      // final encrypted = en.Encrypted(base64.decode(encoded));
+                      final encrypted2 = en.Encrypted.fromBase64(base64.encode(value));
+                      final encrypter2 = en.Encrypter(en.AES(key, mode: en.AESMode.cbc,padding: null));
+                      print(encrypted2.toString());
+                      print(encrypter2.decrypt(encrypted2,iv: iv).runes.toList());
+
+                      final encryptedBytes = encrypter.decrypt(
+                        en.Encrypted(Uint8List.fromList(value)),
+                        iv: iv,
+                      ).runes.toList();
+
+                      print('${encryptedBytes} : 디코딩까지 끝');
+                      // decrypted = encrypter2.decrypt(en.Encrypted.fromBase64(encoded), iv: iv);
+                      // decrypted = encrypter2.decrypt(en.Encrypted(base64Decode(encode)), iv: iv);
+
+                      String iv3 = '[${ivKey.join(', ')}]';
+
+                    }
+                  });
+                  update();
+                  // 설정 후 일정시간 지연
+                  await Future.delayed(const Duration(milliseconds: 500));
+                } catch (e) {
+                  print('error ${c.uuid} $e');
+                }
+              }
+            }
+          }
+        }
+        returnValue = Future.value(true);
+      }
+    });
+
+    return returnValue ?? Future.value(false);
+  }
+
+
   /* 연결 해제 */
   void disconnect() {
     try {

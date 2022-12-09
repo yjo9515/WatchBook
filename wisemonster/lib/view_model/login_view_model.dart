@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 // import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_web_auth/flutter_web_auth.dart';
 import 'package:get/get.dart';
@@ -10,9 +11,13 @@ import 'package:wisemonster/api/api_services.dart';
 import 'package:wisemonster/models/user_model.dart';
 import 'package:wisemonster/view/home_view.dart';
 import 'package:http/http.dart' as http;
+import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view/widgets/AlertWidget.dart';
 import 'package:wisemonster/view/widgets/QuitWidget.dart';
 import 'package:wisemonster/view_model/home_view_model.dart';
+
+import '../view/registration1_view.dart';
+import '../view/registration2_view.dart';
 
 // 어떤 상태인지 열거
 
@@ -27,32 +32,46 @@ class LoginViewModel extends GetxController{
   late SharedPreferences _sharedPreferences;
 
   UserEnums userEnums = UserEnums.Initial;
-
+ bool passwordVisible = false;
   late UserModel user;
   String errmsg = '';
   bool error = false;
-  RxBool isObscure = false.obs;
-  RxBool isAuto = false.obs;
 
+  final home = Get.put(HomeViewModel());
+
+  void logoutProcess() async {
+    _sharedPreferences = await SharedPreferences.getInstance();
+    await _sharedPreferences.clear();
+    // await _sharedPreferences.remove('name');
+    // await _sharedPreferences.remove('pcode');
+    // await _sharedPreferences.remove('sncode');
+    // await _sharedPreferences.remove('id');
+    // await _sharedPreferences.remove('passwd');
+    print('로그아웃');
+    await Get.deleteAll(force: true); //deleting all controllers
+    Phoenix.rebirth(Get.context!); // Restarting app
+    Get.reset(); // resetting getx
+  }
 
 
   changeObscure() {
-    if(isObscure.value == true){
-      isObscure.value = false;
-    } else if(isObscure.value == false){
-      isObscure.value = true;
+    if(passwordVisible == true){
+      passwordVisible = false;
+    } else if(passwordVisible == false){
+      passwordVisible = true;
     }
-    print(isObscure);
+    print(passwordVisible);
+    update();
   }
-
-  autoLogin() {
-    if(isAuto.value == true){
-      isAuto.value = false;
-    } else if(isAuto.value == false){
-      isAuto.value = true;
-    }
-    print(isAuto);
-  }
+  //
+  // autoLogin() {
+  //   if(isAuto.value == true){
+  //     isAuto.value = false;
+  //   } else if(isAuto.value == false){
+  //     isAuto.value = true;
+  //   }
+  //   print(isAuto);
+  // }
 
 
   // 내부저장소(Preference에 값추가)
@@ -73,42 +92,74 @@ class LoginViewModel extends GetxController{
         update();
       } else {
         print(value);
-        print(value['token']);
-        addPref('token', value['token']);
-        addPref('id', apiId.text);
+        if(value['result'] == true){
+          print(value['token']);
+          addPref('token', value['token']);
+          addPref('id', apiId.text);
+          api.getInfo().then((value) async {
+            if (value == false) {
+              Get.dialog(
+                  QuitWidget(serverMsg: "로그인 토큰 발행에 실패하였습니다.",)
+              );
+              update();
+            } else {
+              SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+              Map<String, dynamic> userMap = value;
+              var user = UserModel.fromJson(userMap);
+              print(user.personObj['name']);
+              print('일반 로그인');
+              sharedPreferences.setString('name', user.personObj['name'].toString());
+              sharedPreferences.setString('person_id', user.personObj['person_id'].toString());
+              sharedPreferences.setString('family_id', user.familyId.toString());
+              sharedPreferences.setString('family_person_id', user.familyPersonId.toString());
+              sharedPreferences.setString('nickname', user.personObj['nickname'].toString());
+              sharedPreferences.setString('pictureUrl', user.personObj['pictureUrl'].toString());
+              sharedPreferences.setString('product_sncode_id', user.product_sncode_id.toString());
 
-        api.getInfo().then((value) async {
-          if (value == false) {
-            Get.dialog(
-                QuitWidget(serverMsg: "로그인 토큰 발행에 실패하였습니다.",)
-            );
-            update();
-          } else {
-            final home = Get.put(HomeViewModel());
-            SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-            Map<String, dynamic> userMap = jsonDecode(value);
-            var user = UserModel.fromJson(userMap);
-            print(user.personObj['name']);
-            sharedPreferences.setString('name', user.personObj['name'].toString());
-            String? pcode =  sharedPreferences.getString('pcode');
-            String? sncode =  sharedPreferences.getString('sncode');
-            print(pcode);
-            print(sncode);
-            if(pcode == null || sncode == null){
-              home.register = false;
-              print('등록 실패');
+              String? pcode =  sharedPreferences.getString('pcode');
+              String? sncode =  sharedPreferences.getString('sncode');
+              print('${user.familyId.toString()} : familyid');
+              print('${user.familyPersonId.toString()} : familypersonid');
+              print(pcode);
+              print(sncode);
+              api.sendFcmToken('/GoogleFcmToken/saveAll').then((value)  async {
+                if (value['result'] == false) {
+                  print('fcm토큰 전송 실패');
+                }else{
+                  print('fcm토큰 전송 성공');
+                }
+              });
+              if(pcode == null || sncode == null){
+                Get.offAll(() => registration1_view());
+                print('등록 실패');
+                update();
+              }else if(pcode != null && sncode != null){
+                Get.offAll(() => home_view());
+                print('등록 성공');
+                update();
+              }
               update();
-            }else if(pcode != null && sncode != null){
-              home.register = true;
-              print('등록 성공');
-              update();
-              refresh();
+              //user = UserModel.fromJson(value);
             }
-            Get.offAll(() => home_view());
-            update();
-            //user = UserModel.fromJson(value);
-          }
-        });
+          });
+        }else {
+          Get.back();
+          Get.snackbar(
+            '알림',
+            // '다른 QR코드를 촬영하셨거나 도어의 정보가 다릅니다.\n다시 촬영해주세요.'
+            value['message']
+            ,
+            duration: Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        }
+
+
+
       }
       });
   }
@@ -166,4 +217,15 @@ class LoginViewModel extends GetxController{
   //     print(result.message);
   //   }
   // }
+
+  @override
+  void onInit() {
+    print('로그인 진입구간');
+    super.onInit();
+  }
+  @override
+  void onClose() {
+    print('로그인 다운');
+    super.onInit();
+  }
 }

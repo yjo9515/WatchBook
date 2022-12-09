@@ -3,14 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/controller/newMember_controller.dart';
-import 'package:wisemonster/view/agreement_view.dart';
 import 'package:wisemonster/view/login_view.dart';
-import 'package:wisemonster/view/newMember3_view.dart';
-import 'package:wisemonster/view/newMember4_view.dart';
-import 'package:wisemonster/view/registration1_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
-import 'package:wisemonster/view/widgets/H2.dart';
-import 'package:wisemonster/view/widgets/NormalTextWidget.dart';
 import 'package:wisemonster/view_model/newMem_view_model.dart';
 
 class newMember5_view extends GetView<NewMemberController>{
@@ -73,7 +67,7 @@ class newMember5_view extends GetView<NewMemberController>{
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
-                                Get.to(login_view());
+                                Get.offAll(login_view());
                               },
                               child: const Text(
                                 "로그인",

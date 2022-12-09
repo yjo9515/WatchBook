@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:wisemonster/view/login_view.dart';
+import 'package:wisemonster/view_model/key_view_model.dart';
 
 class ContactListWidget extends StatelessWidget {
   List<Contact>? contacts;
@@ -54,14 +55,32 @@ class ContactListWidget extends StatelessWidget {
                       title: Text('${contacts![index].displayName}'),
                       subtitle: Text('${contacts![index].phones?.first.value}'),
                       onTap: (){
-
+                        print(contacts![index].phones?.first.value);
+                        Get.put(KeyViewModel()).updateContact(contacts![index].phones?.first.value);
                       },
                     );
                   },
                 ),
               );
             } else {
-              return CircularProgressIndicator();
+              return
+              Container(
+                width: 100,
+                height: 150,
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children:[
+                      SizedBox
+                        (
+                        width: 50,
+                        height: 50,
+                        child: CircularProgressIndicator(
+                        ),
+                      )
+                    ]
+                ),
+              )
+              ;
             }
           }),
       actions: <Widget>[

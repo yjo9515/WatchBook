@@ -2,14 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:wisemonster/controller/login_controller.dart';
 import 'package:wisemonster/view/findId_view.dart';
 import 'package:wisemonster/view/findPw_view.dart';
 import 'package:wisemonster/view/newMember1_view.dart';
 import 'package:wisemonster/view/widgets/TextFieldWidget.dart';
 import 'package:wisemonster/view_model/login_view_model.dart';
 
-class login_view extends GetView<LoginController>{
+class login_view extends GetView<LoginViewModel>{
   login_view({Key? key}) : super(key: key);
   bool _isKakaoTalkInstalled = false;
 
@@ -100,7 +99,32 @@ class login_view extends GetView<LoginController>{
                                             ),
                                             TextFieldWidget(tcontroller: _id, changeValue: id, hintText: '아이디를 입력해주세요.',),
                                             Container(height: 30),
-                                            TextFieldWidget(tcontroller: _passwd, changeValue: passwd, hintText: '비밀번호를 입력해주세요.'),
+                                  TextFormField(
+                                    keyboardType: TextInputType.text,
+                                    controller: _passwd,
+                                    obscureText: LoginViewModel.passwordVisible,//This will obscure text dynamically
+                                    decoration: InputDecoration(
+                                      hintText: '비밀번호를 입력해주세요.',
+                                      hintStyle: TextStyle(
+                                          fontSize: 17,
+                                          color: Color.fromARGB(255, 222, 222, 222)
+                                      ),
+                                      // Here is key idea
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          // Based on passwordVisible state choose the icon
+                                          LoginViewModel.passwordVisible
+                                              ? Icons.visibility
+                                              : Icons.visibility_off,
+                                          color: Theme.of(context).primaryColorDark,
+                                        ),
+                                        onPressed: () {
+                                          // Update the state i.e. toogle the state of passwordVisible variable
+                                            LoginViewModel.changeObscure();
+                                        },
+                                      ),
+                                    ),
+                                  ),
                                             Container(height: 20),
                                             // Row(
                                             //   mainAxisAlignment: MainAxisAlignment.spaceBetween,

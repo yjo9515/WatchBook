@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/controller/newMember_controller.dart';
-import 'package:wisemonster/view/agreement_view.dart';
 import 'package:wisemonster/view/newMember4_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/H2.dart';
@@ -38,7 +37,7 @@ class newMember1_view extends GetView<NewMemberController>{
                       //인풋박스 터치시 키보드 안나오는 에러 수정(원인 : 미디어쿼리)
                       height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
                           .size
-                          .height- 186,
+                          .height- 140,
                       color: Colors.white,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +59,7 @@ class newMember1_view extends GetView<NewMemberController>{
                           Container(
                             height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
                                 .size
-                                .height - 350,
+                                .height - 300,
                             child:SingleChildScrollView(
                                 child:Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -168,13 +167,16 @@ class newMember1_view extends GetView<NewMemberController>{
                             style: TextStyle(
                                 fontSize: 16, color: Colors.white),
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(
-                                255, 204, 204, 204),
+                          style: (NewMemberViewModel.isAgree && NewMemberViewModel.isAgree2)?ElevatedButton.styleFrom(
+                              backgroundColor: Color.fromARGB(
+                                  255, 39, 161, 220))
+                            :
+                              ElevatedButton.styleFrom(
+                              backgroundColor: Color.fromARGB(
+                              255, 204, 204, 204) ),
                           ),
-                        ),
+                        )
                       )
-                  )
                 ],
               ),
             ))

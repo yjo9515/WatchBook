@@ -18,6 +18,13 @@ class UserModel{
   late var lastLogin;
   late var regDate;
   late var isUse;
+  late var familyPersonId;
+  late var familyId;
+  late var familyScheduleId;
+  late var familyItemId;
+  late var product_sncode_id;
+  late var nickName;
+
 
 
   UserModel({
@@ -40,6 +47,12 @@ class UserModel{
     required this.lastLogin,
     required this.regDate,
     required this.isUse,
+    required this.familyPersonId,
+    required this.familyId,
+    required this.familyScheduleId,
+    required this.familyItemId,
+    required this.nickName,
+    required this.product_sncode_id,
   });
 
   UserModel.fromJson(Map<String, dynamic> json){
@@ -62,6 +75,12 @@ class UserModel{
     lastLogin = json['lastLogin'];
     regDate = json['regDate'];
     isUse = json['isUse'];
+    familyPersonId = json['family_person_id'];
+    familyId = json['family_id'];
+    familyScheduleId = json['family_schedule_id'];
+    familyItemId = json['family_item_id'];
+    nickName = json['nickname'];
+    product_sncode_id = json['product_sncode_id'];
   }
 
   Map<String, dynamic> toJson() {
@@ -85,6 +104,12 @@ class UserModel{
     data['lastLogin'] = this.lastLogin;
     data['regDate'] = this.regDate;
     data['isUse'] = this.isUse;
+    data['family_person_id'] = this.familyPersonId;
+    data['family_id'] = this.familyId;
+    data['family_schedule_id'] = this.familyScheduleId;
+    data['family_item_id'] = this.familyItemId;
+    data['nickname'] = this.nickName;
+    data['product_sncode_id'] = this.product_sncode_id;
     return data;
   }
 
