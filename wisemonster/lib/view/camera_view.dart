@@ -1,24 +1,51 @@
 
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wisemonster/main.dart';
+import 'package:wisemonster/view/widgets/QuitWidget.dart';
 import '../api/api_services.dart';
 import '../controller/camera_controller.dart';
 import '../view_model/home_view_model.dart';
+import 'home_view.dart';
 
 class camera_view extends StatefulWidget {
   camera_view({Key? key}) : super(key: key);
 
   // Build UI
 
-
   @override
   State<StatefulWidget> createState() => cameraState();
 }
 
 class cameraState extends State<camera_view> {
+  var home = Get.put(HomeViewModel());
+  ApiServices api = ApiServices();
+  bool door = true;
+  late String channelName;
+  String random = Random().nextInt(999999).toString();
+  late SharedPreferences sharedPreferences;
+  late String appid;
+  late String token;
+  late int agoratokenid;
+  // String token2 = '007eJxTYBA3zVB8ujLi2fzDgd8Pif5mvL7K/4/Eyh1vZq2KqFrtK5OgwGBqapJikpqSmmRmamBiYZJsaZSWYplolmpikZZmZp6U9nn7rOSGQEaGfGFZJkYGCATxWRhKUotLGBgAxYMhCQ==';
+  int? uid;
+  // Random().nextInt(100); // uid of the local user
+
+  int? _remoteUid; // uid of the remote user
+  bool isJoined = false; // Indicates if the local user has joined the channel
+  late RtcEngine agoraEngine; // Agora engine instance
+
+
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey
+  = GlobalKey<ScaffoldMessengerState>(); // Global key to access the scaffold
   @override
   Widget build(BuildContext context) {
     return
@@ -27,21 +54,37 @@ class cameraState extends State<camera_view> {
         home:
 
         Scaffold(
+          appBar:  AppBar(
+            elevation: 0,
+            backgroundColor: Color.fromARGB(255, 255, 255, 255),
+            iconTheme: const IconThemeData(color: Color.fromARGB(255, 44, 95, 233)),
+            centerTitle: true,
+            title: Text('영상통화',
+                style: TextStyle(
+                    color: Color.fromARGB(255, 44, 95, 233), fontWeight: FontWeight.bold, fontSize: 20)),
+            automaticallyImplyLeading: true,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios_new_outlined),
+              onPressed: () {
+                Get.back();
+              },
+            ),
+          ),
             body: ListView(
               children: [
                 Container(
-                  height: 76,
+                  height: 30,
                   color: Color.fromARGB(255, 204, 204, 204),
                 ),
                 Container(
-                  height:  (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 152)/2,
-                  decoration: BoxDecoration(border: Border.all()),
-                  child: Center(child: localPreview()),
-                ),
-                Container(
-                  height: (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 152)/2,
+                  height: (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162)/2,
                   decoration: BoxDecoration(border: Border.all()),
                   child: Center(child: remoteVideo()),
+                ),
+                Container(
+                  height:  (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162)/2,
+                  decoration: BoxDecoration(border: Border.all()),
+                  child: Center(child: localPreview()),
                 ),
                 // Container for the local video
                 //Container for the Remote video
@@ -56,23 +99,26 @@ class cameraState extends State<camera_view> {
                           flex: 29,
                           child: Container()
                       ),
-                      TextButton(
-                        onPressed: isJoined ? (){} : () => {join()},
-                        child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color.fromARGB(255, 44, 233, 94),
-                            ),
-                            child: Icon(
-                              Icons.call,
-                              color: Colors.white,
-                              size: 24,
-                            )),),
+                      // TextButton(
+                      //   onPressed: isJoined ? (){} : () => {join()},
+                      //   child: Container(
+                      //       width: 36,
+                      //       height: 36,
+                      //       decoration: BoxDecoration(
+                      //         shape: BoxShape.circle,
+                      //         color: Color.fromARGB(255, 44, 233, 94),
+                      //       ),
+                      //       child: Icon(
+                      //         Icons.call,
+                      //         color: Colors.white,
+                      //         size: 24,
+                      //       )),),
                       const SizedBox(width: 10),
                       TextButton(
-                        onPressed: isJoined ? () => {leave()} : null,
+                        onPressed: ()
+                        // isJoined ? () => {leave()} : null
+                        {Navigator.pop(context);}
+                        ,
                         child: Container(
                             width: 36,
                             height: 36,
@@ -118,25 +164,6 @@ class cameraState extends State<camera_view> {
   }
 
 
-  ApiServices api = ApiServices();
-  bool door = true;
-
-
-  String appId = "554d4edeb650484c92fd9a6e48ff67bf";
-  String channelName = "wisemonster";
-  String token = "";
-  String token2 = "007eJxTYAhYWyU5fcNxxv2HjdK/6k34u1ZWMbva+2zUHE1PxWUarxkUGExNTVJMUlNSk8xMDUwsTJItjdJSLBPNUk0s0tLMzJPSmtdPTG4IZGR4yzORgREKQXxuhvLM4tTc/LziktQiBgYAC9UiNA==";
-
-  int uid = 1; // uid of the local user
-
-  int? remoteUid; // uid of the remote user
-  bool isJoined = false; // Indicates if the local user has joined the channel
-  late RtcEngine agoraEngine; // Agora engine instance
-
-
-  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey
-  = GlobalKey<ScaffoldMessengerState>(); // Global key to access the scaffold
-
 // Display local video preview
   Widget localPreview() {
     if (isJoined == true) {
@@ -156,56 +183,62 @@ class cameraState extends State<camera_view> {
           )
       );
     }
-
   }
 
 // Display remote user's video
   Widget remoteVideo() {
-    if (remoteUid != null) {
+    if (_remoteUid != null) {
       return AgoraVideoView(
         controller: VideoViewController.remote(
           rtcEngine: agoraEngine,
-          canvas: VideoCanvas(uid: remoteUid),
-          connection: RtcConnection(channelId: channelName),
+          canvas: VideoCanvas(uid: _remoteUid),
+          connection: RtcConnection(channelId:
+          channelName
+          ),
         ),
       );
     } else {
-      String msg = '';
-      if (isJoined) msg = '유저연결을 기다리는 중 입니다.';
+
       return Text(
-        msg,
+        '유저연결을 기다리는 중 입니다.',
         textAlign: TextAlign.center,
       );
     }
   }
 
-  void join() async {
-
-    await agoraEngine.startPreview();
-    // Set channel options including the client role and channel profile
-    ChannelMediaOptions options = const ChannelMediaOptions(
-      clientRoleType: ClientRoleType.clientRoleBroadcaster,
-      channelProfile: ChannelProfileType.channelProfileCommunication,
-    );
-
-    print(token);
-    print(channelName);
-    print(uid);
-
-    await agoraEngine.joinChannel(
-      token: token2,
-      channelId: channelName,
-      options: options,
-      uid: uid,
-    );
-  }
+  // void join() async {
+  //   await agoraEngine.startPreview();
+  //   await agoraEngine.setRemoteVideoStreamType(uid: uid, streamType: VideoStreamType.videoStreamLow);
+  //   // Set channel options including the client role and channel profile
+  //   ChannelMediaOptions options = const ChannelMediaOptions(
+  //     defaultVideoStreamType: VideoStreamType.videoStreamLow,
+  //     clientRoleType: ClientRoleType.clientRoleBroadcaster,
+  //     channelProfile: ChannelProfileType.channelProfileCommunication,
+  //   );
+  //
+  //   print(token);
+  //   print(channelName);
+  //   print(uid);
+  //   print('유저저저저저저');
+  //
+  //   await agoraEngine.joinChannel(
+  //     token: token,
+  //     channelId:
+  //     channelName
+  //     // 'test'
+  //     ,
+  //     options: options,
+  //     uid: uid,
+  //   );
+  // }
 
   void leave() {
     setState(() {
       isJoined = false;
-      remoteUid = null;
+      _remoteUid = null;
     });
     agoraEngine.leaveChannel();
+    Navigator.pop(context);
   }
 
   showMessage(String message) {
@@ -223,79 +256,89 @@ class cameraState extends State<camera_view> {
     );
   }
 
-  Future<void> setupVideoSDKEngine() async {
+  Future<bool> setupVideoSDKEngine() async {
     // retrieve or request camera and microphone permissions
     await [Permission.microphone, Permission.camera].request();
-    // Get.snackbar(
-    //   '알림',
-    //   // '다른 QR코드를 촬영하셨거나 도어의 정보가 다릅니다.\n다시 촬영해주세요.'
-    //   token2
-    //   ,
-    //   duration: Duration(seconds: 5),
-    //   backgroundColor: const Color.fromARGB(
-    //       255, 39, 161, 220),
-    //   icon: Icon(Icons.info_outline, color: Colors.white),
-    //   forwardAnimationCurve: Curves.easeOutBack,
-    //   colorText: Colors.white,
-    // );
     //create an instance of the Agora engine
     agoraEngine = createAgoraRtcEngine();
-    await agoraEngine.initialize(const RtcEngineContext(
-      appId: '554d4edeb650484c92fd9a6e48ff67bf',
+    await agoraEngine.initialize(RtcEngineContext(
+      appId: appid,
     ));
-
-    // await agoraEngine.setClientRole( role: ClientRoleType.clientRoleBroadcaster);
-    await agoraEngine.enableVideo();
-
     // Register the event handler
     agoraEngine.registerEventHandler(
       RtcEngineEventHandler(
+       
         onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
           showMessage("Local user uid:${connection.localUid} joined the channel");
-          print('조인완료');
+          print('로컬진입완료');
           setState(() {
+            this.uid = connection.localUid!;
             isJoined = true;
           });
 
         },
-        onUserJoined: (RtcConnection connection, int _remoteUid, int elapsed) {
-          showMessage("Remote user uid:$_remoteUid joined the channel");
+        onLeaveChannel: (RtcConnection connection, RtcStats stats) {
+          // ➍ 채널을 퇴장했을 때 실행
+          print('채널 퇴장');
+          // setState(() {
+            uid = null;
+          // });
+        },
+        onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
+          showMessage("Remote user uid:$remoteUid joined the channel");
+          print('리모트조인완료');
           setState(() {
-            remoteUid = _remoteUid;
+            _remoteUid = remoteUid;
           });
 
         },
-        onUserOffline: (RtcConnection connection, int _remoteUid,
+        onUserOffline: (RtcConnection connection, int remoteUid,
             UserOfflineReasonType reason) {
-          showMessage("Remote user uid:$_remoteUid left the channel");
+          showMessage("Remote user uid:$remoteUid left the channel");
           setState(() {
-            remoteUid = null;
+            _remoteUid = null;
           });
-
         },
         onTokenPrivilegeWillExpire: (RtcConnection connection, String token) {
-          debugPrint(
+          showMessage(
               '[onTokenPrivilegeWillExpire] connection: ${connection.toJson()}, token: $token');
         },
       ),
     );
+    await agoraEngine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
+    await agoraEngine.enableVideo();
+    await agoraEngine.startPreview();
+    // Set channel options including the client role and channel profile
+    ChannelMediaOptions options = const ChannelMediaOptions(
+      clientRoleType: ClientRoleType.clientRoleBroadcaster,
+      channelProfile: ChannelProfileType.channelProfileCommunication,
+    );
+
+    print(token);
+    print(channelName);
+    print(uid);
+    print('유저저저저저저');
+
+    await agoraEngine.joinChannel(
+      token: token,
+      channelId:
+      channelName
+      // 'test'
+      ,
+      options: options,
+      uid: 0,
+    );
+    return true;
   }
 
   control(){
-    var home = Get.put(HomeViewModel());
-    if(door){
-      home.publish(door);
-
-    }else{
-      home.publish(door);
-    }
-
+    home.scan();
   }
 
   @override
   void initState() {
     super.initState();
-    api.requestRTCToken('/ProductSncode/getAgoraToken').then((value) {
+    api.requestRTCToken('/AgoraToken/getToken',random).then((value) {
       // if (value['result'] == false) {
       //   Get.snackbar(
       //     '알림',
@@ -309,24 +352,59 @@ class cameraState extends State<camera_view> {
       //     colorText: Colors.white,
       //   );
       // }else{
+
+      // SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+      // uid = int.parse(sharedPreferences.getString('person_id')!);
+      // print(uid);
+      // print('uid');
+
       if(value != null){
-        print(value);
+        print(value['token']);
+        print(value['appID']);
         setState(() {
-          token = value.trim();
+          channelName = value['channelName'];
+          token = value['token'];
+          appid = value['appID'];
+          agoratokenid = value['agora_token_id'];
+        });
+        print('채널아디 : ${channelName}');
+        print('토큰 : ${token}');
+        setupVideoSDKEngine().then((value) {
+          print(value);
+          print('내꺼완료');
+          api.requestRTCinit(agoratokenid).then((val){
+            if(val != null){
+              print('완료');
+            }
+          });
+
         });
 
-
+        //String? sncode =  home.sharedPreferences.getString('sncode');
+        // String topic = 'smartdoor/SMARTDOOR/${sncode}';
+        // var builder = MqttClientPayloadBuilder();
+        // builder.addString('{"request":"webrtcChannelJoin","data":{"channelName":"${channelName}","appID":"${appId}","token":"${token}"},"isWebsocket":"true"}');
+        //
+        // home.client?.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
       }
+      // else{
+      //   QuitWidget(serverMsg: value['message'],);
+      // }
     });
-    setupVideoSDKEngine();
+    print('아고라 실행');
     print('엔진');
   }
   @override
-  void dispose() async{
-    // destroy sdk
-    print('엔진 끄기');
+  void dispose() {
     super.dispose();
-       // agoraEngine.leaveChannel();
-    await agoraEngine.leaveChannel(options: LeaveChannelOptions(stopAllEffect: true));
+    // destroy sdk
+      isJoined = false;
+      _remoteUid = null;
+      uid = null;
+    agoraEngine.leaveChannel(options: LeaveChannelOptions(
+      stopAudioMixing: true,
+        stopMicrophoneRecording: true,
+        stopAllEffect: true));
+    print('엔진 끄기');
   }
 }

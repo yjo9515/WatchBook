@@ -25,6 +25,7 @@ class EntranceController extends GetxController{
 
   ApiServices api = ApiServices();
   List listData = [];
+  List timeData = [];
   List elements = [];
   @override
   void onInit() {
@@ -44,17 +45,25 @@ class EntranceController extends GetxController{
       } else {
         listData = value;
         print('요청한 리스트값 ${value}');
-        // print(value[index]['title']);
-        // print(value[index]['familyObj']);
-            // json.decode(value).cast<Map<String, dynamic>>().toList();
         elements = [
-          // type 0:게스트 키, 1:번호키, 2: 앱, 3:안면인식
-          {'name': listData[0]['personObj']['name'],
-            'group': DateFormat('yyyy-MM-dd').format(DateTime.parse(listData[0]['personObj']['updateDate'])),
-            'type': listData[0]['type']},
+          //type 0:게스트 키, 1:번호키, 2: 앱, 3:안면인식
+            for(int i = 0; i< listData.length; i++){
+              'name': listData[i]['person_id'] == 0 ? '익명' : listData[i]['personObj']['name'],
+              'group': DateFormat('yyyy-MM-dd').format(
+                  listData[i]['regDate'] == '' ?
+                  DateTime.utc(1900,1,1)
+                  : DateTime.parse(listData[i]['regDate'])),
+              'type': listData[i]['type']},
         ];
+
+          for(int i = 0; i< listData.length; i++){
+
+            timeData.add(DateFormat('a h:mm').format(DateTime.parse(listData[i]['regDate'])));
+          }
+        print(timeData);
         print(elements);
         update();
+
       }
     });
     update();

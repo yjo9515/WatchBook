@@ -247,7 +247,7 @@ class addkey_view extends GetView<KeyViewModel> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-
+                            KeyViewModel.scan();
                           },
                           child: Text(
                             (Get.arguments == 'create')?

@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/view/addkey_view.dart';
+import 'package:wisemonster/view/home_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view_model/home_view_model.dart';
 import '../controller/member_controller.dart';
+import '../view_model/key_view_model.dart';
 import 'widgets/LeftSlideWidget.dart';
 
-class key_view extends GetView<MemberController> {
-
-
+class key_view extends GetView<KeyViewModel> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +23,13 @@ class key_view extends GetView<MemberController> {
             color: Color.fromARGB(255, 44, 95, 233),
             fontWeight: FontWeight.bold,
             fontSize: 20)),
+        automaticallyImplyLeading: true,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_outlined),
+          onPressed: () {
+            Get.offAll(home_view());
+          },
+        ),
         actions: [
           TextButton(
               onPressed: () {
@@ -122,7 +129,6 @@ class key_view extends GetView<MemberController> {
           ],
         ),
       ),
-      drawer: LeftSlideWidget(),
     );
   }
 }

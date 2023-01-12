@@ -34,6 +34,7 @@ class ProfileController extends GetxController{
     if(sharedPreferences.getString('nickname') != null){
       nickname =  sharedPreferences.getString('nickname')!;
       imageUrl = sharedPreferences.getString('pictureUrl')!;
+      print(imageUrl);
     }
     update();
     super.onInit();

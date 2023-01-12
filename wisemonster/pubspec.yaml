@@ -5,10 +5,10 @@ description: A new Flutter project.
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.0.1+3
+version: 1.1.7+25
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.17.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -22,7 +22,6 @@ dependencies:
   flutter_web_auth: ^0.5.0
   image_picker: ^0.8.4+11
   multiple_images_picker: ^1.0.1
-  webview_flutter: ^2.1.0
   connectivity_plus: ^2.3.6
   permission_handler: ^10.0.2
   table_calendar: ^3.0.7
@@ -48,7 +47,9 @@ dependencies:
   path_provider: ^2.0.11
   network_info_plus: ^3.0.1
   device_info_plus: ^8.0.0
-
+  quiver: ^3.1.0
+  cryptography: ^2.0.5
+  webview_flutter: ^3.0.4
 
 dev_dependencies:
   flutter_test:

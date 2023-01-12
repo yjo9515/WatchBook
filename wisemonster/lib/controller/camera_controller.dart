@@ -11,7 +11,7 @@ import '../view_model/camera_view_model.dart';
 import '../view_model/home_view_model.dart';
 class CameraController extends GetxController{
   ApiServices api = ApiServices();
-  bool door = true;
+
 
 
   String appId = "554d4edeb650484c92fd9a6e48ff67bf";
@@ -173,13 +173,14 @@ class CameraController extends GetxController{
 
   control(){
     var home = Get.put(HomeViewModel());
-    if(door){
+    String? door =  home.sharedPreferences.getString('door');
+    if(door == 'true'){
 
 
-        home.publish(door);
+        home.publish();
 
     }else{
-      home.publish(door);
+      home.publish();
     }
 
   }
@@ -187,7 +188,7 @@ class CameraController extends GetxController{
   @override
   void onInit() {
     super.onInit();
-    api.requestRTCToken('/ProductSncode/getAgoraToken').then((value) {
+    api.requestRTCToken('/ProductSncode/getAgoraToken','random').then((value) {
       // if (value['result'] == false) {
       //   Get.snackbar(
       //     '알림',

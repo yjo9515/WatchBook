@@ -7,8 +7,10 @@ import 'package:get/get.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view_model/home_view_model.dart';
+
+import '../../controller/qr_controller.dart';
 final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
-final home = Get.put(HomeViewModel());
+final home = Get.put(QRController());
 class QrWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {

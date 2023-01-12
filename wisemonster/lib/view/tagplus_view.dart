@@ -33,7 +33,6 @@ class TagPlus_view extends GetView<ProfileController> {
       builder: (ProfileController) => MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
-            resizeToAvoidBottomInset : false,
             appBar: AppBar(
               elevation: 0,
               centerTitle: true,
@@ -54,10 +53,7 @@ class TagPlus_view extends GetView<ProfileController> {
                 },
               ),
             ),
-            body: Container(
-                width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
-                height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height,
-                child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center,children: [
+            body:
                   Container(
                       padding: const EdgeInsets.fromLTRB(16, 200, 16, 16),
                       width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
@@ -65,9 +61,9 @@ class TagPlus_view extends GetView<ProfileController> {
                       height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 80,
                       color: Colors.white,
                       child: SingleChildScrollView(
+                          physics: ClampingScrollPhysics(),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
-
                               children: [
                         Row(
                           children: [
@@ -94,32 +90,28 @@ class TagPlus_view extends GetView<ProfileController> {
                                 color: Color.fromARGB(255, 234, 234, 234),
                                 child:
                                     // new Text(ProfileController.Tagdata![1]),
-                                    new Padding(
-                                  padding: EdgeInsets.all(7),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('${ProfileController.listData[index]['name']}'),
-                                    IconButton(
-                                        constraints: BoxConstraints(),
-                                        padding: EdgeInsets.all(0),
-                                        onPressed: (){
-                                          ProfileController.deleteTag(index);
-                                        },
-                                        icon: Icon(
-                                            Icons.cancel_outlined,
-                                          size: 18,
-                                        ))
-                                    ],
-                                  ),
-                                ),
+                                    new TextButton.icon(
+                                    onPressed: (){
+                                    ProfileController.deleteTag(index);
+                                  },
+                                      icon: Icon(
+                                        Icons.cancel_outlined,
+                                        size: 18,
+                                        color: Colors.black,
+                                      ),
+                                      label:
+                                        Text('${ProfileController.listData[index]['name']}',
+                                            style: TextStyle(
+                                            color: Colors.black
+                                        )
+                                        ),
+                                      )
                               );
                             },
                           ),
                         )
-                      ])))
-                ]))),
+                      ]))
+                )),
       ),
     );
   }

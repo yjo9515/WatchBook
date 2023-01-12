@@ -28,8 +28,6 @@ class LeftSlideWidget extends StatelessWidget {
   getName() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     userName = sharedPreferences.getString('nickname')!;
-
-
     print('회원이름 호출');
     print(userName);
     return await userName;
@@ -38,6 +36,8 @@ class LeftSlideWidget extends StatelessWidget {
   getImage() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     pictureUrl = sharedPreferences.getString('pictureUrl')!;
+    print('프로필사진 주소');
+    print(pictureUrl);
     return pictureUrl;
   }
 
@@ -127,7 +127,7 @@ class LeftSlideWidget extends StatelessWidget {
                                     );
                                   } else {
                                     return Icon(
-                                      Icons.add,
+                                      Icons.image,
                                       color: Colors.white,
                                       size: 30,
                                     );
@@ -139,7 +139,7 @@ class LeftSlideWidget extends StatelessWidget {
                             FutureBuilder(
                                 future: getName(),
                                 builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
+                                  if (snapshot.data != null) {
                                     return
                                       Text('${snapshot.data} 님',
                                         style: TextStyle(
@@ -147,7 +147,7 @@ class LeftSlideWidget extends StatelessWidget {
                                           color: Color.fromARGB(255, 43, 43, 43),
                                         ),);
                                   } else {
-                                    return Text('회원님',
+                                    return Text('닉네임을 등록해주세요.',
                                       style: TextStyle(
                                         fontSize: 17,
                                         color: Color.fromARGB(255, 43, 43, 43),
@@ -161,7 +161,7 @@ class LeftSlideWidget extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              Get.offAll(notice_view());
+                              Get.to(notice_view());
                               print('공지');
                             },
                             style: TextButton.styleFrom(
@@ -177,7 +177,7 @@ class LeftSlideWidget extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              Get.offAll(calendar_view());
+                              Get.to(calendar_view());
                               print('캘린더');
                             },
                             style: TextButton.styleFrom(
@@ -191,24 +191,24 @@ class LeftSlideWidget extends StatelessWidget {
                               ),
                             ),
                           ),
+                          // TextButton(
+                          //   onPressed: () {
+                          //     Get.to(key_view());
+                          //   },
+                          //   style: TextButton.styleFrom(
+                          //       padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
+                          //       backgroundColor: Color.fromARGB(255, 255, 255, 255)),
+                          //   child: Text(
+                          //     '게스트 키',
+                          //     style: TextStyle(
+                          //       fontSize: 14,
+                          //       color: Color.fromARGB(255, 18, 136, 248),
+                          //     ),
+                          //   ),
+                          // ),
                           TextButton(
                             onPressed: () {
-                              Get.offAll(key_view());
-                            },
-                            style: TextButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                            child: Text(
-                              '게스트 키',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 18, 136, 248),
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Get.offAll(entrance_view());
+                              Get.to(entrance_view());
                             },
                             style: TextButton.styleFrom(
                                 padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
@@ -223,7 +223,7 @@ class LeftSlideWidget extends StatelessWidget {
                           ),
                   TextButton(
                     onPressed: () {
-                      Get.offAll(video_view());
+                      Get.to(video_view());
                     },
                     style: TextButton.styleFrom(
                         padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
@@ -236,19 +236,19 @@ class LeftSlideWidget extends StatelessWidget {
                       ),
                     ),
                   ),
-                          TextButton(
-                            onPressed: () {},
-                            style: TextButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                            child: Text(
-                              '구성원',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 18, 136, 248),
-                              ),
-                            ),
-                          ),
+                          // TextButton(
+                          //   onPressed: () {},
+                          //   style: TextButton.styleFrom(
+                          //       padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
+                          //       backgroundColor: Color.fromARGB(255, 255, 255, 255)),
+                          //   child: Text(
+                          //     '구성원',
+                          //     style: TextStyle(
+                          //       fontSize: 14,
+                          //       color: Color.fromARGB(255, 18, 136, 248),
+                          //     ),
+                          //   ),
+                          // ),
                           TextButton(
                             onPressed: () {
                               Get.to(()=>profile_view());
@@ -266,7 +266,7 @@ class LeftSlideWidget extends StatelessWidget {
                           ),
                           TextButton(
                             onPressed: () {
-                              Get.offAll(config_view());
+                              Get.to(config_view());
                             },
                             style: TextButton.styleFrom(
                                 padding: EdgeInsets.fromLTRB(0, 22, 0, 22),

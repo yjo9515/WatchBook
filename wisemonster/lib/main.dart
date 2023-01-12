@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:math';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/binding/binding.dart';
 import 'package:wisemonster/routes/app_pages.dart';
 import 'package:wisemonster/view/camera_view.dart';
+import 'package:wisemonster/models/mqtt.dart';
 import 'package:wisemonster/view/home_view.dart';
 import 'package:wisemonster/view/splash_view.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -17,22 +21,78 @@ import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 import 'package:wisemonster/models/mqtt.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'package:wisemonster/view/widgets/QuitWidget.dart';
+import 'package:wisemonster/view_model/home_view_model.dart';
 
 import 'api/api_services.dart';
+import 'controller/connect_controller.dart';
+
 
 
 ApiServices api = ApiServices();
+void _handleMessage(RemoteMessage message) {
+  print('message = ${message.notification!.title}');
+  print('백그라운드 클릭!');
+  Get.dialog(AlertDialog(
+    // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+    //Dialog Main Title
+    title: Container(
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [Text("알림")],
+      ),
+    ),
+    //
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          '벨이 울렸습니다',
+        )
+      ],
+    ),
+    actions: <Widget>[
+      TextButton(
+        child: const Text("확인"),
+        onPressed: () {
+          Get.offAll(camera_view());
+        },
+      ),
+    ],
+  ));
+}
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
   print('Handling a background message ${message.messageId}');
   print(message.data);
+  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage().then((value) {
+    print('ddddddd');
+
+  if(value != null){
+    _handleMessage(value);
+  }}
+  );
+
+  // 종료상태에서 클릭한 푸시 알림 메세지 핸들링
+  if (initialMessage != null) {
+    print('종료시 실행');
+    _handleMessage(initialMessage);
+  }
+
+  // 앱이 백그라운드 상태에서 푸시 알림 클릭 하여 열릴 경우 메세지 스트림을 통해 처리
+  FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
 }
 late AndroidNotificationChannel channel;
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
+  Get.put(ConnectController());
 
     await Firebase.initializeApp(
         options: const FirebaseOptions(
@@ -53,6 +113,7 @@ Future<void> main() async {
       sound: true);
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
   if (!kIsWeb) {
     // foreground에서 알림 중요도 설정
@@ -91,7 +152,37 @@ Future<void> main() async {
         print(payload);
         print('포그라운드클릭');
         if (payload != null) {
-          Get.to(camera_view());
+          Get.dialog(AlertDialog(
+            // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            //Dialog Main Title
+            title: Container(
+              margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [Text("알림")],
+              ),
+            ),
+            //
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  '벨이 울렸습니다',
+                )
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("확인"),
+                onPressed: () {
+                  Get.offAll(camera_view());
+                },
+              ),
+            ],
+          ));
         }
       },
 
@@ -142,19 +233,6 @@ Future<void> main() async {
 
     });
 
-
-    void _handleMessage(RemoteMessage message) {
-      print('message = ${message.notification!.title}');
-      Get.off(home_view());
-    }
-
-      RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-
-      // 종료상태에서 클릭한 푸시 알림 메세지 핸들링
-      if (initialMessage != null) _handleMessage(initialMessage);
-
-      // 앱이 백그라운드 상태에서 푸시 알림 클릭 하여 열릴 경우 메세지 스트림을 통해 처리
-      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     initializeDateFormatting().then((_) =>

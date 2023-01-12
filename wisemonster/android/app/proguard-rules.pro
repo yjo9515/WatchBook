@@ -5,3 +5,8 @@
 -keep class io.flutter.view.**  { *; }
 -keep class io.flutter.**  { *; }
 -keep class io.flutter.plugins.**  { *; }
+
+-keep class com.signify.hue.** { *; }
+
+-keep class com.pauldemarco.flutter_blue.** { *; }
+-keepclassmembernames class com.pauldemarco.flutter_blue.* { *; }

@@ -57,7 +57,8 @@ class registration1_view extends GetView<NewMemberController>{
                               //인풋박스 터치시 키보드 안나오는 에러 수정(원인 : 미디어쿼리)
                               height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window)
                                   .size
-                                  .height- 186,
+                                  .height - 146,
+
                               color: Colors.white,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,

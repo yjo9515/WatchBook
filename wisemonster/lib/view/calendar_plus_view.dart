@@ -52,7 +52,6 @@ class calendar_plus_view extends GetView<CalendarController> {
         builder: (CalendarController) => MaterialApp(
               debugShowCheckedModeBanner: false,
               home: Scaffold(
-                resizeToAvoidBottomInset: false,
                 appBar: AppBar(
                     elevation: 0,
                     centerTitle: true,
@@ -123,6 +122,7 @@ class calendar_plus_view extends GetView<CalendarController> {
                   height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 50,
                   color: Colors.white,
                   child: SingleChildScrollView(
+                    physics: ClampingScrollPhysics(),
                       child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

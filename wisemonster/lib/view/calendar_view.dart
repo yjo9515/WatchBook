@@ -13,6 +13,7 @@ import '../controller/calendar_controller.dart';
 import 'dart:io' as i;
 
 import 'calendar_plus_view.dart';
+import 'home_view.dart';
 import 'key_view.dart';
 
 class calendar_view extends GetView<CalendarController> {
@@ -21,9 +22,7 @@ class calendar_view extends GetView<CalendarController> {
     return GetBuilder<CalendarController>(
         init: CalendarController(),
         builder: (controller) =>
-            WillPopScope(
-                onWillPop: () => _goBack(context),
-            child:
+
             Scaffold(
               resizeToAvoidBottomInset: false,
               appBar: AppBar(
@@ -38,6 +37,13 @@ class calendar_view extends GetView<CalendarController> {
                     color: Color.fromARGB(255, 87, 132, 255),
                   ),
                 ),
+                  automaticallyImplyLeading: true,
+                  leading: IconButton(
+                    icon: Icon(Icons.arrow_back_ios_new_outlined),
+                    onPressed: () {
+                      Get.offAll(home_view());
+                    },
+                  ),
                 actions: [
                   TextButton(
                       onPressed: (){
@@ -166,27 +172,8 @@ class calendar_view extends GetView<CalendarController> {
                   ],
                 ),
               ),
-                drawer: LeftSlideWidget(),
-            ))
-
+            )
     );
   }
-  Future<bool> _goBack(BuildContext context) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('앱을 종료하시겠어요?'),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('네'),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-          TextButton(
-            child: const Text('아니오'),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-        ],
-      ),
-    ).then((value) => value ?? false);
-  }
+
 }

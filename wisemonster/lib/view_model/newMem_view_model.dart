@@ -13,6 +13,8 @@ import 'package:wisemonster/view/widgets/QuitWidget.dart';
 import 'package:wisemonster/view/widgets/SendWidget.dart';
 import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
 
+import '../view/home_view.dart';
+
 class NewMemberViewModel extends GetxController{
 
 
@@ -36,6 +38,7 @@ class NewMemberViewModel extends GetxController{
   var phoneAuthController = TextEditingController();
   var nameController = TextEditingController();
   var idController = TextEditingController();
+  var placeController = TextEditingController();
   var response;
   bool error = false;
   String msg = '';
@@ -59,6 +62,7 @@ class NewMemberViewModel extends GetxController{
 
   String passwd= '';
   String pwcheck = '';
+  String place = '';
   bool _allPass = false;
   int send = 2; //보냈는지 여부 확인 1은 보냄
 
@@ -173,33 +177,33 @@ class NewMemberViewModel extends GetxController{
     }
   }
 
-  requestCheckAuthProcess() {
-    if(nameController.text.trim().isEmpty){
-      msg = "성명을 입력해 주세요.";
-      initDialog(msg);
-    }else{
-      api.requestCheckAuthProcess(phoneAuthController).then((value) {
-        int a = int.parse(phoneAuthController.text.trim());
-        String b = value['params']['authcode'].toString();
-        if (a == value['params']['authcode']) {// 0일때 값이 같음
-          msg = "인증번호가 확인되었습니다.";
-          initDialog(msg);
-          timer.cancel();
-          auth = true;
-          txt.value = 1;
-        }else{
-          msg = "인증번호가 일치하지 않습니다.";
-          initDialog(msg);
-          txt.value = 2;
-          print(b);
-          print(response.body);
-          print(value['params']['authcode']);
-          print(phoneAuthController.text.trim());
-        }
-      });
-    }
-    //get the id text
-  }
+  // requestCheckAuthProcess() {
+  //   if(nameController.text.trim().isEmpty){
+  //     msg = "성명을 입력해 주세요.";
+  //     initDialog(msg);
+  //   }else{
+  //     api.requestCheckAuthProcess(phoneAuthController).then((value) {
+  //       int a = int.parse(phoneAuthController.text.trim());
+  //       String b = value['params']['authcode'].toString();
+  //       if (a == value['params']['authcode']) {// 0일때 값이 같음
+  //         msg = "인증번호가 확인되었습니다.";
+  //         initDialog(msg);
+  //         timer.cancel();
+  //         auth = true;
+  //         txt.value = 1;
+  //       }else{
+  //         msg = "인증번호가 일치하지 않습니다.";
+  //         initDialog(msg);
+  //         txt.value = 2;
+  //         print(b);
+  //         print(response.body);
+  //         print(value['params']['authcode']);
+  //         print(phoneAuthController.text.trim());
+  //       }
+  //     });
+  //   }
+  //   //get the id text
+  // }
 
   requestCheckName() async{
     api.requestCheckName(nameController).then((value) {
@@ -304,7 +308,52 @@ class NewMemberViewModel extends GetxController{
       }
     });
   }
-
+  requestPlaceJoinProcess(sncode){
+    String place = placeController.text.trim();
+    // 보내야할거 리스트에 담아서 전송
+    api.requestPlaceJoinProcess(sncode,place).then((value) {
+      if (value['result'] == false) {
+        msg = value['message'];
+        error = true;
+        update();
+        initDialog(msg);
+      } else {
+          Get.dialog(
+              AlertDialog(
+                // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                //Dialog Main Title
+                title: Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [Text("알림")],
+                  ),
+                ),
+                //
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      '주소 등록이 완료되었습니다.',
+                    )
+                  ],
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text("메인으로 이동"),
+                    onPressed: () {
+                      Get.offAll(home_view());
+                    },
+                  ),
+                ],
+              )
+          );
+      }
+    });
+  }
 
   void authDialog(value) {
     Get.dialog(

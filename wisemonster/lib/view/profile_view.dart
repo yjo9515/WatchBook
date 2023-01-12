@@ -84,9 +84,9 @@ class profile_view extends GetView<ProfileController> {
                                       shape: BoxShape.circle,
                                       color: Color.fromARGB(255, 161, 161, 161),
                                     ),
-                                    child: ProfileController.imageUrl.isNotEmpty == true
+                                    child: ProfileController.imageUrl != null
                                         ? CircleAvatar(
-                                            backgroundImage: Image.network('https://www.smartdoor.watchbook.tv/${ProfileController.imageUrl}').image
+                                            backgroundImage: Image.network('https://www.smartdoor.watchbook.tv${ProfileController.imageUrl}').image
                                     )
                                         : Icon(
                                             Icons.add,

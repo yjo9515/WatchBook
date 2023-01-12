@@ -9,6 +9,7 @@ import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view_model/home_view_model.dart';
 import '../controller/entrance_controller.dart';
 import '../controller/member_controller.dart';
+import 'home_view.dart';
 import 'widgets/LeftSlideWidget.dart';
 
 class entrance_view extends GetView<EntranceController> {
@@ -16,9 +17,7 @@ class entrance_view extends GetView<EntranceController> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-        onWillPop: () => _goBack(context),
-        child: GetBuilder<EntranceController>(
+    return  GetBuilder<EntranceController>(
             init: EntranceController(),
             builder: (EntranceController) => Scaffold(
                   appBar: AppBar(
@@ -29,6 +28,13 @@ class entrance_view extends GetView<EntranceController> {
                     title: Text('출입기록',
                         style: TextStyle(
                             color: Color.fromARGB(255, 44, 95, 233), fontWeight: FontWeight.bold, fontSize: 20)),
+                    automaticallyImplyLeading: true,
+                    leading: IconButton(
+                      icon: Icon(Icons.arrow_back_ios_new_outlined),
+                      onPressed: () {
+                        Get.offAll(home_view());
+                      },
+                    ),
                   ),
                   body: Container(
                     margin: EdgeInsets.fromLTRB(16, 40, 16, 0),
@@ -39,7 +45,7 @@ class entrance_view extends GetView<EntranceController> {
                       groupBy: (element) => element['group'],
                       groupComparator: (value1, value2) => value2.compareTo(value1),
                       itemComparator: (item1, item2) => item1['name'].compareTo(item2['name']),
-                      order: GroupedListOrder.DESC,
+                      order: GroupedListOrder.ASC,
                       useStickyGroupSeparators: true,
                       groupSeparatorBuilder: (String value) => Container(
                         decoration: BoxDecoration(
@@ -55,7 +61,7 @@ class entrance_view extends GetView<EntranceController> {
                           ),
                         ),
                       ),
-                      itemBuilder: (c, element) {
+                      indexedItemBuilder: (c, element, i) {
                         return Card(
                           elevation: 8.0,
                           margin: const EdgeInsets.symmetric(vertical: 10.0),
@@ -68,33 +74,14 @@ class entrance_view extends GetView<EntranceController> {
                                : (element['type'] == 2)? Text('${element['name']}님이 앱으로 도어락을 열었습니다.')
                                 :(element['type'] == 3)? Text('${element['name']}님이 안면인식으로 도어락을 열었습니다.')
                               :Text('에러가 발생하였습니다. 관리자에게 문의해주세요.'),
-                              trailing: Text(DateFormat('HH:mm').format(DateTime.parse(EntranceController.listData[0]['personObj']['updateDate']))),
+                              trailing: element['group'] =='' ? Text('') :Text(EntranceController.timeData[i]),
                             ),
                           ),
                         );
                       },
                     ),
                   ),
-                  drawer: LeftSlideWidget(),
-                )));
+                ));
   }
 
-  Future<bool> _goBack(BuildContext context) async {
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('앱을 종료하시겠어요?'),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('네'),
-            onPressed: () => Navigator.pop(context, true),
-          ),
-          TextButton(
-            child: const Text('아니오'),
-            onPressed: () => Navigator.pop(context, false),
-          ),
-        ],
-      ),
-    ).then((value) => value ?? false);
-  }
 }

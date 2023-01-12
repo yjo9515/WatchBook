@@ -18,14 +18,17 @@ class newMember4_view extends GetView<NewMemberController> {
             WillPopScope(
                 onWillPop: () => _goBack(context),
                 child: Scaffold(
-                  resizeToAvoidBottomInset: false,
+                  // resizeToAvoidBottomInset: false,
                   appBar: AppBar(
                       centerTitle: true,
                       backgroundColor: Color.fromARGB(255, 42, 66, 91),
                       iconTheme: const IconThemeData(color: Color.fromARGB(255, 255, 255, 255)),
                       title:Text('회원가입')
                   ),
-                  body: Column(
+                  body: SingleChildScrollView(
+                    physics: ClampingScrollPhysics(),
+                    child:
+                      Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
@@ -82,6 +85,7 @@ class newMember4_view extends GetView<NewMemberController> {
                           )
                       )
                     ],
+                  )
                   ),
                 )
             )

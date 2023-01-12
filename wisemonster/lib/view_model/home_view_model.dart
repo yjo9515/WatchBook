@@ -2,7 +2,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:math';
+import 'dart:typed_data';
 
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -13,15 +16,19 @@ import 'package:qr_code_scanner/src/types/barcode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/api/api_services.dart';
 import 'package:wisemonster/models/user_model.dart';
+import 'package:wisemonster/view/afterQr_view.dart';
 import 'package:wisemonster/view/home_view.dart';
 import 'package:wisemonster/view/widgets/QrWidget.dart';
 import 'package:wisemonster/view/widgets/QuitWidget.dart';
 import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
+import '../controller/SData.dart';
+import '../models/mqtt.dart';
 import '../view/login_view.dart';
+import 'package:encrypt/encrypt.dart' as en;
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-class HomeViewModel extends GetxController{
+class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   ApiServices api = ApiServices();
   late SharedPreferences sharedPreferences;
   String? id;
@@ -31,10 +38,38 @@ class HomeViewModel extends GetxController{
   RxString userName = ''.obs;
   String msg = '';
   bool error = false;
+  List<int> appkey = [];
+  var encrypter;
+  var encrypted;
+  var decrypted;
+  String? door;
+  late List<int> rdata;
+  bool isScanning = false;
+  String place = '';
+  String stateText = 'Connecting';
+  bool isSend = false;
+  bool isAuth = false;
+  bool isCom = false;
+  RxString event = ''.obs;
+  bool trigger = false;
+  //도어쪽
+  bool isBle = true;
+  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
+  var scanResultList = [];
+  List<BluetoothService> bluetoothService = [];
 
-  Barcode? result;
-  QRViewController? qrcontroller;
-  bool door = true;
+  Map<String, List<int>> notifyDatas = {};
+
+  // 연결 상태 리스너 핸들 화면 종료시 리스너 해제를 위함
+  StreamSubscription<BluetoothDeviceState>? stateListener;
+// 현재 연결 상태 저장용
+  BluetoothDeviceState deviceState = BluetoothDeviceState.disconnected;
+  late List<BluetoothService> services;
+  var subscription;
+
+
+
+  Mqtt mqtt = new Mqtt();
 
   allupdate(){
    update();
@@ -44,24 +79,28 @@ class HomeViewModel extends GetxController{
     chk();
     api.getInfo().then((value)  async {
       if (value['result'] == false) {
-        Get.snackbar(
-          '알림',
-          value['message']
-          ,
-          duration: Duration(seconds: 5),
-          backgroundColor: const Color.fromARGB(
-              255, 39, 161, 220),
-          icon: Icon(Icons.info_outline, color: Colors.white),
-          forwardAnimationCurve: Curves.easeOutBack,
-          colorText: Colors.white,
-        );
+        // Get.snackbar(
+        //   '알림',
+        //   value['message']
+        //   ,
+        //   duration: const Duration(seconds: 5),
+        //   backgroundColor: const Color.fromARGB(
+        //       255, 39, 161, 220),
+        //   icon: const Icon(Icons.info_outline, color: Colors.white),
+        //   forwardAnimationCurve: Curves.easeOutBack,
+        //   colorText: Colors.white,
+        // );
+        print(value['message']);
         update();
       } else {
         Map<String, dynamic> userMap = value;
         var user = UserModel.fromJson(userMap);
         userName.value = user.personObj['name'].toString();
+        door = sharedPreferences.getString('door');
+
         print('전달할 유저 이름 : ${userName}');
         sharedPreferences = await SharedPreferences.getInstance();
+
         sharedPreferences.setString('name', user.personObj['name'].toString());
         sharedPreferences.setString('person_id', user.personObj['person_id'].toString());
         sharedPreferences.setString('family_id', user.familyId.toString());
@@ -69,11 +108,17 @@ class HomeViewModel extends GetxController{
         sharedPreferences.setString('nickname', user.personObj['nickname'].toString());
         sharedPreferences.setString('pictureUrl', user.personObj['pictureUrl'].toString());
         sharedPreferences.setString('product_sncode_id', user.product_sncode_id.toString());
+        sharedPreferences.setString('pcode', value['pcode']);
+        sharedPreferences.setString('scode', value['scode']);
+        sharedPreferences.setString('address', value['ble']['address']);
+        place = value['personObj']['place'];
+        update();
+        print(place);
 
         String? pcode =  sharedPreferences.getString('pcode');
-        String? sncode =  sharedPreferences.getString('sncode');
+        String? scode =  sharedPreferences.getString('scode');
         print(pcode);
-        print(sncode);
+        print(scode);
         api.sendFcmToken('/GoogleFcmToken/saveAll').then((value)  async {
           print(value);
           if (value['result'] == true) {
@@ -83,17 +128,24 @@ class HomeViewModel extends GetxController{
           }
         });
 
-        if(pcode == null || sncode == null){
-          qrcontroller?.dispose();
-          print('등록 실패');
-          update();
-        }else if(pcode != null && sncode != null){
-          qrcontroller?.dispose();
-          print('등록 성공');
+        if( user.product_sncode_id.toString() == '0'){
+
+          print('등록 실패 홈');
           update();
 
+        }else if(user.product_sncode_id.toString() != '0'){
+
+          print('등록 성공 홈');
+          update();
+          String? scode =  sharedPreferences.getString('scode');
+          String topic = 'smartdoor/SMARTDOOR/${scode}'; // Not a wildcard topic
+
+          //client?.subscribe(topic, MqttQos.exactlyOnce);
+          // var builder = MqttClientPayloadBuilder();
+          // builder.addString('{"request":"isDoorOpen","topic":"smartdoor/SMARTDOOR/${sncode}/${familyid}/${personid}"}');
+          // client?.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
         }
-        push();
+        // push();
       }
     }
 
@@ -101,84 +153,7 @@ class HomeViewModel extends GetxController{
   }
 
 
-  sendCode (Barcode? result) {
-    api.sendQRcode(result).then((value) async {
-      print(value['result']);
-      // if (value == 'another') {
-      //   // msg = "인증에 실패하였습니다.\n창을 닫은 후 다시 촬영해주세요.";
-      //   // msg = "다른 QR코드를 촬영하셨거나 도어의 정보가 다릅니다.\n다시 촬영해주세요.";
-      //   error = true;
-      //   // Get.dialog(QuitWidget(serverMsg: msg));
-      //   Get.snackbar(
-      //     '알림',
-      //     '다른 QR코드를 촬영하셨거나 도어의 정보가 다릅니다.\n다시 촬영해주세요.'
-      //     ,
-      //     duration: Duration(seconds: 5),
-      //     backgroundColor: const Color.fromARGB(
-      //         255, 39, 161, 220),
-      //     icon: Icon(Icons.info_outline, color: Colors.white),
-      //     forwardAnimationCurve: Curves.easeOutBack,
-      //     colorText: Colors.white,
-      //   );
-      //
-      //   register = false;
-      //   update();
-      // } else
-        if (value['result'] == false) {
-        print('다른거');
-        Get.back();
-        Get.snackbar(
-          '알림',
-          // '다른 QR코드를 촬영하셨거나 도어의 정보가 다릅니다.\n다시 촬영해주세요.'
-          value['message']
-          ,
-          duration: Duration(seconds: 5),
-          backgroundColor: const Color.fromARGB(
-              255, 39, 161, 220),
-          icon: Icon(Icons.info_outline, color: Colors.white),
-          forwardAnimationCurve: Curves.easeOutBack,
-          colorText: Colors.white,
-        );
-        qrcontroller!.dispose();
 
-        update();
-      } else if(value['result']  == true)  {
-        // model(value);
-        print('리턴값 : ${value}');
-        print(value['params']['pcode']);
-        sharedPreferences = await SharedPreferences.getInstance();
-        sharedPreferences.setString('pcode', value['params']['pcode']);
-        sharedPreferences.setString('sncode', value['params']['sncode']);
-        print(value);
-        print('qr인증완료');
-        qrcontroller!.dispose();
-        Get.offAll(home_view());
-        update();
-      }
-
-    });
-    refresh();
-  }
-
-  void onQRViewCreated(QRViewController controller) {
-    this.qrcontroller = controller;
-    controller.scannedDataStream.listen((scanData) {
-      if(scanData.code != null){
-        this.qrcontroller?.pauseCamera();
-        result = scanData;
-        print(scanData.code);
-        sendCode(result);
-      }
-    });
-  }
-  void onPermissionSet(BuildContext context, QRViewController ctrl, bool p) {
-    log('${DateTime.now().toIso8601String()}_onPermissionSet $p');
-    if (!p) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('권한이 없습니다.')),
-      );
-    }
-  }
 
   model(value) async {
     Map<String, dynamic> userMap = await jsonDecode(value);
@@ -217,212 +192,712 @@ class HomeViewModel extends GetxController{
     }
   }
 
-  MqttServerClient? client;
 
-  Future<MqttServerClient?> connect() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String? personId = sharedPreferences.getString('person_id');
-    client =
-        MqttServerClient.withPort('118.67.142.61', ' smartdoor_SMARTDOOR_2022${personId}', 1883);
-    client?.logging(on: true);
-    client?.onConnected = onConnected;
-    client?.onDisconnected = onDisconnected;
-    client?.onUnsubscribed = onUnsubscribed;
-    client?.onSubscribed = onSubscribed;
-    client?.onSubscribeFail = onSubscribeFail;
-    client?.pongCallback = pong;
-
-
-
-
-    final connMessage = MqttConnectMessage()
-        .keepAliveFor(60)
-        .withWillTopic('smartdoor/SMARTDOOR/')
-        .withWillMessage('doorlockOpenProcess')
-        .startClean()
-        .withWillQos(MqttQos.atLeastOnce);
-    client?.connectionMessage = connMessage;
-    try {
-      Get.snackbar(
-        '알림',
-        '도어와 연결중입니다. 잠시만 기다려주세요.'
-        ,
-        duration: Duration(seconds: 5),
-        backgroundColor: const Color.fromARGB(
-            255, 39, 161, 220),
-        icon: Icon(Icons.info_outline, color: Colors.white),
-        forwardAnimationCurve: Curves.easeOutBack,
-        colorText: Colors.white,
-      );
-      await client?.connect();
-    } catch (e) {
-      Get.snackbar(
-        '알림',
-        '연결에 실패했습니다. 어플을 다시 실행해주세요.'
-        ,
-        duration: Duration(seconds: 5),
-        backgroundColor: const Color.fromARGB(
-            255, 39, 161, 220),
-        icon: Icon(Icons.info_outline, color: Colors.white),
-        forwardAnimationCurve: Curves.easeOutBack,
-        colorText: Colors.white,
-      );
-      print('Exception: $e');
-      client?.disconnect();
+  setBleConnectionState(BluetoothDeviceState event) {
+    switch (event) {
+      case BluetoothDeviceState.disconnected:
+        stateText = 'Disconnected';
+        // 버튼 상태 변경
+        update();
+        break;
+      case BluetoothDeviceState.disconnecting:
+        stateText = 'Disconnecting';
+        update();
+        break;
+      case BluetoothDeviceState.connected:
+        stateText = 'Connected';
+        update();
+        // 버튼 상태 변경
+        break;
+      case BluetoothDeviceState.connecting:
+        stateText = 'Connecting';
+        update();
+        break;
     }
-    String? pcode = sharedPreferences.getString('pcode');
-    String? sncode =  sharedPreferences.getString('sncode');
-    String? familyid =  sharedPreferences.getString('family_id');
-    String? personid =  sharedPreferences.getString('person_id');
-
-    String topic = 'smartdoor/SMARTDOOR/${sncode}/${familyid}/${personid}'; // Not a wildcard topic
-    client?.subscribe(topic, MqttQos.atMostOnce);
-
-    client?.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-      final MqttPublishMessage message = c[0].payload as MqttPublishMessage;
-      final payload =
-      MqttPublishPayload.bytesToStringAsString(message.payload.message);
-
-      print('Received message:$payload from topic: ${c[0].topic}>');
-
-      var result=json.decode(payload);
-      print(result['message']);
-      print(Uri.decodeComponent(result['message']));
-      Get.snackbar(
-        '알림',
-        Uri.decodeComponent(result['message'])
-        ,
-        duration: Duration(seconds: 5),
-        backgroundColor: const Color.fromARGB(
-            255, 39, 161, 220),
-        icon: Icon(Icons.info_outline, color: Colors.white),
-        forwardAnimationCurve: Curves.easeOutBack,
-        colorText: Colors.white,
-      );
-      getMessagesStream();
-    });
-
-    return client;
+    //이전 상태 이벤트 저장
+    deviceState = event;
+    update();
   }
 
-  // connection succeeded
-  void onConnected() {
-    print('Connected');
-  }
+  scan() async {
+    print(await flutterBlue.isOn);
+    Get.dialog(
+        Center(
+          child:
+          Container(
+              child:
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children:
+                [
+                  Material(
+                    type: MaterialType.transparency,
+                    child:
+                    Obx(() =>  Text(
+                      '작동중입니다. \n ${event}',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15
+                      ),
+                    ))
+                    ,),
+                  Container(height: 10,),
+                  CircularProgressIndicator()
+                  //   ,TextButton(onPressed: (){Get.back();}, child: Text('뒤로가기',
+                  //   style: TextStyle(
+                  //       color: Colors.white,
+                  //       fontSize: 15
+                  //   ),
+                  // ))
+                ],))
+          ,)
+    );
+    await checkBluetoothOn().then((value){
+      print(value);
+      if(value == true){
+        if (!isScanning) {
+          // 스캔 중이 아니라면
+          // 기존에 스캔된 리스트 삭제
+          scanResultList.clear();
+          // 스캔 시작, 제한 시간 4초
+          flutterBlue.startScan(timeout: Duration(seconds: 20));
+          // 스캔 결과 리스너
 
-// unconnected
-  void onDisconnected() {
-    print('Disconnected');
-  }
+          flutterBlue.scanResults.listen((results) {
+            results.forEach((element) async {
+              //찾는 장치명인지 확인
+              if (element.advertisementData.serviceUuids.length >= 2) {
+                if (element.advertisementData.serviceUuids[1] == "48400001-b5a3-f393-e0a9-e50e24dcca9e"
+                ) {
+                  // 장치의 ID를 비교해 이미 등록된 장치인지 확인
+                  if (scanResultList
+                      .indexWhere((e) => e.device.id == element.device.id) <
+                      0) {
+                    // 찾는 장치명이고 scanResultList에 등록된적이 없는 장치라면 리스트에 추가
+                    scanResultList.add(element);
+                    print('찾음');
+                    flutterBlue.stopScan();
+                    print('scanResultList: ${scanResultList[0]}');
+                    await flutterBlue.connectedDevices.whenComplete(() {
+                      for (int i = 0; i < scanResultList.length; i++) {
+                        scanResultList[i].device.disconnect();
+                      }
+                    });
+                    stateListener = await scanResultList[0].device.state.listen((event) {
+                      debugPrint('event :  $event');
+                      print('$event 블루투스상태');
+                      if (deviceState == event) {
+                        // 상태가 동일하다면 무시
+                        return;
+                      }
+                      // 연결 상태 정보 변경
+                      setBleConnectionState(event);
+                    });
+                    if (deviceState == BluetoothDeviceState.disconnected) {
+                      Future<bool>? returnValue;
+                      scanResultList[0].device.connect(autoConnect: false)
+                          .timeout(Duration(milliseconds: 15000), onTimeout: () {
+                        //타임아웃 발생
+                        //returnValue를 false로 설정
+                        returnValue = Future.value(false);
+                        print('타임아웃');
+                        publish();
+                        //연결 상태 disconnected로 변경
+                        deviceState = BluetoothDeviceState.disconnected;
+                        update();
+                        setBleConnectionState(BluetoothDeviceState.disconnected);
+                      }).then((data) async {
 
-// subscribe to topic succeeded
-  void onSubscribed(String topic) {
-    print('Subscribed topic: $topic');
-  }
+                        SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+                        if (returnValue == null) {
+                          services = await scanResultList[0].device.discoverServices();
+                          print('서비스 ${services}');
+                          bluetoothService = services;
+                          print('Service UUID: ${services[2].uuid}');
+                          print('Service UUID: ${services[2].characteristics[0]}');
+                          print('Service UUID: ${services[2].characteristics[0].uuid}');
+                          print('Service UUID: ${services[2].characteristics[1].uuid}');
+                          print('Service descriptors: ${services[2].characteristics[1].descriptors}');
+                          isCom = false;
+                          print(services[2].characteristics[1].deviceId);
+                          print('주소 값 : ${sharedPreferences.getString('address')}');
+                          if(!services[2].characteristics[1].isNotifying) {
+                            try {
+                              await services[2].characteristics[1].setNotifyValue(true);
+                              if(isSend == false){
+                                send(services[2], 0x48, 0x10);
+                              }
+                              subscription = services[2].characteristics[1].value.listen((value) {
+                                // 데이터 읽기 처리!
+                                if (services[2].characteristics[1].uuid.toString() ==
+                                    '48400003-b5a3-f393-e0a9-e50e24dcca9e'
+                                && sharedPreferences.getString('address') ==
+                                    services[2].characteristics[1].deviceId.toString()
+                                ) {
+                                  print('같음');
 
-// subscribe to topic failed
-  void onSubscribeFail(String topic) {
-    print('Failed to subscribe $topic');
-  }
+                                  print('${services[2].characteristics[1].uuid}: 리턴값 $value');
+                                  // 받은 데이터 저장 화면 표시용
+                                  if (value.length != 0) {
+                                    if (
+                                    value[2] == 144
+                                    ) {
+                                      event.value = '키교환 완료';
+                                      update();
+                                      appkey =
+                                      [value[3], value[4], value[5], value[6], value[7], value[8], value[9], value[10]];
+                                      print('appkey 값 : ${appkey}');
+                                      auth(services[2], 0x48, 0x11);
 
-// unsubscribe succeeded
-  void onUnsubscribed(String? topic) {
-    print('Unsubscribed topic: $topic');
-  }
 
-// PING response received
-  void pong() {
-    print('Ping response client callback invoked');
-  }
-  Stream<List<MqttReceivedMessage<MqttMessage>>>? getMessagesStream() {
-    return client?.updates;
-  }
-  publish(door){
-    if(client?.connectionStatus?.state == MqttConnectionState.disconnected){
-      connect();
-      print('커넥실패');
-    }else{
-      String? pcode = sharedPreferences.getString('pcode');
-      String? sncode =  sharedPreferences.getString('sncode');
-      String? familyid =  sharedPreferences.getString('family_id');
-      String? personid =  sharedPreferences.getString('person_id');
+                                    } else {
+                                      List<int> com = AESdecode(value);
+                                      print('인증 디코딩');
 
-      print(pcode);
-      print(sncode);
-      print(familyid);
-      print(personid);
-      var pubTopic = 'smartdoor/SMARTDOOR/${sncode}';
-      var builder = MqttClientPayloadBuilder();
-      if(door){
-        builder.addString('{"request":"doorlockAppOpenProcess","topic":"smartdoor/SMARTDOOR/${sncode}/${familyid}/${personid}"}');
+                                      if (com[3] == 0 && com[2] == 0x91 && isAuth == true) {
+                                        print('문열기 전송');
+                                        event.value = '인증완료';
+                                        update();
+                                        test(services[2], 0x48, 0x21);
+                                      }
+                                      else if (com[3] == 1 && com[2] == 0x91 && isAuth == true) {
+                                        event.value = '블루투스 인증 실패';
+                                        print('인증실패');
+                                        isSend = false;
+                                        isAuth = false;
+                                        isCom = true;
+                                        print(isCom);
+                                        update();
+                                        subscription?.cancel();
+                                        publish();
+                                      }
+                                      if (com[3] == 1 && com[2] == 0xA1) {
+                                        Get.back();
+                                        print('문열림');
+                                        Get.dialog(QuitWidget(serverMsg: '닫기는 지원하지않습니다.'));
+                                        isSend = false;
+                                        isAuth = false;
+                                        isCom = true;
+                                        subscription?.cancel();
+                                      } else if (com[3] == 0 && com[2] == 0xA1) {
+                                        Get.back();
+                                        Get.dialog(QuitWidget(serverMsg: '문이 열렸습니다.'));
+                                        isSend = false;
+                                        isAuth = false;
+                                        isCom = true;
+                                        subscription?.cancel();
+                                      }
+
+                                      // else {
+                                      //   print('문열기실패');
+                                      //   update();
+                                      //   publish();
+                                      // }
+                                    }
+                                  }
+                                  // else{
+                                  //   event.value = '블루투스 값 받기 실패';
+                                  //   update();
+                                  //   // subscription?.cancel();
+                                  //   publish();
+                                  // }
+                                }
+                              });
+                              await Future.delayed(const Duration(milliseconds: 500));
+                            } catch (e){
+                              print('에러발생 $e');
+                              subscription?.cancel();
+                              publish();
+                            }
+                          }
+                        }
+                      }
+                      )
+                      ;
+                      return returnValue ?? Future.value(false);
+                    } else {
+                      print(deviceState);
+                      scanResultList[0].device.disconnect();
+                      deviceState = BluetoothDeviceState.disconnected;
+                      print('이미 연결됨');
+                      publish();
+                    }
+                  }
+                }
+              }
+
+            });
+          })
+          ;
+
+        } else {
+          // 스캔 중이라면 스캔 정지
+          flutterBlue.stopScan();
+          // Get.back();
+          // Get.dialog(QuitWidget(serverMsg: '스캔중이거나 블루투스가 연결되어있지않습니다. \n 확인 후 다시 시도해주세요.'));
+
+          publish();
+        }
       }else{
-        builder.addString('{"request":"doorlockAppCloseProcess"}');
+        // Get.dialog(QuitWidget(serverMsg: '블루투스설정을 활성화 해주세요.',));
+        print('블루투스꺼져있음 mqtt진입');
+        publish();
+        event.value = '';
+        update();
       }
-
-
-      client?.publishMessage(pubTopic, MqttQos.atLeastOnce, builder.payload!);
-
-
-      final connMessage =
-      MqttConnectMessage().startClean().withWillQos(MqttQos.atLeastOnce);
-      print(connMessage);
-      client!.published!.listen((MqttPublishMessage message) {
-        print('EXAMPLE::Published notification:: topic is ${message.variableHeader!.topicName}, with Qos ${message.header!.qos}');
-        print(message);
-
-      });
     }
+    );
+  }
+
+  test(service,int STX,int cmd ) async{
+    event.value = '문작동중';
+    update();
+    var now = new DateTime.now();
+    List<int> Date = [
+      0xff & (now.year >> 8),
+      0xff & now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      now.second
+    ];
+    for (int i in Date) {
+      print('${i} 날짜값');
+    }
+    late List<int> Data;
+    late List<int> open ;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? scode =  sharedPreferences.getString('scode');
+    List<String>? spl = scode?.split('-');
+    var fst = int.parse(spl![0]);
+    assert(fst is int);
+    var scd = int.parse(spl![1]);
+    assert(scd is int);
+    print(fst);
+    print(scd);
+    print(fst+scd);
+    int sum2 =fst+scd;
+    List<String> split = sum2.toString().split('');
+    if(appkey != null){
+       Data = [
+        for(int i in Date)
+          i,
+        // for(String i in split)
+        //   int.parse(i),
+         71,72,73,74,75,76,77,78,
+        0,0,7
+      ];
+      var obj = SData(cmd,Data);
+      int Length = 1 + Data.length;
+      int sum = 0;
+      for (int i = 0; i < Data.length; i++) {
+        sum += Data[i];
+      }
+      int ADD = (Length + cmd + sum)&0xff;
+      print(ADD);
+      print(obj.calcuChecksum(cmd, Data));
+      print('비교');
+      open = [STX, Data.length+1, cmd,
+        for(int i in Data)
+          i
+        ,obj.calcuChecksum(cmd, Data)+1];
+    }
+    print(open);
+    print(base64.encode(open));
+
+    rdata = encrypt(open);
+
+    var characteristics = service.characteristics;
+    if(characteristics[0].uuid.toString() =='48400002-b5a3-f393-e0a9-e50e24dcca9e') {
+      await characteristics[0].write(
+          rdata
+          , withoutResponse: true);
+    }
+    print('문열기문 전송');
+    // for (BluetoothCharacteristic c in characteristics) {
+    //   print(c.uuid);
+    //   if (c.uuid.toString() == '48400002-b5a3-f393-e0a9-e50e24dcca9e') {
+    //     await c.write(
+    //         rdata
+    //         , withoutResponse: true);
+    //     print('암호화 된 문 전송');
+    //     print('${rdata} 보낸거');
+    //   }
+    // }
+  }
+
+  send(service,int STX,int cmd) async {
+    event.value = '키교환 전송중';
+    update();
+    List<int> send;
+    var now = new DateTime.now();
+    List<int> Date = [
+      0xff & (now.year >> 8),
+      0xff & now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      now.second
+    ];
+    for (int i in Date) {
+      print('${i} 날짜값');
+    }
+
+    List<int> Data //종류에따라 값이 다름
+    =
+    [
+      for(int i in Date)
+        i,
+      61,62,63,64,65,66,67,68
+    ];
+    int Length = 1 + Data.length;
+
+    // var obj = SData(cmd,Data);
+    // print(obj.calcuChecksum(cmd, Data));
+
+    int sum = 0; //data값 합계
+
+    for (int i = 0; i < Data.length; i++) {
+      sum += Data[i];
+    }
+
+    int ADD = (Length + cmd + sum)&0xff;
+    print(ADD);
+    print('비교' );
+    send = [STX, Length, cmd,
+      for(int i in Data)
+        i,
+      ADD];
+    print('총 데이터 : ${send}');
+    print(service);
+    print(service.characteristics[0]);
+    var characteristics = service.characteristics;
+    if(characteristics[0].uuid.toString() =='48400002-b5a3-f393-e0a9-e50e24dcca9e') {
+      await characteristics[0].write(
+          send
+          , withoutResponse: true);
+    }
+
+    print('키교환 전송');
+    isSend = true;
+    // for (BluetoothCharacteristic c in characteristics) {
+    //   print(c.uuid);
+    //   if (c.uuid.toString() == '48400002-b5a3-f393-e0a9-e50e24dcca9e') {
+    //     await c.write(
+    //         send
+    //         , withoutResponse: true);
+    //     print('암호화 안된 문 전송');
+    //     print(Data);
+    //     print('${send} 보낸거');
+    //     update();
+    //
+    //   }
+    // }
+    return true;
+
+  }
+  auth(service,int STX,int Cmd) async{
+    event.value = '인증중';
+    print('인증문 전송');
+    List<int> send;
+    var now = new DateTime.now();
+    List<int> Date = [
+      0xff & (now.year >> 8),
+      0xff & now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      now.second
+    ];
+    for (int i in Date) {
+      print('${i} 날짜값');
+    }
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? scode =  sharedPreferences.getString('scode');
+    // List<String>? spl = scode?.split('-');
+    // var fst = int.parse(spl![0]);
+    // assert(fst is int);
+    // var scd = int.parse(spl![1]);
+    // assert(scd is int);
+    // print(fst);
+    // print(scd);
+    // print(fst+scd);
+    // int sum2 =fst+scd;
+    // List<String> split = sum2.toString().split('');
+    List<int> Data //종류에따라 값이 다름
+    =
+    [
+      for(int i in Date)
+        i,
+      // for(String i in split)
+      //   int.parse(i),
+      71,72,73,74,75,76,77,78
+    ];
+    int Length = 1 + Data.length;
+
+    var obj = SData(Cmd,Data);
+    print(obj.calcuChecksum(Cmd, Data));
+
+    int sum = 0; //data값 합계
+
+    for (int i = 0; i < Data.length; i++) {
+      sum += Data[i];
+    }
+
+    int ADD = (Length + Cmd + sum)&0xff;
+    print(ADD);
+    print('비교');
+    send = [STX, Length, Cmd,
+      for(int i in Data)
+        i,
+      //ADD
+      obj.calcuChecksum(Cmd, Data)+1
+    ];
+    print('총 데이터 : ${send}');
+
+    final rdata = encrypt(send);
+    var characteristics = service.characteristics;
+    if(characteristics[0].uuid.toString() =='48400002-b5a3-f393-e0a9-e50e24dcca9e') {
+      await characteristics[0].write(
+          rdata
+          , withoutResponse: true);
+    }
+    isAuth = true;
+
+    // for (BluetoothCharacteristic c in characteristics) {
+    //   print(c.uuid);
+    //   if (c.uuid.toString() == '48400002-b5a3-f393-e0a9-e50e24dcca9e') {
+    //     await c.write(
+    //         rdata
+    //         , withoutResponse: true);
+    //     print(Data);
+    //     print('${rdata} 보낸거');
+    //     update();
+    //   }
+    // }
+  }
+  encrypt(input){
+    var k = paddingRight(input, 0);
+    print('${k} 이걸 암호화');
+    var iv = en.IV.fromBase64(
+        base64.encode([61, 62, 63, 64, 65, 66, 67, 68,
+          // 71, 72, 73, 74, 75, 76, 77, 78
+          for(int i in appkey)
+            i,
+        ])
+    );
+    encrypter = en.Encrypter(en.AES(en.Key.fromUtf8('H-GANG BLE MODE1'), mode: en.AESMode.cbc, padding: null));
+    encrypted = encrypter.encryptBytes(k, iv:  iv);
+    print('${encrypted.bytes} 암호화');
+
+    // var decrypted = encrypter.decryptBytes(en.Encrypted(Uint8List.fromList(encrypted.bytes)),
+    //     iv: iv);
+    // print(encrypted.bytes.length);
+    // print('${decrypted} 바로 복호화');
+    return encrypted.bytes;
+  }
+  paddingRight(List<int> data, value){
+    int pcount = 16 - data.length % 16;
+    print(data.length);
+    print(pcount);
+    for(var i = 0; i < pcount; i++){
+      data.add(value);
+    }
+    print(data);
+    print(Uint8List.fromList(data));
+    return data;
+  }
+
+  AESdecode(val2) {
+    print('받은 값 : ${val2}');
+    print(base64.encode(val2));
+    var iv = en.IV.fromBase64(
+        base64.encode(
+            [61, 62, 63, 64, 65, 66, 67, 68,
+              //71, 72, 73, 74, 75, 76, 77, 78
+              for(int i in appkey)
+                i,
+            ]
+        )
+    );
+    print(Uint8List.fromList(val2));
+    final encrypted = en.Encrypted(Uint8List.fromList(val2));
+    // final encrypted = en.Encrypted(val2);
+    var encrypter2 = en.Encrypter(en.AES(en.Key.fromUtf8('H-GANG BLE MODE1'), mode: en.AESMode.cbc, padding: null));
+    decrypted = encrypter2.decryptBytes(encrypted, iv: iv);
+    print('${decrypted} 디코딩완료');
+    return decrypted;
+  }
+
+  publish(){
+      if(mqtt.client?.connectionStatus?.state == MqttConnectionState.disconnected){
+        mqtt.connect();
+        print('커넥실패');
+      }
+      api.doorControl('/ProductSncode/doorlockAppOpenProcess').then((val){
+        if (val['result'] == false) {
+          Get.dialog(QuitWidget(serverMsg: val['message'],));
+        }else{
+          print('mqtt로 문열기');
+          var i = 0;
+
+            print('시작');
+            Timer.periodic(Duration(seconds: 1), (timer) {
+              print(i);
+              print(trigger);
+              if(trigger == true){
+                print('mqtt 연결 성공ㅐ');
+                timer.cancel();
+              }else if (trigger == false && i == 10){
+                print('mqtt 연결 실패ㅐ');
+                Get.dialog(QuitWidget(serverMsg: '시간이 초과되었습니다 다시 시도해주세요.',));
+                timer.cancel();
+              }
+              i++;
+            });
+        }
+      }
+      );
+
   }
 
   push(){
-    if(client?.connectionStatus?.state == MqttConnectionState.disconnected){
+    if(mqtt.client?.connectionStatus?.state == MqttConnectionState.disconnected){
       print('커넥실패');
-      connect();
-    }else{
+      // connect();
+    }
       String? pcode = sharedPreferences.getString('pcode');
-      String? sncode =  sharedPreferences.getString('sncode');
+      String? scode =  sharedPreferences.getString('scode');
       String? familyid =  sharedPreferences.getString('family_id');
       String? personid =  sharedPreferences.getString('person_id');
-
       print(pcode);
-      print(sncode);
+      print(scode);
       print(familyid);
       print(personid);
-      var pubTopic = 'smartdoor/SMARTDOOR/${sncode}';
+      var pubTopic = 'smartdoor/SMARTDOOR/${scode}';
       var builder = MqttClientPayloadBuilder();
 
-        builder.addString('{"request":"productSncodeFamilyJoined","topic":"smartdoor/SMARTDOOR/${sncode}","method":"output"}');
-
-
-
-      client?.publishMessage(pubTopic, MqttQos.atLeastOnce, builder.payload!);
+      builder.addString('{"request":"productSncodeFamilyJoined","topic":"smartdoor/SMARTDOOR/${scode}","method":"input"}');
+    mqtt.client?.subscribe(pubTopic, MqttQos.exactlyOnce);
+    mqtt.client?.publishMessage(pubTopic, MqttQos.exactlyOnce, builder.payload!);
 
 
       final connMessage =
-      MqttConnectMessage().startClean().withWillQos(MqttQos.atLeastOnce);
+      MqttConnectMessage().startClean().withWillQos(MqttQos.exactlyOnce);
       print(connMessage);
-      client!.published!.listen((MqttPublishMessage message) {
+    mqtt.client!.published!.listen((MqttPublishMessage message) {
         print('EXAMPLE::Published notification:: topic is ${message.variableHeader!.topicName}, with Qos ${message.header!.qos}');
         print(message);
 
       });
+
+  }
+  updatedoor(val){
+    if(val == 'true'){
+      door = '1';
+      print(door);
+      print('도어값 변경');
+      update();
+    }else if(val == 'false'){
+      door = '0';
+      print(door);
+      print('도어값 변경');
+      update();
     }
   }
 
+
+  void initBle() async {
+    // BLE 스캔 상태 얻기 위한 리스너
+    flutterBlue.scanResults.listen((event) {
+      print(event);
+    });
+    flutterBlue.isScanning.listen((value) {
+      isScanning = value;
+      print('${isScanning} : 블루투스 상태');
+      update();
+    });
+
+
+  }
+  Future<bool> checkBluetoothOn() async {
+    return await flutterBlue.isOn;
+  }
   @override
   void onInit(){
-
-    connect();
     info();
+    Mqtt mqtt = new Mqtt();
+    mqtt.connect();
+    api.requestDoorRead('/ProductSncode/getDataByJson').then((val){
+      print('문여부값');
+      print(val['isDoorOpen']);
+      if (val['isDoorOpen'] == 1) {
+        sharedPreferences.setString('door', '1');
+        door = '1';
+        update();
+      }else if (val['isDoorOpen'] == 0){
+        sharedPreferences.setString('door', '0');
+        door = '0';
+        update();
+      }else{
+        door = '-1';
+        update();
+      }
+    });
+    initBle();
     print('메인 진입');
     super.onInit();
   }
 
   @override
+  void onResumed() {
+    print('onResumed');
+    api.requestDoorRead('/ProductSncode/getDataByJson').then((val){
+      print('문여부값');
+      print(val['isDoorOpen']);
+      if (val['isDoorOpen'] == 1) {
+        sharedPreferences.setString('door', '1');
+        door = '1';
+        update();
+      }else if (val['isDoorOpen'] == 0){
+        sharedPreferences.setString('door', '0');
+        door = '0';
+        update();
+      }else{
+        door = '-1';
+        update();
+      }
+    });
+  }
+
+  @override
   void onClose() {
-    qrcontroller?.dispose();
+
+    //mqtt.client?.disconnect();
+    flutterBlue.turnOff();
+    scanResultList[0].device.disconnect();
     update();
     print('메인종료');
     super.onClose();
+
+  }
+
+  @override
+  void onDetached() {
+    // TODO: implement onDetached
+  }
+
+  @override
+  void onInactive() {
+    // TODO: implement onInactive
+  }
+
+  @override
+  void onPaused() {
+    // TODO: implement onPaused
   }
 }

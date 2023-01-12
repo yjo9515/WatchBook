@@ -52,7 +52,7 @@ class VideoController extends GetxController{
           for(int i = 0; i < listData.length; i++)
             {'name': listData[i]['name'],
               'group': DateFormat('yyyy-MM-dd').format(DateTime.parse(listData[i]['startDate'])),
-              'filepath': listData[i]['filepath']
+              'filepath': listData[i]['filepath'].replaceAll('/home/smartdoor','')
             },
         ];
         print(elements);

@@ -40,15 +40,14 @@ class notice_plus_view extends GetView<NoticeController> {
         builder: (NoticeController) => MaterialApp(
               debugShowCheckedModeBanner: false,
               home: Scaffold(
-                resizeToAvoidBottomInset: false,
+                resizeToAvoidBottomInset: true,
                 appBar: AppBar(
                     elevation: 0,
                     centerTitle: true,
                     backgroundColor: Color.fromARGB(255, 255, 255, 255),
                     iconTheme: const IconThemeData(color: Color.fromARGB(255, 87, 132, 255)),
                     title: Text(
-                      (Get.arguments == 'create')?
-                      '공지 등록':'공지 수정',
+                      '공지 등록',
                       style: TextStyle(
                         fontSize: 20,
                         color: Color.fromARGB(255, 87, 132, 255),
@@ -62,47 +61,19 @@ class notice_plus_view extends GetView<NoticeController> {
                       },
                     ),
                     actions: [
-                      (Get.arguments == 'create')?
                       TextButton(
                           onPressed: () {
-                            NoticeController.sendNotice(Get.arguments);
+                            NoticeController.sendNotice('create', 0);
                           },
                           child: Text(
-                            (Get.arguments == 'create')?
-                            '등록':'완료',
+                            '등록',
                             style: TextStyle(
                               fontSize: 17,
                               color: Color.fromARGB(255, 87, 132, 255),
                             ),
-                          )) :
-                      Row(
-                        children: [
-                          TextButton(
-                              onPressed: () {
-                                NoticeController.deleteNotice();
-                              },
-                              child: Text(
-                                '삭제',
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  color: Colors.red,
-                                ),
-                              )),
-                          TextButton(
-                              onPressed: () {
-                                NoticeController.sendNotice(Get.arguments);
-                              },
-                              child: Text(
-                                (Get.arguments == 'create')?
-                                '등록':'완료',
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  color: Color.fromARGB(255, 87, 132, 255),
-                                ),
-                              ))
-                        ],
-                      ),
-                    ]),
+                          ))]
+
+                    ),
                 body: Container(
                   padding: const EdgeInsets.fromLTRB(16, 40, 16, 16),
                   width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
@@ -110,6 +81,7 @@ class notice_plus_view extends GetView<NoticeController> {
                   height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 50,
                   color: Colors.white,
                   child: SingleChildScrollView(
+                      physics: ClampingScrollPhysics(),
                       child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -121,21 +93,9 @@ class notice_plus_view extends GetView<NoticeController> {
                         tcontroller:NoticeController.titleController,
                         changeValue: NoticeController.title,
                         hintText:
-                        ( Get.arguments == 'create') ?
                         '제목을 입력해주세요.'
-                            : '${controller.listData[controller.index]['title']}',
+                            ,
                       ),
-                      Container(
-                        height: 30,
-                      ),
-                      (Get.arguments == 'create')?  Container():
-                      H1(
-                        changeValue: '글쓴이',
-                        size: 14,
-                      ),
-                      Container(
-                        height: 20,
-                      ),(Get.arguments == 'create')?Container(): Text(controller.listData[controller.index]['familyObj']['personObj']['nickname']),
                       Container(
                         height: 30,
                       ),
@@ -146,9 +106,8 @@ class notice_plus_view extends GetView<NoticeController> {
                       Container(
                         height: 20,
                       ),
-                      (Get.arguments == 'create')?
-                      Text('${DateTime.now().year}년 ${DateTime.now().month}월 ${DateTime.now().day}일') :
-                      Text(DateFormat('yyyy년 MM월 dd일').format(DateTime.parse(controller.listData[controller.index]['updateDate']))),
+                      Text('${DateTime.now().year}년 ${DateTime.now().month}월 ${DateTime.now().day}일')
+                      ,
                       Container(
                         height: 30,
                       ),
@@ -163,9 +122,9 @@ class notice_plus_view extends GetView<NoticeController> {
                           controller: NoticeController.commentController,
                           maxLines: 7, //or null
                           decoration: InputDecoration(
-                            hintText: ( Get.arguments == 'create') ?
+                            hintText:
                             '내용을 입력해주세요.'
-                                : '${controller.listData[controller.index]['comment']}',
+                                ,
                             hintStyle: TextStyle(fontSize: 17, color: Color.fromARGB(255, 222, 222, 222)),
                             enabledBorder:
                                 OutlineInputBorder(borderSide: BorderSide(color: Color.fromARGB(255, 43, 43, 43))),

@@ -59,7 +59,6 @@ class ConfigController extends GetxController{
 
   toggle(value,type){
     api.requestConfigSend('/ProductSncode/saveAll',type,value).then((value) {
-
       if (value['result'] == false) {
         print('에러발생');
       }else{
@@ -118,14 +117,16 @@ class ConfigController extends GetxController{
           isAccessRecord = true;
           update();
         }else{
-          isAccessRecord == false;
+          isAccessRecord = false;
           update();
         }
         if(listData['productSncodeObj']['isMotionDetect'] == 1){
-          isMotionDetect == true;
+
+          isMotionDetect = true;
+          print(isMotionDetect);
           update();
         }else{
-          isMotionDetect == false;
+          isMotionDetect = false;
           update();
         }
 

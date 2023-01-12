@@ -36,19 +36,20 @@ class LoginViewModel extends GetxController{
   late UserModel user;
   String errmsg = '';
   bool error = false;
-
-  final home = Get.put(HomeViewModel());
+  var product_sncode;
 
   void logoutProcess() async {
     _sharedPreferences = await SharedPreferences.getInstance();
-    await _sharedPreferences.clear();
+    // await _sharedPreferences.clear();
     // await _sharedPreferences.remove('name');
     // await _sharedPreferences.remove('pcode');
     // await _sharedPreferences.remove('sncode');
     // await _sharedPreferences.remove('id');
     // await _sharedPreferences.remove('passwd');
+    await _sharedPreferences.remove('token');
+    await _sharedPreferences.remove('pictureUrl');
     print('로그아웃');
-    await Get.deleteAll(force: true); //deleting all controllers
+    // await Get.deleteAll(force: true); //deleting all controllers
     Phoenix.rebirth(Get.context!); // Restarting app
     Get.reset(); // resetting getx
   }
@@ -115,13 +116,16 @@ class LoginViewModel extends GetxController{
               sharedPreferences.setString('nickname', user.personObj['nickname'].toString());
               sharedPreferences.setString('pictureUrl', user.personObj['pictureUrl'].toString());
               sharedPreferences.setString('product_sncode_id', user.product_sncode_id.toString());
+              sharedPreferences.setString('pcode', value['pcode']);
+              sharedPreferences.setString('scode', value['scode']);
+              sharedPreferences.setString('address', value['ble']['address']);
+              String place = value['place'];
 
-              String? pcode =  sharedPreferences.getString('pcode');
-              String? sncode =  sharedPreferences.getString('sncode');
+              print(value['pcode']);
+              print(value['scode']);
               print('${user.familyId.toString()} : familyid');
               print('${user.familyPersonId.toString()} : familypersonid');
-              print(pcode);
-              print(sncode);
+              print(user.product_sncode_id.toString());
               api.sendFcmToken('/GoogleFcmToken/saveAll').then((value)  async {
                 if (value['result'] == false) {
                   print('fcm토큰 전송 실패');
@@ -129,11 +133,11 @@ class LoginViewModel extends GetxController{
                   print('fcm토큰 전송 성공');
                 }
               });
-              if(pcode == null || sncode == null){
+              if( user.product_sncode_id.toString() == '0'){
                 Get.offAll(() => registration1_view());
                 print('등록 실패');
                 update();
-              }else if(pcode != null && sncode != null){
+              }else if(user.product_sncode_id.toString() != '0'){
                 Get.offAll(() => home_view());
                 print('등록 성공');
                 update();
@@ -142,7 +146,8 @@ class LoginViewModel extends GetxController{
               //user = UserModel.fromJson(value);
             }
           });
-        }else {
+        }
+        else {
           Get.back();
           Get.snackbar(
             '알림',
@@ -218,14 +223,18 @@ class LoginViewModel extends GetxController{
   //   }
   // }
 
+
+
+
   @override
   void onInit() {
+
     print('로그인 진입구간');
     super.onInit();
   }
   @override
   void onClose() {
     print('로그인 다운');
-    super.onInit();
+    super.onClose();
   }
 }

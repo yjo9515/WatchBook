@@ -12,6 +12,7 @@ import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/view/cameraAuth_view.dart';
+import 'package:wisemonster/view/member_view.dart';
 import 'package:wisemonster/view/profile_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/H2.dart';
@@ -68,11 +69,11 @@ class home_view extends GetView<HomeViewModel> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Text('우리집',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          color: Color.fromARGB(255, 255, 255, 255),
-                                        )),
+                                    // Text(HomeViewModel.place,
+                                    //     style: TextStyle(
+                                    //       fontSize: 20,
+                                    //       color: Color.fromARGB(255, 255, 255, 255),
+                                    //     )),
                                     Container(
                                       height: 20,
                                     ),
@@ -83,7 +84,9 @@ class home_view extends GetView<HomeViewModel> {
                                           )),
                                         ),
                                         onPressed: () {
-                                          HomeViewModel.publish(HomeViewModel.door);
+                                          HomeViewModel.scan(
+                                          );
+                                          // HomeViewModel.publish();
 
                                         },
                                         child: Container(
@@ -94,17 +97,25 @@ class home_view extends GetView<HomeViewModel> {
                                               borderRadius: BorderRadius.all(Radius.circular(120))),
                                           child: Container(
                                             child: Container(
-                                              child: HomeViewModel.door ? Icon(Icons.lock_open,
+                                              child: HomeViewModel.door== '1' ? Icon(Icons.lock_open,
                                                   size: 40, color: Color.fromARGB(255, 255, 255, 255)):
+                                              HomeViewModel.door== '0' ?
                                               Icon(Icons.lock,
+                                                  size: 40, color: Color.fromARGB(255, 87, 132, 255))
+                                                  :Icon(Icons.cancel,
                                                   size: 40, color: Color.fromARGB(255, 87, 132, 255))
                                               ,
                                               margin: EdgeInsets.fromLTRB(25, 25, 25, 25),
                                               width: 120,
                                               height: 120,
-                                              decoration:HomeViewModel.door ? BoxDecoration(
+                                              decoration:HomeViewModel.door == '1' ? BoxDecoration(
                                                   color: Color.fromARGB(255, 14, 39, 158),
-                                                  borderRadius: BorderRadius.all(Radius.circular(100))) :
+                                                  borderRadius: BorderRadius.all(Radius.circular(100))):
+                                              HomeViewModel.door == '2' ?
+                                              BoxDecoration(
+                                                  color: Color.fromARGB(255, 255, 255, 255),
+                                                  borderRadius: BorderRadius.all(Radius.circular(100)))
+                                                  :
                                               BoxDecoration(
                                                   color: Color.fromARGB(255, 255, 255, 255),
                                                   borderRadius: BorderRadius.all(Radius.circular(100)))
@@ -121,17 +132,21 @@ class home_view extends GetView<HomeViewModel> {
                                     Container(
                                       height: 20,
                                     ),
-                                    HomeViewModel.door?
+                                    HomeViewModel.door == '1'?
                                     Text('도어가 열려있습니다.',
                                         style: TextStyle(
                                           fontSize: 17,
                                           color: Color.fromARGB(255, 255, 255, 255),
-                                        )):
+                                        )):HomeViewModel.door == '0'?
                                   Text('도어가 닫혀있습니다.',
                                   style: TextStyle(
                                   fontSize: 17,
                                   color: Color.fromARGB(255, 255, 255, 255),
-                      )),
+                                  )):Text('문상태 조회에 실패했습니다.',
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          color: Color.fromARGB(255, 255, 255, 255),
+                                        )),
                                   ],
                                 ),
                               )),
@@ -162,7 +177,7 @@ class home_view extends GetView<HomeViewModel> {
                                       onPressed: () {
                                         Get.to(() => camera_view());
                                       },
-                                      child: Text('외부카메라',
+                                      child: Text('영상통화',
                                           style: TextStyle(
                                             fontSize: 17,
                                             color: Color.fromARGB(255, 87, 132, 255),
@@ -190,7 +205,7 @@ class home_view extends GetView<HomeViewModel> {
                                             borderRadius: BorderRadius.all(Radius.circular(30)))),
                                       ),
                                       onPressed: () {
-                                        Get.offAll(entrance_view());
+                                        Get.to(entrance_view());
                                       },
                                       child: Text('출입이력',
                                           style: TextStyle(
@@ -202,33 +217,33 @@ class home_view extends GetView<HomeViewModel> {
                                   Container(
                                     height: 10,
                                   ),
-                                  SizedBox(
-                                    width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width - 32,
-                                    height: 50,
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty.resolveWith(
-                                              (states) {
-                                            if (states.contains(MaterialState.disabled)) {
-                                              return Colors.grey;
-                                            } else {
-                                              return Colors.white;
-                                            }
-                                          },
-                                        ),
-                                        shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.all(Radius.circular(30)))),
-                                      ),
-                                      onPressed: () {
-
-                                      },
-                                      child: Text('구성원',
-                                          style: TextStyle(
-                                            fontSize: 17,
-                                            color: Color.fromARGB(255, 87, 132, 255),
-                                          )),
-                                    ),
-                                  )
+                                  // SizedBox(
+                                  //   width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width - 32,
+                                  //   height: 50,
+                                  //   child: ElevatedButton(
+                                  //     style: ButtonStyle(
+                                  //       backgroundColor: MaterialStateProperty.resolveWith(
+                                  //             (states) {
+                                  //           if (states.contains(MaterialState.disabled)) {
+                                  //             return Colors.grey;
+                                  //           } else {
+                                  //             return Colors.white;
+                                  //           }
+                                  //         },
+                                  //       ),
+                                  //       shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
+                                  //           borderRadius: BorderRadius.all(Radius.circular(30)))),
+                                  //     ),
+                                  //     onPressed: () {
+                                  //       Get.to(member_view());
+                                  //     },
+                                  //     child: Text('구성원',
+                                  //         style: TextStyle(
+                                  //           fontSize: 17,
+                                  //           color: Color.fromARGB(255, 87, 132, 255),
+                                  //         )),
+                                  //   ),
+                                  // )
                                 ],
                               ))
                         ],

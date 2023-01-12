@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -66,21 +67,21 @@ class ApiServices extends GetxController {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> jsondata = json.decode(response.body);
-      return jsondata;
+      return json.decode(response.body);
     }else{
       return false;
     }
   }
 
-  requestCheckAuthProcess(phoneAuthController) async{
-    Map<String, dynamic> jsondata = json.decode(authresponse.body);
-
-    if (authresponse.statusCode == 200) {
-      return jsondata;
-    }else{
-      return false;
-    }
-  }
+  // requestCheckAuthProcess(phoneAuthController) async{
+  //   Map<String, dynamic> jsondata = json.decode(authresponse.body);
+  //
+  //   if (authresponse.statusCode == 200) {
+  //     return json.decode(response.body);
+  //   }else{
+  //     return false;
+  //   }
+  // }
 
   requestSearchId(idController) async{
     String url = '${sever}/User/watchbooksearchId?id=${idController.text.trim()}';
@@ -93,7 +94,7 @@ class ApiServices extends GetxController {
 
     if (response.statusCode == 200) {
       Map<String, dynamic> jsondata = json.decode(response.body);
-      return jsondata;
+      return json.decode(response.body);
     }else{
       return false;
     }
@@ -133,6 +134,24 @@ class ApiServices extends GetxController {
     if (response.statusCode == 200) {
       Map<String, dynamic> jsondata = json.decode(response.body);
       return jsondata;
+    }else{
+      return false;
+    }
+  }
+
+  requestPlaceJoinProcess(sncode,place) async{
+    String url = '${sever}/ProductSncodeFamily/updateProcess';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'place' : place.toString(),
+          'product_sncode_id' : sncode.toString(),
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      // Map<String, dynamic> jsondata = json.decode(response.body);
+      return json.decode(response.body);
     }else{
       return false;
     }
@@ -546,15 +565,18 @@ class ApiServices extends GetxController {
   }
 
   //공지 등록
-  requestNoticeProcess(title,comment,argument) async{
+  requestNoticeProcess(title,comment,argument,familyNoticeId) async{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? token = sharedPreferences.getString('token');
-    String? familyNoticeId = sharedPreferences.getString('family_notice_id');
     String? familyId = sharedPreferences.getString('family_id');
     String? personId = sharedPreferences.getString('person_id');
+    print(familyId);
+    print(personId);
+    print(title);
+    print(comment);
     if(argument == 'create'){
       print('생성');
-      String url = '${sever}/FamilyNotice/saveAll';
+      String url = '${sever}/FamilyNotice/joinProcess';
       var response = await http.post(Uri.parse(url),
           headers: {HttpHeaders.authorizationHeader: "Bearer ${token}"},
           body:{
@@ -568,14 +590,14 @@ class ApiServices extends GetxController {
 
       if (response.statusCode == 200) {
         Map<String, dynamic> jsondata = json.decode(response.body);
-        return jsondata;
+        return json.decode(response.body);
       }else{
         return false;
       }
     }else {
       print('수정');
       print(familyNoticeId);
-      String url = '${sever}/FamilyNotice/saveAll';
+      String url = '${sever}/FamilyNotice/JoinProcess';
       var response = await http.post(Uri.parse(url),
           headers: {HttpHeaders.authorizationHeader: "Bearer ${token}"},
           body:{
@@ -589,7 +611,7 @@ class ApiServices extends GetxController {
       print(response.body);
       if (response.statusCode == 200) {
         Map<String, dynamic> jsondata = json.decode(response.body);
-        return jsondata;
+        return json.decode(response.body);
       }else{
         return false;
       }
@@ -625,6 +647,8 @@ class ApiServices extends GetxController {
         body: {
           'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),
           'person_id':sharedPreferences.getString('person_id').toString(),
+          'family_id':sharedPreferences.getString('family_id').toString(),
+          'resultType':'json'
         }
     );
     print(response.body);
@@ -653,13 +677,14 @@ class ApiServices extends GetxController {
     var response = await http.post(Uri.parse(url),
         body:{
           'family_id':sharedPreferences.getString('family_id').toString(),
+          'rowsPerPage' : '4'
         }
     );
     print(response.body);
 
     if (response.statusCode == 200) {
       List<dynamic> jsondata = json.decode(response.body);
-      return jsondata;
+      return json.decode(response.body);
     }else{
       return false;
     }
@@ -684,12 +709,14 @@ class ApiServices extends GetxController {
     }
   }
 
-  requestRTCToken(route) async{
+  requestRTCToken(route,random) async{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String url = '${sever+route}';
+    String? sncode =  sharedPreferences.getString('scode');
+    print(random);
     var response = await http.post(Uri.parse(url),
         body:{
-          'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),
+          'channelName': random,
         }
     );
     print(response.body);
@@ -697,7 +724,26 @@ class ApiServices extends GetxController {
     if (response.statusCode == 200) {
       // List<dynamic> jsondata = json.decode(response.body);
       //jsonDecode(response.body)
-      return response.body;
+      return json.decode(response.body);
+    }else{
+      return false;
+    }
+  }
+
+  requestRTCinit(agoratokenid) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? sncode =  sharedPreferences.getString('scode');
+    String url = '${sever}/AgoraToken/sendMqtt';
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'agora_token_id': agoratokenid.toString(),
+          'topic': 'smartdoor/SMARTDOOR/${sncode}',
+        }
+    );
+    print(response.body);
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
     }else{
       return false;
     }
@@ -763,6 +809,26 @@ class ApiServices extends GetxController {
       print(response.body);
     }
 
+
+    if (response.statusCode == 200) {
+      // List<dynamic> jsondata = json.decode(response.body);
+      return jsonDecode(response.body);
+    }else{
+      return false;
+    }
+  }
+
+  requestDoorRead(route) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever+route}';
+    print('${sharedPreferences.getString('product_sncode_id').toString()} product_sncode_id');
+
+    var response = await http.post(Uri.parse(url),
+        body:{
+          'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),
+        }
+    );
+    print(response.body);
 
     if (response.statusCode == 200) {
       // List<dynamic> jsondata = json.decode(response.body);

@@ -31,7 +31,6 @@ class login_view extends GetView<LoginViewModel>{
             WillPopScope(
               onWillPop: () => _goBack(context),
               child: Scaffold(
-                resizeToAvoidBottomInset: false,
                 body: InkWell(
                     onTap: () => _isKakaoTalkInstalled,
                     child: Container(
@@ -47,6 +46,7 @@ class login_view extends GetView<LoginViewModel>{
                       //make width of outer wrapper to 100%
                       //show linear gradient background of page
                       child: SingleChildScrollView(
+                        physics: ClampingScrollPhysics(),
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -67,7 +67,6 @@ class login_view extends GetView<LoginViewModel>{
                                       Container(
                                           width: 202,
                                           height: 32,
-                                          alignment: Alignment.centerLeft,
                                           child:Image.asset(
                                             'images/default/logo.png',
                                             fit: BoxFit.contain,

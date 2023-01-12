@@ -6,8 +6,11 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:wisemonster/view/calendar_view.dart';
+import 'package:wisemonster/view_model/home_view_model.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 
 import '../api/api_services.dart';
+import '../models/mqtt.dart';
 import '../view/widgets/SnackBarWidget.dart';
 import 'package:intl/intl.dart';
 
@@ -23,6 +26,8 @@ class CalendarController extends GetxController{
   var endTimeController = TextEditingController();
   var placeController = TextEditingController();
   var valueController = TextEditingController();
+
+  var home = Get.put(HomeViewModel());
 
   String title = '';
   String place = '';
@@ -41,6 +46,7 @@ class CalendarController extends GetxController{
   var selectValue = '상';
 
   int index = 0;
+  Mqtt mqtt = new Mqtt();
   //중요도
   @override
   void onInit() async{
@@ -210,7 +216,7 @@ class CalendarController extends GetxController{
       &&placeController.text != null && comment != null
       ){
 
-        api.requestSchedule('/FamilySchedule/saveAll',
+        api.requestSchedule('/FamilySchedule/joinProcess',
             titleController.text.trim(),
             DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedStartDate!),
             DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedEndDate!),
@@ -218,9 +224,19 @@ class CalendarController extends GetxController{
             placeController.text.trim(),
             comment,argument).then((value) {
           if (value['result'] == false) {
-            SnackBarWidget(serverMsg: value['message'],);
+            Get.snackbar(
+              '알림',
+              value['message']
+              ,
+              duration: Duration(seconds: 5),
+              backgroundColor: const Color.fromARGB(
+                  255, 39, 161, 220),
+              icon: Icon(Icons.info_outline, color: Colors.white),
+              forwardAnimationCurve: Curves.easeOutBack,
+              colorText: Colors.white,
+            );
           } else {
-            Get.offAll(calendar_view());
+            refreshDoorUi();
             api.requestDateRead('/FamilySchedule/getListAtMonth',DateFormat('yyyy-MM-dd').format(DateTime.now())).then((value) {
               // if (value['result'] == false) {
               //   SnackBarWidget(serverMsg: '리스트를 불러올 수 없습니다',);
@@ -231,6 +247,7 @@ class CalendarController extends GetxController{
               update();
               // }
             });
+            Get.offAll(calendar_view());
             Get.snackbar(
               '알림',
               '완료되었습니다.'
@@ -246,7 +263,7 @@ class CalendarController extends GetxController{
         });
       } else { Get.snackbar(
         '알림',
-        '값을 입력해주세요.'
+        '미완료된 설정이 있습니다. 전부 설정해주세요.'
         ,
         duration: Duration(seconds: 5),
         backgroundColor: const Color.fromARGB(
@@ -277,6 +294,7 @@ class CalendarController extends GetxController{
         );
       } else {
         Get.offAll(calendar_view());
+        refreshDoorUi();
         api.requestDateRead('/FamilySchedule/getListAtMonth',DateFormat('yyyy-MM-dd').format(DateTime.now())).then((value) {
           // if (value['result'] == false) {
           //   SnackBarWidget(serverMsg: '리스트를 불러올 수 없습니다',);
@@ -308,6 +326,17 @@ class CalendarController extends GetxController{
   }
  allUpdate(){
     update();
+ }
+ refreshDoorUi(){
+   if(mqtt.client?.connectionStatus?.state == MqttConnectionState.disconnected){
+     // home.connect();
+     print('커넥시도');
+   }
+   String? sncode =  home.sharedPreferences.getString('sncode');
+   String topic = 'smartdoor/SMARTDOOR/${sncode}';
+   var builder = MqttClientPayloadBuilder();
+   builder.addString('{"request":"refresh"}');
+   mqtt.client?.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
  }
 }
 class Event {

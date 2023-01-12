@@ -50,7 +50,7 @@ class splash_view extends GetView<SplashController> {
                       children: [
                         Container(
                           width: 202,
-                          height: 32,
+                          height: 56,
                           alignment: Alignment.center,
                           child: Image.asset(
                             'images/default/w_logo.png',
