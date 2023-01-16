@@ -68,12 +68,8 @@ class entrance_view extends GetView<EntranceController> {
                           child: SizedBox(
                             child: ListTile(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                              leading: (element['type'] == 0 || element['type'] == 1) ? Icon(Icons.pattern_sharp) : (element['type'] == 2) ? Icon(Icons.smartphone) : Icon(Icons.account_circle),
-                              title: (element['type'] == 0)? Text('${element['name']}님이 게스트 키로 도어락을 열었습니다.')
-                              :(element['type'] == 1)? Text('${element['name']}님이 번호키로 도어락을 열었습니다.')
-                               : (element['type'] == 2)? Text('${element['name']}님이 앱으로 도어락을 열었습니다.')
-                                :(element['type'] == 3)? Text('${element['name']}님이 안면인식으로 도어락을 열었습니다.')
-                              :Text('에러가 발생하였습니다. 관리자에게 문의해주세요.'),
+                              leading:Icon(Icons.door_front_door_outlined) ,
+                              title: Text('${element['name']} ${element['type']}'),
                               trailing: element['group'] =='' ? Text('') :Text(EntranceController.timeData[i]),
                             ),
                           ),

@@ -159,6 +159,12 @@ class Mqtt extends GetxController{
       else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
         home.updatedoor('false');
       }
+      else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['response'].toString()) == 'webrtcMicrophoneNotFound') {
+        Get.dialog(QuitWidget(serverMsg: '도어벨 마이크를 연결하는데 실패하여 통화가 불가능합니다.'));
+      }else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['response'].toString()) == 'webrtcCameraNotFound') {
+        Get.dialog(QuitWidget(serverMsg: '도어벨 카메라를 연결하는데 실패하여 통화가 불가능합니다.'));
+      }
+
       print('qos설정값 : ${message.header!.qos}');
       getMessagesStream();
     });

@@ -35,25 +35,31 @@ class EntranceController extends GetxController{
     super.onInit();
   }
 
+  @override
+  void onClose() {
+    print('출입기록종료');
+    super.onClose();
+  }
 
   requestEntrance(){
     print('초기 인덱스');
     print(index);
     api.requestEntranceRead('/ProductSncodeLog/getList').then((value) async{
       if (value == false) {
-        SnackBarWidget(serverMsg: value['message'],);
+        Get.dialog(SnackBarWidget(serverMsg: value['message'],));
       } else {
         listData = value;
         print('요청한 리스트값 ${value}');
+        print(listData[0]['personObj']['name']);
         elements = [
           //type 0:게스트 키, 1:번호키, 2: 앱, 3:안면인식
             for(int i = 0; i< listData.length; i++){
-              'name': listData[i]['person_id'] == 0 ? '익명' : listData[i]['personObj']['name'],
+              'name': listData[i]['personObj']['name'] == '' ? '' : '${listData[i]['personObj']['name']}님이',
               'group': DateFormat('yyyy-MM-dd').format(
                   listData[i]['regDate'] == '' ?
                   DateTime.utc(1900,1,1)
                   : DateTime.parse(listData[i]['regDate'])),
-              'type': listData[i]['type']},
+              'type': listData[i]['name']},
         ];
 
           for(int i = 0; i< listData.length; i++){

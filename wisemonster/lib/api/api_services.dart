@@ -677,6 +677,7 @@ class ApiServices extends GetxController {
     var response = await http.post(Uri.parse(url),
         body:{
           'family_id':sharedPreferences.getString('family_id').toString(),
+          'typeValue':'nickname',
           'rowsPerPage' : '4'
         }
     );
@@ -736,6 +737,8 @@ class ApiServices extends GetxController {
     String url = '${sever}/AgoraToken/sendMqtt';
     var response = await http.post(Uri.parse(url),
         body:{
+          'family_id' : sharedPreferences.getString('family_id').toString(),
+          'person_id' : sharedPreferences.getString('person_id'),
           'agora_token_id': agoratokenid.toString(),
           'topic': 'smartdoor/SMARTDOOR/${sncode}',
         }

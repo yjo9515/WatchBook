@@ -1,7 +1,5 @@
-
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +34,7 @@ class cameraState extends State<camera_view> {
   late String token;
   late int agoratokenid;
   // String token2 = '007eJxTYBA3zVB8ujLi2fzDgd8Pif5mvL7K/4/Eyh1vZq2KqFrtK5OgwGBqapJikpqSmmRmamBiYZJsaZSWYplolmpikZZmZp6U9nn7rOSGQEaGfGFZJkYGCATxWRhKUotLGBgAxYMhCQ==';
-  int? uid;
+  int uid = 0;
   // Random().nextInt(100); // uid of the local user
 
   int? _remoteUid; // uid of the remote user
@@ -265,6 +263,7 @@ class cameraState extends State<camera_view> {
       appId: appid,
     ));
     // Register the event handler
+
     agoraEngine.registerEventHandler(
       RtcEngineEventHandler(
        
@@ -280,9 +279,9 @@ class cameraState extends State<camera_view> {
         onLeaveChannel: (RtcConnection connection, RtcStats stats) {
           // ➍ 채널을 퇴장했을 때 실행
           print('채널 퇴장');
-          // setState(() {
-            uid = null;
-          // });
+          setState(() {
+            uid = 0;
+          });
         },
         onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
           showMessage("Remote user uid:$remoteUid joined the channel");
@@ -318,6 +317,10 @@ class cameraState extends State<camera_view> {
     print(channelName);
     print(uid);
     print('유저저저저저저');
+
+    await agoraEngine.setParameters(
+        '{\"che.video.lowBitRateStreamParameter\":{\"width\":320,\"height\":180,\"frameRate\":15,\"bitRate\":140}}'
+    );
 
     await agoraEngine.joinChannel(
       token: token,
@@ -366,6 +369,7 @@ class cameraState extends State<camera_view> {
           token = value['token'];
           appid = value['appID'];
           agoratokenid = value['agora_token_id'];
+          uid = value['person_id'];
         });
         print('채널아디 : ${channelName}');
         print('토큰 : ${token}');
@@ -395,16 +399,17 @@ class cameraState extends State<camera_view> {
     print('엔진');
   }
   @override
-  void dispose() {
-    super.dispose();
+  void dispose()  {
+
     // destroy sdk
       isJoined = false;
       _remoteUid = null;
-      uid = null;
-    agoraEngine.leaveChannel(options: LeaveChannelOptions(
+      uid = 0;
+     agoraEngine.leaveChannel(options: LeaveChannelOptions(
       stopAudioMixing: true,
         stopMicrophoneRecording: true,
         stopAllEffect: true));
-    print('엔진 끄기');
+    agoraEngine.release();
+    super.dispose();
   }
 }

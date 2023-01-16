@@ -42,7 +42,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   var encrypter;
   var encrypted;
   var decrypted;
-  String? door;
+  String door = '-1';
   late List<int> rdata;
   bool isScanning = false;
   String place = '';
@@ -51,6 +51,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   bool isAuth = false;
   bool isCom = false;
   RxString event = ''.obs;
+  RxInt event2 = 0.obs;
   bool trigger = false;
   //도어쪽
   bool isBle = true;
@@ -96,7 +97,6 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
         Map<String, dynamic> userMap = value;
         var user = UserModel.fromJson(userMap);
         userName.value = user.personObj['name'].toString();
-        door = sharedPreferences.getString('door');
 
         print('전달할 유저 이름 : ${userName}');
         sharedPreferences = await SharedPreferences.getInstance();
@@ -222,35 +222,39 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   scan() async {
     print(await flutterBlue.isOn);
     Get.dialog(
-        Center(
-          child:
-          Container(
-              child:
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children:
-                [
-                  Material(
-                    type: MaterialType.transparency,
-                    child:
-                    Obx(() =>  Text(
-                      '작동중입니다. \n ${event}',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 15
-                      ),
-                    ))
-                    ,),
-                  Container(height: 10,),
-                  CircularProgressIndicator()
-                  //   ,TextButton(onPressed: (){Get.back();}, child: Text('뒤로가기',
-                  //   style: TextStyle(
-                  //       color: Colors.white,
-                  //       fontSize: 15
-                  //   ),
-                  // ))
-                ],))
-          ,)
+        barrierDismissible: false,
+        WillPopScope(
+          onWillPop: () async => false,
+          child: Center(
+            child:
+            Container(
+                child:
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:
+                  [
+                    Material(
+                      type: MaterialType.transparency,
+                      child:
+                      Obx(() =>  Text(
+                        '작동중입니다. \n ${event}',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 15
+                        ),
+                      ))
+                      ,),
+                    Container(height: 10,),
+                    CircularProgressIndicator()
+                    //   ,TextButton(onPressed: (){Get.back();}, child: Text('뒤로가기',
+                    //   style: TextStyle(
+                    //       color: Colors.white,
+                    //       fontSize: 15
+                    //   ),
+                    // ))
+                  ],))
+            ,),
+        )
     );
     await checkBluetoothOn().then((value){
       print(value);
@@ -754,6 +758,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
                 timer.cancel();
               }else if (trigger == false && i == 10){
                 print('mqtt 연결 실패ㅐ');
+                Get.back();
                 Get.dialog(QuitWidget(serverMsg: '시간이 초과되었습니다 다시 시도해주세요.',));
                 timer.cancel();
               }
@@ -827,27 +832,133 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   Future<bool> checkBluetoothOn() async {
     return await flutterBlue.isOn;
   }
-  @override
-  void onInit(){
-    info();
+
+  requestDoorRead(){
     Mqtt mqtt = new Mqtt();
     mqtt.connect();
     api.requestDoorRead('/ProductSncode/getDataByJson').then((val){
       print('문여부값');
       print(val['isDoorOpen']);
-      if (val['isDoorOpen'] == 1) {
-        sharedPreferences.setString('door', '1');
-        door = '1';
-        update();
-      }else if (val['isDoorOpen'] == 0){
-        sharedPreferences.setString('door', '0');
-        door = '0';
-        update();
+      // if (val['isDoorOpen'] == 1) {
+      //   sharedPreferences.setString('door', '1');
+      //   door = '1';
+      //   update();
+      // }else if (val['isDoorOpen'] == 0){
+      //   sharedPreferences.setString('door', '0');
+      //   door = '0';
+      //   update();
+      // }else{
+      //   door = '-1';
+      //   update();
+      // }
+      if(val['product_sncode_id'] != ''){
+
+        Get.dialog(
+            barrierDismissible: false,
+            WillPopScope(
+              onWillPop: () async => false ,
+              child: Center(
+                child:
+                Container(
+                    child:
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children:
+                      [
+                        Material(
+                          type: MaterialType.transparency,
+                          child:
+                          Obx(() =>  Text(
+                            '문상태 조회중입니다.. \n ${event2.toString()}/10초',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 15
+                            ),
+                          ))
+                          ,),
+                        Container(height: 10,),
+                        CircularProgressIndicator()
+                        //   ,TextButton(onPressed: (){Get.back();}, child: Text('뒤로가기',
+                        //   style: TextStyle(
+                        //       color: Colors.white,
+                        //       fontSize: 15
+                        //   ),
+                        // ))
+                      ],))
+                ,),
+            )
+        );
+
+        print('시작');
+        Timer.periodic(Duration(seconds: 1), (timer) {
+          print(event2.value);
+          print(trigger);
+          if(trigger == true){
+            print('mqtt 연결 성공ㅐ');
+            timer.cancel();
+          }else if (trigger == false && event2.value == 10){
+            print('mqtt 연결 실패ㅐ');
+            event2.value = 0;
+            Get.back();
+            Get.dialog(
+                barrierDismissible: false,
+                AlertDialog(
+                  // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                  //Dialog Main Title
+                  title: Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [Text("알림")],
+                    ),
+                  ),
+                  //
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        '스마트미러에 연결할 수 없습니다.\n 다시 연결 시도할까요?',
+                      )
+                    ],
+                  ),
+                  actions: <Widget>[
+                    TextButton(
+                      child: const Text("확인"),
+                      onPressed: () {
+                        Get.back();
+                        requestDoorRead();
+                      },
+                    ),
+                    TextButton(
+                      child: const Text("취소"),
+                      onPressed: () {
+                        Get.back();
+                        door = '-1';
+                        update();
+                      },
+                    ),
+                  ],
+                )
+            );
+            timer.cancel();
+          }
+          event2.value++;
+        });
       }else{
-        door = '-1';
-        update();
+        Get.dialog(QuitWidget(
+          serverMsg: '서버에서 에러가 발생했습니다. \n 앱을 다시 실행해주세요.',
+        ));
       }
     });
+  }
+
+  @override
+  void onInit(){
+    info();
+    requestDoorRead();
     initBle();
     print('메인 진입');
     super.onInit();
@@ -856,20 +967,18 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   @override
   void onResumed() {
     print('onResumed');
+    info();
     api.requestDoorRead('/ProductSncode/getDataByJson').then((val){
       print('문여부값');
       print(val['isDoorOpen']);
       if (val['isDoorOpen'] == 1) {
         sharedPreferences.setString('door', '1');
         door = '1';
-        update();
       }else if (val['isDoorOpen'] == 0){
         sharedPreferences.setString('door', '0');
         door = '0';
-        update();
       }else{
         door = '-1';
-        update();
       }
     });
   }
@@ -879,7 +988,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
 
     //mqtt.client?.disconnect();
     flutterBlue.turnOff();
-    scanResultList[0].device.disconnect();
+    // scanResultList[0].device.disconnect();
     update();
     print('메인종료');
     super.onClose();
