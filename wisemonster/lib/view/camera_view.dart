@@ -75,15 +75,15 @@ class cameraState extends State<camera_view> {
                   color: Color.fromARGB(255, 204, 204, 204),
                 ),
                 Container(
-                  height: (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162)/2,
+                  height: (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162),
                   decoration: BoxDecoration(border: Border.all()),
                   child: Center(child: remoteVideo()),
                 ),
-                Container(
-                  height:  (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162)/2,
-                  decoration: BoxDecoration(border: Border.all()),
-                  child: Center(child: localPreview()),
-                ),
+                // Container(
+                //   height:  (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162)/2,
+                //   decoration: BoxDecoration(border: Border.all()),
+                //   child: Center(child: localPreview()),
+                // ),
                 // Container for the local video
                 //Container for the Remote video
                 Container(
@@ -399,7 +399,7 @@ class cameraState extends State<camera_view> {
     print('엔진');
   }
   @override
-  void dispose()  {
+  void dispose() {
 
     // destroy sdk
       isJoined = false;

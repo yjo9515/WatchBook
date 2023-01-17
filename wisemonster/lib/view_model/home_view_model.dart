@@ -756,6 +756,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
               if(trigger == true){
                 print('mqtt 연결 성공ㅐ');
                 timer.cancel();
+                refresh();
               }else if (trigger == false && i == 10){
                 print('mqtt 연결 실패ㅐ');
                 Get.back();
@@ -805,12 +806,12 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
     if(val == 'true'){
       door = '1';
       print(door);
-      print('도어값 변경');
+      print('도어값 변경 : 열림');
       update();
     }else if(val == 'false'){
       door = '0';
       print(door);
-      print('도어값 변경');
+      print('도어값 변경 : 닫힘');
       update();
     }
   }
@@ -839,6 +840,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
     api.requestDoorRead('/ProductSncode/getDataByJson').then((val){
       print('문여부값');
       print(val['isDoorOpen']);
+      print(val);
       // if (val['isDoorOpen'] == 1) {
       //   sharedPreferences.setString('door', '1');
       //   door = '1';
@@ -852,7 +854,6 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
       //   update();
       // }
       if(val['product_sncode_id'] != ''){
-
         Get.dialog(
             barrierDismissible: false,
             WillPopScope(
@@ -869,7 +870,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
                           type: MaterialType.transparency,
                           child:
                           Obx(() =>  Text(
-                            '문상태 조회중입니다.. \n ${event2.toString()}/10초',
+                            '문상태 조회중입니다.. \n ${event2.toString()}/15초',
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 15
@@ -895,8 +896,9 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
           print(trigger);
           if(trigger == true){
             print('mqtt 연결 성공ㅐ');
+            Get.back();
             timer.cancel();
-          }else if (trigger == false && event2.value == 10){
+          }else if (trigger == false && event2.value == 15){
             print('mqtt 연결 실패ㅐ');
             event2.value = 0;
             Get.back();
@@ -967,20 +969,9 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   @override
   void onResumed() {
     print('onResumed');
+    Get.back();
     info();
-    api.requestDoorRead('/ProductSncode/getDataByJson').then((val){
-      print('문여부값');
-      print(val['isDoorOpen']);
-      if (val['isDoorOpen'] == 1) {
-        sharedPreferences.setString('door', '1');
-        door = '1';
-      }else if (val['isDoorOpen'] == 0){
-        sharedPreferences.setString('door', '0');
-        door = '0';
-      }else{
-        door = '-1';
-      }
-    });
+    requestDoorRead();
   }
 
   @override

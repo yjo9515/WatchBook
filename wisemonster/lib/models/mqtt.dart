@@ -127,7 +127,6 @@ class Mqtt extends GetxController{
     client?.subscribe(topic2, MqttQos.atLeastOnce);
 
     var home = Get.put(HomeViewModel());
-    ;
   // var i = 0;
   // while(true){
   //   if(i > 10) break;
@@ -151,13 +150,17 @@ class Mqtt extends GetxController{
         refresh();
       }else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['request'].toString()) == 'doorOpenProcess') {
         Get.back();
-        Get.dialog(QuitWidget(serverMsg: '자동문닫기 기능설정으로 문닫기를 실행할 수 없습니다.'));
+        Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
       }
       else if(Uri.decodeComponent(result['result'].toString()) == 'true'&& Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-        home.updatedoor('true');
+        print('도어상태수신완료');
+         home.updatedoor('true');
+
       }
       else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-        home.updatedoor('false');
+        print('도어상태수신완료');
+         home.updatedoor('false');
+
       }
       else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['response'].toString()) == 'webrtcMicrophoneNotFound') {
         Get.dialog(QuitWidget(serverMsg: '도어벨 마이크를 연결하는데 실패하여 통화가 불가능합니다.'));
