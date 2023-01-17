@@ -101,6 +101,9 @@ class home_view extends GetView<HomeViewModel> {
                                                   size: 40, color: Color.fromARGB(255, 255, 255, 255)):
                                               HomeViewModel.door== '0' ?
                                               Icon(Icons.lock,
+                                                  size: 40, color: Color.fromARGB(255, 87, 132, 255)):
+                                              HomeViewModel.door== '-2' ?
+                                              Icon(Icons.search,
                                                   size: 40, color: Color.fromARGB(255, 87, 132, 255))
                                                   :Icon(Icons.cancel,
                                                   size: 40, color: Color.fromARGB(255, 87, 132, 255))
@@ -142,7 +145,11 @@ class home_view extends GetView<HomeViewModel> {
                                   style: TextStyle(
                                   fontSize: 17,
                                   color: Color.fromARGB(255, 255, 255, 255),
-                                  )):Text('문상태 조회에 실패했습니다.',
+                                  )):HomeViewModel.door == '-2'?Text('문상태 조회중입니다.',
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          color: Color.fromARGB(255, 255, 255, 255),
+                                        )):Text('문상태 조회에 실패했습니다.',
                                         style: TextStyle(
                                           fontSize: 17,
                                           color: Color.fromARGB(255, 255, 255, 255),

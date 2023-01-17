@@ -42,7 +42,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   var encrypter;
   var encrypted;
   var decrypted;
-  String door = '-1';
+  String door = '-2';
   late List<int> rdata;
   bool isScanning = false;
   String place = '';
@@ -762,6 +762,8 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
                 Get.back();
                 Get.dialog(QuitWidget(serverMsg: '시간이 초과되었습니다 다시 시도해주세요.',));
                 timer.cancel();
+                door = '-1';
+                update();
               }
               i++;
             });
