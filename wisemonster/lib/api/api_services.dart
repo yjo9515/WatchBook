@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -360,11 +361,23 @@ class ApiServices extends GetxController {
 
   }
 
-  getKey(route) async{
-    String url = '${sever+route}';
+  getKey(startDate,endDate,pw,phone) async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String url = '${sever}/ProductSncode/guestkeyJoinProcess';
+    print(sharedPreferences.getString('family_id').toString());
+    print(sharedPreferences.getString('person_id').toString());
+    print(startDate);
+    print(endDate);
     var response = await http.post(Uri.parse(url),
         body:{
-          'pk' : route,
+          'product_sncode_id' :sharedPreferences.getString('product_sncode_id').toString(),
+          'family_id' : sharedPreferences.getString('family_id').toString(),
+          'person_id' : sharedPreferences.getString('person_id').toString(),
+          'startDate' : startDate,
+          'stopDate' : endDate,
+          'passwd' : pw,
+          'handphone' : phone,
+          'resultType' : 'json'
         }
     );
     print(response.body);
@@ -693,11 +706,13 @@ class ApiServices extends GetxController {
 
   sendFcmToken(route) async{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? token = await FirebaseMessaging.instance.getToken();
     String url = '${sever+route}';
+    print('토큰 ${token}');
     var response = await http.post(Uri.parse(url),
         body:{
           'person_id':sharedPreferences.getString('person_id').toString(),
-          'token':sharedPreferences.getString('FCMtoken').toString(),
+          'token':token.toString(),
         }
     );
     print(response.body);

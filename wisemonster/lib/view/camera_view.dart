@@ -335,6 +335,7 @@ class cameraState extends State<camera_view> {
   }
 
   control(){
+    home.doorRequest = '';
     home.scan();
   }
 

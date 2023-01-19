@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:wisemonster/view_model/home_view_model.dart';
 import '../api/api_services.dart';
 import '../controller/SData.dart';
 import '../view/widgets/QuitWidget.dart';
@@ -38,6 +39,8 @@ class KeyViewModel extends GetxController{
 
   bool isSend = false;
   bool isAuth = false;
+  bool trigger1 = false;
+  bool trigger2 = false;
 
   List<int> appkey = [];
   var encrypter;
@@ -89,6 +92,7 @@ class KeyViewModel extends GetxController{
       sendStart = DateFormat('yy-MM-dd').format(pickedStartDate);
       print(splitDate(DateFormat('yy-MM-dd').format(pickedStartDate)));
       startController.text = formattedDate; //set output date to TextField value.
+      trigger1 = true;
       update();
     }else if(pickedEndDate != null && type == 1 ){
       print(pickedEndDate);
@@ -96,6 +100,7 @@ class KeyViewModel extends GetxController{
       print(formattedDate);
       sendEnd = DateFormat('yy-MM-dd').format(pickedEndDate);
       endController.text = formattedDate; //set output date to TextField value.
+      trigger2 = true;
       update();
     }else{
       SnackBarWidget(serverMsg: '날자가 선택되지 않았습니다.',);
@@ -611,16 +616,39 @@ class KeyViewModel extends GetxController{
   }
 
   createKey(){
-    api.getKey('/FamilySchedule/saveAll').then((value) async {
-      if (value == false) {
-        Get.dialog(
-            QuitWidget(serverMsg: "키 발행에 실패하였습니다.",)
-        );
-        update();
-      } else {
+    var home = Get.put(HomeViewModel());
+    home.doorRequest = '';
+    update();
+    if(phonecontroller.text != null && passwdController.text != null && trigger1 == true && trigger2 == true){
+      api.getKey(DateFormat('yyyy-MM-dd HH:m:ss').format(pickedStartDate),DateFormat('yyyy-MM-dd HH:m:ss').format(pickedEndDate),
+          passwdController.text,phonecontroller.text
+      ).then((value) {
+        if (value == false) {
+          Get.dialog(
+              QuitWidget(serverMsg: "에러가 발생했습니다. 관리자에게 문의해주세요.",)
+          );
+          update();
+        } else {
+          print('서버성공');
+          Get.snackbar(
+            '알림',
+            '처리중입니다. 잠시만 기다려주세요.'
+            ,
+            duration: const Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: const Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        }
+      });
+    }else{
+      Get.dialog(
+          QuitWidget(serverMsg: '값을 전부 설정해주세요.',)
+      );
+    }
 
-      }
-    });
   }
   void initBle() async {
     // BLE 스캔 상태 얻기 위한 리스너
@@ -637,16 +665,21 @@ class KeyViewModel extends GetxController{
   }
   @override
   void onInit(){
-    initBle();
+    //initBle();
     super.onInit();
   }
 
   @override
   void onClose() {
-    flutterBlue.turnOff();
-    scanResultList[0].device.disconnect();
-    update();
-    print('메인종료');
+    // flutterBlue.turnOff();
+    // scanResultList[0].device.disconnect();
+    startController.dispose();
+    endController.dispose();
+    startTimeController.dispose();
+    endTimeController.dispose();
+    passwdController.dispose();
+    phonecontroller.dispose();
+    print('게스트키 종료');
     super.onClose();
   }
 }

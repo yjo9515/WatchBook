@@ -41,6 +41,7 @@
             android:turnScreenOn="true"
             android:allowBackup="false"
             android:fullBackupContent="false"
+            android:fullBackupOnly="false"
             >
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
@@ -57,6 +58,8 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
                 <action android:name="doorbellPush" />
+                <action android:name="accessRecord" />
+                <action android:name="motionDetect" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

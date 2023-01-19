@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:wisemonster/view/home_view.dart';
 import 'package:wisemonster/view/widgets/ContactListWidget.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/TextFieldWidget.dart';
@@ -30,7 +31,7 @@ class addkey_view extends GetView<KeyViewModel> {
                 backgroundColor: Color.fromARGB(255, 255, 255, 255),
                 iconTheme: const IconThemeData(color: Color.fromARGB(255, 44, 95, 233)),
                 leading: IconButton(
-                  onPressed: () => Get.back(),
+                  onPressed: () => Get.offAll(home_view()),
                   color: Color.fromARGB(255, 0000000000000000000000000018, 136, 248),
                   icon: Icon(
                     Icons.arrow_back_ios_new_outlined,
@@ -38,8 +39,8 @@ class addkey_view extends GetView<KeyViewModel> {
                   ),
                 ),
                 centerTitle: true,
-                title: Text((Get.arguments == 'create')?
-                '게스트 키 발급':'게스트 키 수정',
+                title: Text(
+                '게스트 키 발급',
                     style:
                         TextStyle(color: Color.fromARGB(255, 44, 95, 233), fontWeight: FontWeight.bold, fontSize: 20)),
               ),
@@ -247,11 +248,10 @@ class addkey_view extends GetView<KeyViewModel> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            KeyViewModel.scan();
+                            KeyViewModel.createKey();
                           },
                           child: Text(
-                            (Get.arguments == 'create')?
-                            '발급하기':'수정완료',
+                            '발급하기',
                             style: TextStyle(
                                 fontSize: 16, color: Colors.white),
                           ),

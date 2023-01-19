@@ -27,8 +27,6 @@ import 'package:wisemonster/view_model/home_view_model.dart';
 import 'api/api_services.dart';
 import 'controller/connect_controller.dart';
 
-
-
 ApiServices api = ApiServices();
 void _handleMessage(RemoteMessage message) {
   print('message = ${message.notification!.title}');
@@ -59,7 +57,7 @@ void _handleMessage(RemoteMessage message) {
       TextButton(
         child: const Text("확인"),
         onPressed: () {
-          Get.offAll(camera_view());
+          Get.to(camera_view());
         },
       ),
     ],
@@ -71,8 +69,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print(message.data);
   RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage().then((value) {
     print('ddddddd');
-
+    print(value);
   if(value != null){
+    print('눌려');
     _handleMessage(value);
   }}
   );
@@ -84,7 +83,13 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   }
 
   // 앱이 백그라운드 상태에서 푸시 알림 클릭 하여 열릴 경우 메세지 스트림을 통해 처리
-  FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+  FirebaseMessaging.onMessageOpenedApp.listen(
+      // _handleMessage
+      (RemoteMessage message){
+        print('백그다룽');
+        Get.offAll(home_view());
+      }
+  );
 
 }
 late AndroidNotificationChannel channel;
@@ -151,7 +156,7 @@ Future<void> main() async {
       onSelectNotification: (String? payload) async {
         print(payload);
         print('포그라운드클릭');
-        if (payload != null) {
+        if (payload != null && payload == 'doorbellPush') {
           Get.dialog(AlertDialog(
             // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
@@ -178,7 +183,71 @@ Future<void> main() async {
               TextButton(
                 child: const Text("확인"),
                 onPressed: () {
-                  Get.offAll(camera_view());
+                  Get.to(camera_view());
+                },
+              ),
+            ],
+          ));
+        }else if (payload != null && payload == 'accessRecord') {
+          Get.dialog(AlertDialog(
+            // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            //Dialog Main Title
+            title: Container(
+              margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [Text("알림")],
+              ),
+            ),
+            //
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  '벨이 울렸습니다',
+                )
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("확인"),
+                onPressed: () {
+                  Get.to(camera_view());
+                },
+              ),
+            ],
+          ));
+        }else if (payload != null && payload == 'motionDetect') {
+          Get.dialog(AlertDialog(
+            // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            //Dialog Main Title
+            title: Container(
+              margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [Text("알림")],
+              ),
+            ),
+            //
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  '외부카메라가 감지되었습니다. 지금 확인하시겠습니까?',
+                )
+              ],
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text("확인"),
+                onPressed: () {
+                  Get.to(camera_view());
                 },
               ),
             ],

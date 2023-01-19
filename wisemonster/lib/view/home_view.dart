@@ -20,15 +20,12 @@ import 'package:wisemonster/view/widgets/H2.dart';
 import 'package:wisemonster/view/widgets/LeftSlideWidget.dart';
 import 'package:wisemonster/view/widgets/QrWidget.dart';
 import 'package:wisemonster/view_model/home_view_model.dart';
-
-import '../view_model/login_view_model.dart';
 import 'camera_view.dart';
 import 'entrance_view.dart';
 
 class home_view extends GetView<HomeViewModel> {
   home_view({Key? key}) : super(key: key);
   String userName = '';
-  final login = Get.put(LoginViewModel());
   getName() async{
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     userName = sharedPreferences.getString('name')!;
@@ -102,7 +99,7 @@ class home_view extends GetView<HomeViewModel> {
                                               HomeViewModel.door== '0' ?
                                               Icon(Icons.lock,
                                                   size: 40, color: Color.fromARGB(255, 87, 132, 255)):
-                                              HomeViewModel.door== '-2' ?
+                                              HomeViewModel.door== '-1' ?
                                               Icon(Icons.search,
                                                   size: 40, color: Color.fromARGB(255, 87, 132, 255))
                                                   :Icon(Icons.cancel,
@@ -145,11 +142,18 @@ class home_view extends GetView<HomeViewModel> {
                                   style: TextStyle(
                                   fontSize: 17,
                                   color: Color.fromARGB(255, 255, 255, 255),
-                                  )):HomeViewModel.door == '-2'?Text('문상태 조회중입니다.',
+                                  )):HomeViewModel.door == '-1'?Text('문상태 조회중입니다.',
                                         style: TextStyle(
                                           fontSize: 17,
                                           color: Color.fromARGB(255, 255, 255, 255),
-                                        )):Text('문상태 조회에 실패했습니다.',
+                                        ))
+                                        :HomeViewModel.door == '-3'?
+                                    Text('문작동중',
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          color: Color.fromARGB(255, 255, 255, 255),
+                                        ))
+                                        :Text('문상태 조회에 실패했습니다.',
                                         style: TextStyle(
                                           fontSize: 17,
                                           color: Color.fromARGB(255, 255, 255, 255),

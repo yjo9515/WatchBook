@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -15,6 +16,9 @@ class ConfigController extends GetxController{
   bool isDoorbell = false;
   bool isAccessRecord = false;
   bool isMotionDetect = false;
+  String? token;
+  var k = TextEditingController();
+  String test = '';
 
   Future<Map<String, dynamic>> getDeviceInfo() async {
     DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
@@ -81,6 +85,10 @@ class ConfigController extends GetxController{
   }
   @override
   void onInit() async{
+    token = await FirebaseMessaging.instance.getToken();
+    test = token!;
+    k.text = token!;
+    update();
     wifiName = await info.getWifiName(); // "FooNetwork"
     getDeviceInfo();
     api.requestConfigRead('/ProductSncodeFamily/getDataByJson').then((value) {

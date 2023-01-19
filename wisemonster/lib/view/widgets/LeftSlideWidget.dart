@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/controller/profile_controller.dart';
+import 'package:wisemonster/view/addkey_view.dart';
 import 'package:wisemonster/view/calendar_view.dart';
 import 'package:wisemonster/view/config_view.dart';
 import 'package:wisemonster/view/entrance_view.dart';
@@ -191,21 +192,22 @@ class LeftSlideWidget extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // TextButton(
-                          //   onPressed: () {
-                          //     Get.to(key_view());
-                          //   },
-                          //   style: TextButton.styleFrom(
-                          //       padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                          //       backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                          //   child: Text(
-                          //     '게스트 키',
-                          //     style: TextStyle(
-                          //       fontSize: 14,
-                          //       color: Color.fromARGB(255, 18, 136, 248),
-                          //     ),
-                          //   ),
-                          // ),
+                          TextButton(
+                            onPressed: () {
+                              // Get.to(key_view());
+                              Get.to(addkey_view());
+                            },
+                            style: TextButton.styleFrom(
+                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
+                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
+                            child: Text(
+                              '게스트 키',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 18, 136, 248),
+                              ),
+                            ),
+                          ),
                           TextButton(
                             onPressed: () {
                               Get.to(entrance_view());

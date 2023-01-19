@@ -16,14 +16,10 @@ import 'package:qr_code_scanner/src/types/barcode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/api/api_services.dart';
 import 'package:wisemonster/models/user_model.dart';
-import 'package:wisemonster/view/afterQr_view.dart';
-import 'package:wisemonster/view/home_view.dart';
-import 'package:wisemonster/view/widgets/QrWidget.dart';
 import 'package:wisemonster/view/widgets/QuitWidget.dart';
 import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
 import '../controller/SData.dart';
 import '../models/mqtt.dart';
-import '../view/login_view.dart';
 import 'package:encrypt/encrypt.dart' as en;
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -68,6 +64,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   late List<BluetoothService> services;
   var subscription;
 
+  String doorRequest = '';
 
 
   Mqtt mqtt = new Mqtt();
@@ -129,7 +126,6 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
         });
 
         if( user.product_sncode_id.toString() == '0'){
-
           print('등록 실패 홈');
           update();
 
@@ -220,42 +216,45 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   }
 
   scan() async {
+    doorRequest = '';
+    print('scan 변수 ${doorRequest}');
+    update();
     print(await flutterBlue.isOn);
-    Get.dialog(
-        barrierDismissible: false,
-        WillPopScope(
-          onWillPop: () async => false,
-          child: Center(
-            child:
-            Container(
-                child:
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children:
-                  [
-                    Material(
-                      type: MaterialType.transparency,
-                      child:
-                      Obx(() =>  Text(
-                        '작동중입니다. \n ${event}',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15
-                        ),
-                      ))
-                      ,),
-                    Container(height: 10,),
-                    CircularProgressIndicator()
-                    //   ,TextButton(onPressed: (){Get.back();}, child: Text('뒤로가기',
-                    //   style: TextStyle(
-                    //       color: Colors.white,
-                    //       fontSize: 15
-                    //   ),
-                    // ))
-                  ],))
-            ,),
-        )
-    );
+    // Get.dialog(
+    //     barrierDismissible: false,
+    //     WillPopScope(
+    //       onWillPop: () async => false,
+    //       child: Center(
+    //         child:
+    //         Container(
+    //             child:
+    //             Column(
+    //               mainAxisAlignment: MainAxisAlignment.center,
+    //               children:
+    //               [
+    //                 Material(
+    //                   type: MaterialType.transparency,
+    //                   child:
+    //                   Obx(() =>  Text(
+    //                     '작동중입니다. \n ${event}',
+    //                     style: TextStyle(
+    //                         color: Colors.white,
+    //                         fontSize: 15
+    //                     ),
+    //                   ))
+    //                   ,),
+    //                 Container(height: 10,),
+    //                 CircularProgressIndicator()
+    //                 //   ,TextButton(onPressed: (){Get.back();}, child: Text('뒤로가기',
+    //                 //   style: TextStyle(
+    //                 //       color: Colors.white,
+    //                 //       fontSize: 15
+    //                 //   ),
+    //                 // ))
+    //               ],))
+    //         ,),
+    //     )
+    // );
     await checkBluetoothOn().then((value){
       print(value);
       if(value == true){
@@ -445,9 +444,11 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
       }else{
         // Get.dialog(QuitWidget(serverMsg: '블루투스설정을 활성화 해주세요.',));
         print('블루투스꺼져있음 mqtt진입');
-        publish();
+        trigger = false;
+        door = '-3';
         event.value = '';
         update();
+        publish();
       }
     }
     );
@@ -742,28 +743,28 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
         mqtt.connect();
         print('커넥실패');
       }
+
       api.doorControl('/ProductSncode/doorlockAppOpenProcess').then((val){
         if (val['result'] == false) {
           Get.dialog(QuitWidget(serverMsg: val['message'],));
         }else{
           print('mqtt로 문열기');
           var i = 0;
-
             print('시작');
             Timer.periodic(Duration(seconds: 1), (timer) {
               print(i);
               print(trigger);
               if(trigger == true){
                 print('mqtt 연결 성공ㅐ');
+                trigger= false;
                 timer.cancel();
                 refresh();
-              }else if (trigger == false && i == 10){
+              }else if (trigger == false && i == 15){
                 print('mqtt 연결 실패ㅐ');
                 Get.back();
                 Get.dialog(QuitWidget(serverMsg: '시간이 초과되었습니다 다시 시도해주세요.',));
                 timer.cancel();
-                door = '-1';
-                update();
+                refresh();
               }
               i++;
             });
@@ -837,6 +838,10 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   }
 
   requestDoorRead(){
+
+    // event2.value = 0;
+    // trigger = false;
+    doorRequest = '';
     Mqtt mqtt = new Mqtt();
     mqtt.connect();
     api.requestDoorRead('/ProductSncode/getDataByJson').then((val){
@@ -855,54 +860,61 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
       //   door = '-1';
       //   update();
       // }
-      if(val['product_sncode_id'] != ''){
-        Get.dialog(
-            barrierDismissible: false,
-            WillPopScope(
-              onWillPop: () async => false ,
-              child: Center(
-                child:
-                Container(
-                    child:
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children:
-                      [
-                        Material(
-                          type: MaterialType.transparency,
-                          child:
-                          Obx(() =>  Text(
-                            '문상태 조회중입니다.. \n ${event2.toString()}/15초',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15
-                            ),
-                          ))
-                          ,),
-                        Container(height: 10,),
-                        CircularProgressIndicator()
-                        //   ,TextButton(onPressed: (){Get.back();}, child: Text('뒤로가기',
-                        //   style: TextStyle(
-                        //       color: Colors.white,
-                        //       fontSize: 15
-                        //   ),
-                        // ))
-                      ],))
-                ,),
-            )
-        );
+      if(val['isDoorOpen'] == -1){
+        door = '-1';
+        update();
+        // Get.dialog(
+        //     barrierDismissible: false,
+        //     WillPopScope(
+        //       onWillPop: () async => false ,
+        //       child: Center(
+        //         child:
+        //         Container(
+        //             child:
+        //             Column(
+        //               mainAxisAlignment: MainAxisAlignment.center,
+        //               children:
+        //               [
+        //                 Material(
+        //                   type: MaterialType.transparency,
+        //                   child:
+        //                   Obx(() =>  Text(
+        //                     '문상태 조회중입니다.. \n ${event2.toString()}/15초',
+        //                     style: TextStyle(
+        //                         color: Colors.white,
+        //                         fontSize: 15
+        //                     ),
+        //                   ))
+        //                   ,),
+        //                 Container(height: 10,),
+        //                 CircularProgressIndicator()
+        //                 //   ,TextButton(onPressed: (){Get.back();}, child: Text('뒤로가기',
+        //                 //   style: TextStyle(
+        //                 //       color: Colors.white,
+        //                 //       fontSize: 15
+        //                 //   ),
+        //                 // ))
+        //               ],))
+        //         ,),
+        //     )
+        // );
 
         print('시작');
         Timer.periodic(Duration(seconds: 1), (timer) {
           print(event2.value);
           print(trigger);
           if(trigger == true){
+            event2.value = 0;
+            trigger= false;
             print('mqtt 연결 성공ㅐ');
             Get.back();
             timer.cancel();
           }else if (trigger == false && event2.value == 15){
             print('mqtt 연결 실패ㅐ');
             event2.value = 0;
+            door = '-2';
+            print(door);
+            update();
             Get.back();
             Get.dialog(
                 barrierDismissible: false,
@@ -924,7 +936,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        '스마트미러에 연결할 수 없습니다.\n 다시 연결 시도할까요?',
+                        '스마트도어에 연결할 수 없습니다.\n 다시 연결 시도할까요?',
                       )
                     ],
                   ),
@@ -940,7 +952,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
                       child: const Text("취소"),
                       onPressed: () {
                         Get.back();
-                        door = '-1';
+                        door = '-2';
                         update();
                       },
                     ),
@@ -951,11 +963,21 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
           }
           event2.value++;
         });
-      }else{
-        Get.dialog(QuitWidget(
-          serverMsg: '서버에서 에러가 발생했습니다. \n 앱을 다시 실행해주세요.',
-        ));
-      }
+      }else
+        if (val['isDoorOpen'] == 1) {
+          door = '1';
+          update();
+        }else if (val['isDoorOpen'] == 0){
+          door = '0';
+          update();
+         }else{
+          door = '-2';
+          Get.dialog(QuitWidget(
+            serverMsg: '서버에서 에러가 발생했습니다. \n 앱을 다시 실행해주세요.',
+          ));
+          update();
+        }
+
     });
   }
 
@@ -971,8 +993,9 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   @override
   void onResumed() {
     print('onResumed');
-    Get.back();
+    // Get.back();
     info();
+    initBle();
     requestDoorRead();
   }
 
@@ -980,7 +1003,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   void onClose() {
 
     //mqtt.client?.disconnect();
-    flutterBlue.turnOff();
+    // flutterBlue.turnOff();
     // scanResultList[0].device.disconnect();
     update();
     print('메인종료');

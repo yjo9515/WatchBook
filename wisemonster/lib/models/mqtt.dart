@@ -132,9 +132,11 @@ class Mqtt extends GetxController{
   //   if(i > 10) break;
   //   i++;
   //   print(i);
+    int i = 0;
     client?.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
       home.trigger = true;
       print('리슨받음');
+      print(home.doorRequest);
       update();
       final MqttPublishMessage message = c[0].payload as MqttPublishMessage;
       final payload =
@@ -142,34 +144,43 @@ class Mqtt extends GetxController{
       var result=json.decode(payload);
       print(result);
       print(Uri.decodeComponent(result['result'].toString()));
-      if (Uri.decodeComponent(result['result'].toString()) == 'true' && Uri.decodeComponent(result['request'].toString()) == 'doorOpenProcess'){
-        Get.back();
-        home.updatedoor('true');
-        Get.dialog(QuitWidget(serverMsg: '문이 열렸습니다.'));
-        sharedPreferences.setString('door', 'true');
-        refresh();
-      }else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['request'].toString()) == 'doorOpenProcess') {
-        Get.back();
-        Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
+      if(home.doorRequest == '') {
+        home.doorRequest = Uri.decodeComponent(result['request'].toString());
+        print(home.doorRequest);
+        if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
+            Uri.decodeComponent(result['request'].toString()) == 'doorOpenProcess') {
+          home.updatedoor('true');
+          Get.dialog(QuitWidget(serverMsg: '문이 열렸습니다.'));
+          sharedPreferences.setString('door', 'true');
+          refresh();
+        } else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+            Uri.decodeComponent(result['request'].toString()) == 'doorOpenProcess') {
+          home.updatedoor('true');
+          Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
+        }
+        else if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
+            Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+          print('도어상태수신완료');
+          home.updatedoor('true');
+        }
+        else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+            Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+          print('도어상태수신완료');
+          home.updatedoor('false');
+        }
+         else if (Uri.decodeComponent(result['request'].toString()) == 'guestkeyJoinProcess') {
+          Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
+        }
+        print('qos설정값 : ${message.header!.qos}');
+        // getMessagesStream();
       }
-      else if(Uri.decodeComponent(result['result'].toString()) == 'true'&& Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-        print('도어상태수신완료');
-         home.updatedoor('true');
-
-      }
-      else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-        print('도어상태수신완료');
-         home.updatedoor('false');
-
-      }
-      else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['response'].toString()) == 'webrtcMicrophoneNotFound') {
+      if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+          Uri.decodeComponent(result['response'].toString()) == 'webrtcMicrophoneNotFound') {
         Get.dialog(QuitWidget(serverMsg: '도어벨 마이크를 연결하는데 실패하여 통화가 불가능합니다.'));
-      }else if(Uri.decodeComponent(result['result'].toString()) == 'false'&& Uri.decodeComponent(result['response'].toString()) == 'webrtcCameraNotFound') {
+      } else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+          Uri.decodeComponent(result['response'].toString()) == 'webrtcCameraNotFound') {
         Get.dialog(QuitWidget(serverMsg: '도어벨 카메라를 연결하는데 실패하여 통화가 불가능합니다.'));
       }
-
-      print('qos설정값 : ${message.header!.qos}');
-      getMessagesStream();
     });
 
   }
