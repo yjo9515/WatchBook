@@ -19,7 +19,6 @@ import 'dart:math';
 
 class addkey_view extends GetView<KeyViewModel> {
 
-
   @override
   Widget build(BuildContext context) {
     return GetBuilder<KeyViewModel>(

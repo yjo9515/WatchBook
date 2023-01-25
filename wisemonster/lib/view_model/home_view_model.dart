@@ -762,6 +762,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
               }else if (trigger == false && i == 15){
                 print('mqtt 연결 실패ㅐ');
                 Get.back();
+                door = '-2';
                 Get.dialog(QuitWidget(serverMsg: '시간이 초과되었습니다 다시 시도해주세요.',));
                 timer.cancel();
                 refresh();

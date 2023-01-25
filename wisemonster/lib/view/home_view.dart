@@ -81,8 +81,11 @@ class home_view extends GetView<HomeViewModel> {
                                           )),
                                         ),
                                         onPressed: () {
-                                          HomeViewModel.scan(
-                                          );
+                                          if(HomeViewModel.door == '-3'){
+                                            print('조회중일때 터치');
+                                          }else{
+                                            HomeViewModel.scan();
+                                          }
                                           // HomeViewModel.publish();
 
                                         },
@@ -100,6 +103,9 @@ class home_view extends GetView<HomeViewModel> {
                                               Icon(Icons.lock,
                                                   size: 40, color: Color.fromARGB(255, 87, 132, 255)):
                                               HomeViewModel.door== '-1' ?
+                                              Icon(Icons.search,
+                                                  size: 40, color: Color.fromARGB(255, 87, 132, 255)):
+                                              HomeViewModel.door== '-3' ?
                                               Icon(Icons.search,
                                                   size: 40, color: Color.fromARGB(255, 87, 132, 255))
                                                   :Icon(Icons.cancel,

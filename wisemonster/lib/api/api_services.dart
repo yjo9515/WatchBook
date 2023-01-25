@@ -656,6 +656,7 @@ class ApiServices extends GetxController {
   doorControl(con) async {
     String apiurl = '${sever+con}';
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    print(sharedPreferences.getString('person_id').toString());
     var response = await http.post(Uri.parse(apiurl),
         body: {
           'product_sncode_id':sharedPreferences.getString('product_sncode_id').toString(),

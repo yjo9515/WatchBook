@@ -98,8 +98,8 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Get.put(ConnectController());
-
-  if(Firebase.apps.length == null){
+  print(Firebase.apps.length);
+  if(Firebase.apps.length == 0){
     await Firebase.initializeApp(
         options: const FirebaseOptions(
             apiKey: 'AIzaSyC82k385JVg5-Dpcid3WRfF1JpdwH4viO0', // google-service.json 파일에 값 확인가능

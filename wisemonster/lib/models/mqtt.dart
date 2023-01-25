@@ -123,7 +123,7 @@ class Mqtt extends GetxController{
     print(topic);
     print(topic2);
     print('토픽');
-    client?.subscribe(topic, MqttQos.atLeastOnce);
+    // client?.subscribe(topic, MqttQos.atLeastOnce);
     client?.subscribe(topic2, MqttQos.atLeastOnce);
 
     var home = Get.put(HomeViewModel());
