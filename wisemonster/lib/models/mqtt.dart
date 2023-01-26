@@ -123,7 +123,7 @@ class Mqtt extends GetxController{
     print(topic);
     print(topic2);
     print('토픽');
-    // client?.subscribe(topic, MqttQos.atLeastOnce);
+    client?.subscribe(topic, MqttQos.atLeastOnce);
     client?.subscribe(topic2, MqttQos.atLeastOnce);
 
     var home = Get.put(HomeViewModel());
@@ -158,21 +158,31 @@ class Mqtt extends GetxController{
           home.updatedoor('true');
           Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
         }
-        else if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
-            Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-          print('도어상태수신완료');
-          home.updatedoor('true');
-        }
-        else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
-            Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-          print('도어상태수신완료');
-          home.updatedoor('false');
-        }
+        // else if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
+        //     Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+        //   print('도어상태수신완료');
+        //   home.updatedoor('true');
+        // }
+        // else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+        //     Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+        //   print('도어상태수신완료');
+        //   home.updatedoor('false');
+        // }
          else if (Uri.decodeComponent(result['request'].toString()) == 'guestkeyJoinProcess') {
           Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
         }
         print('qos설정값 : ${message.header!.qos}');
         // getMessagesStream();
+      }
+      if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
+          Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+        print('도어상태수신완료');
+        home.updatedoor('true');
+      }
+      else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+          Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+        print('도어상태수신완료');
+        home.updatedoor('false');
       }
       if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
           Uri.decodeComponent(result['response'].toString()) == 'webrtcMicrophoneNotFound') {
