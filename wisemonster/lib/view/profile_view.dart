@@ -63,9 +63,9 @@ class profile_view extends GetView<ProfileController> {
                 //인풋박스 터치시 키보드 안나오는 에러 수정(원인 : 미디어쿼리)
                 height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 56,
                 color: Colors.white,
-                
                 child: SingleChildScrollView(
-                    child: Column(children: [
+                    child: Column(
+                        children: [
                       Container(
                         height: 270,
                         color: Color.fromARGB(255, 255, 255, 255),
