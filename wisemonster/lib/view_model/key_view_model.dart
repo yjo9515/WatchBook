@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wisemonster/view/key_view.dart';
 import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:wisemonster/view_model/home_view_model.dart';
@@ -616,12 +617,10 @@ class KeyViewModel extends GetxController{
   }
 
   createKey(){
-    var home = Get.put(HomeViewModel());
-    home.doorRequest = '';
-    update();
     if(phonecontroller.text != null && passwdController.text != null && trigger1 == true && trigger2 == true){
-      api.getKey(DateFormat('yyyy-MM-dd HH:m:ss').format(pickedStartDate),DateFormat('yyyy-MM-dd HH:m:ss').format(pickedEndDate),
-          passwdController.text,phonecontroller.text
+      api.post(
+        json.encode({'handphone':phonecontroller.text,'passwd' : passwdController.text,'startDate' : DateFormat('yyyy-MM-dd HH:m:ss').format(pickedStartDate), 'stopDate' : DateFormat('yyyy-MM-dd HH:m:ss').format(pickedEndDate)}),
+        '/SmartdoorGuestkey'
       ).then((value) {
         if (value == false) {
           Get.dialog(
@@ -630,9 +629,10 @@ class KeyViewModel extends GetxController{
           update();
         } else {
           print('서버성공');
+          Get.offAll(key_view());
           Get.snackbar(
             '알림',
-            '처리중입니다. 잠시만 기다려주세요.'
+            '키 발급에 성공하였습니다.'
             ,
             duration: const Duration(seconds: 5),
             backgroundColor: const Color.fromARGB(

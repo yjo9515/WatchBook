@@ -62,7 +62,6 @@ class Mqtt extends GetxController{
       print('Ping response client callback invoked');
     }
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String? personId = sharedPreferences.getString('person_id');
     List<int> nums = [];
 
     for( int i = 0; i < 9; i ++) {
@@ -72,7 +71,7 @@ class Mqtt extends GetxController{
         nums[2].toString()+nums[3].toString()+nums[4].toString()+nums[5].toString()+nums[6].toString()+
         nums[7].toString()+nums[8].toString());
     client =
-        MqttServerClient.withPort('118.67.142.61', ' smartdoor_SMARTDOOR_${nums[0].toString()+nums[1].toString()+
+        MqttServerClient.withPort('118.67.142.61', 'hizib01_${nums[0].toString()+nums[1].toString()+
             nums[2].toString()+nums[3].toString()+nums[4].toString()+nums[5].toString()+nums[6].toString()+
             nums[7].toString()+nums[8].toString()
         }', 1883);
@@ -93,7 +92,7 @@ class Mqtt extends GetxController{
     // .keepAliveFor(60)
     // .withWillTopic('smartdoor/SMARTDOOR/')
         .startClean()
-        .withWillQos(MqttQos.exactlyOnce);
+        .withWillQos(MqttQos.atLeastOnce);
     client?.connectionMessage = connMessage;
     try {
 
@@ -113,20 +112,17 @@ class Mqtt extends GetxController{
       print('Exception: $e');
       client?.disconnect();
     }
-    String? pcode = sharedPreferences.getString('pcode');
-    String? sncode =  sharedPreferences.getString('scode');
-    String? familyid =  sharedPreferences.getString('family_id');
-    String? personid =  sharedPreferences.getString('person_id');
-
-    String topic = 'smartdoor/SMARTDOOR/${sncode}/${familyid}/${personid}'; // Not a wildcard topic
-    String topic2 = 'smartdoor/SMARTDOOR/${sncode}/${familyid}'; // Not a wildcard topic
+    print(sharedPreferences.getString('code'));
+    String topic = 'hizib01/${sharedPreferences.getString('code')}/${sharedPreferences.getString('user_id')}'; // Not a wildcard topic
     print(topic);
-    print(topic2);
-    print('토픽');
-    client?.subscribe(topic, MqttQos.atLeastOnce);
-    client?.subscribe(topic2, MqttQos.atLeastOnce);
-
     var home = Get.put(HomeViewModel());
+    print('토픽');
+    //if(home.subtrigger == false){
+      client?.subscribe(topic, MqttQos.atLeastOnce);
+    //}
+
+
+
   // var i = 0;
   // while(true){
   //   if(i > 10) break;
@@ -134,63 +130,85 @@ class Mqtt extends GetxController{
   //   print(i);
     int i = 0;
     client?.updates!.listen((List<MqttReceivedMessage<MqttMessage>> c) {
-      home.trigger = true;
+      home.subtrigger = true;
+      print('리슨받음');
       print('리슨받음');
       print(home.doorRequest);
+      home.trigger = true;
+      print(home.trigger);
       update();
       final MqttPublishMessage message = c[0].payload as MqttPublishMessage;
       final payload =
       MqttPublishPayload.bytesToStringAsString(message.payload.message);
+      // var result=json.decode(payload);
       var result=json.decode(payload);
       print(result);
       print(Uri.decodeComponent(result['result'].toString()));
-      if(home.doorRequest == '') {
-        home.doorRequest = Uri.decodeComponent(result['request'].toString());
-        print(home.doorRequest);
-        if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
-            Uri.decodeComponent(result['request'].toString()) == 'doorOpenProcess') {
-          home.updatedoor('true');
-          Get.dialog(QuitWidget(serverMsg: '문이 열렸습니다.'));
-          sharedPreferences.setString('door', 'true');
-          refresh();
-        } else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
-            Uri.decodeComponent(result['request'].toString()) == 'doorOpenProcess') {
-          home.updatedoor('true');
-          Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
-        }
-        // else if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
-        //     Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-        //   print('도어상태수신완료');
-        //   home.updatedoor('true');
-        // }
-        // else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
-        //     Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-        //   print('도어상태수신완료');
-        //   home.updatedoor('false');
-        // }
-         else if (Uri.decodeComponent(result['request'].toString()) == 'guestkeyJoinProcess') {
-          Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
-        }
-        print('qos설정값 : ${message.header!.qos}');
-        // getMessagesStream();
-      }
-      if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
-          Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-        print('도어상태수신완료');
-        home.updatedoor('true');
-      }
-      else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
-          Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
-        print('도어상태수신완료');
+      print(json.decode(utf8.decode(message.payload.message))['message']);
+      if(json.decode(utf8.decode(message.payload.message))['result'] == false){
         home.updatedoor('false');
+        Get.dialog(QuitWidget(serverMsg: '${json.decode(utf8.decode(message.payload.message))['message']}'));
+
+      } else if(json.decode(utf8.decode(message.payload.message))['result'] == true){
+        home.updatedoor('true');
+        Get.dialog(QuitWidget(serverMsg: '${json.decode(utf8.decode(message.payload.message))['message']}'));
+
       }
-      if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
-          Uri.decodeComponent(result['response'].toString()) == 'webrtcMicrophoneNotFound') {
-        Get.dialog(QuitWidget(serverMsg: '도어벨 마이크를 연결하는데 실패하여 통화가 불가능합니다.'));
-      } else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
-          Uri.decodeComponent(result['response'].toString()) == 'webrtcCameraNotFound') {
-        Get.dialog(QuitWidget(serverMsg: '도어벨 카메라를 연결하는데 실패하여 통화가 불가능합니다.'));
-      }
+      // else if(json.decode(utf8.decode(message.payload.message))['request'] == 'isDoorOpen' && json.decode(utf8.decode(message.payload.message))['response'] == 'opened'){
+      //   home.updatedoor('true');
+      //
+      // } else if(json.decode(utf8.decode(message.payload.message))['request'] == 'isDoorOpen' && json.decode(utf8.decode(message.payload.message))['response'] == 'closed'){
+      //   home.updatedoor('false');
+      //
+      // }
+
+      // if(home.doorRequest == '') {
+      //   home.doorRequest = Uri.decodeComponent(result['request'].toString());
+      //   print(home.doorRequest);
+      //   if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
+      //       Uri.decodeComponent(result['request'].toString()) == 'doorOpenProcess') {
+      //     home.updatedoor('true');
+      //     Get.dialog(QuitWidget(serverMsg: '문이 열렸습니다.'));
+      //     sharedPreferences.setString('door', 'true');
+      //     refresh();
+      //   } else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+      //       Uri.decodeComponent(result['request'].toString()) == 'doorOpenProcess') {
+      //     home.updatedoor('true');
+      //     Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
+      //   }
+      //   // else if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
+      //   //     Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+      //   //   print('도어상태수신완료');
+      //   //   home.updatedoor('true');
+      //   // }
+      //   // else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+      //   //     Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+      //   //   print('도어상태수신완료');
+      //   //   home.updatedoor('false');
+      //   // }
+      //    else if (Uri.decodeComponent(result['request'].toString()) == 'guestkeyJoinProcess') {
+      //     Get.dialog(QuitWidget(serverMsg: Uri.decodeComponent(result['message'].toString())));
+      //   }
+      //   print('qos설정값 : ${message.header!.qos}');
+      //   // getMessagesStream();
+      // }
+      // if (Uri.decodeComponent(result['result'].toString()) == 'true' &&
+      //     Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+      //   print('도어상태수신완료');
+      //   home.updatedoor('true');
+      // }
+      // else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+      //     Uri.decodeComponent(result['request'].toString()) == 'isDoorOpen') {
+      //   print('도어상태수신완료');
+      //   home.updatedoor('false');
+      // }
+      // if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+      //     Uri.decodeComponent(result['response'].toString()) == 'webrtcMicrophoneNotFound') {
+      //   Get.dialog(QuitWidget(serverMsg: '도어벨 마이크를 연결하는데 실패하여 통화가 불가능합니다.'));
+      // } else if (Uri.decodeComponent(result['result'].toString()) == 'false' &&
+      //     Uri.decodeComponent(result['response'].toString()) == 'webrtcCameraNotFound') {
+      //   Get.dialog(QuitWidget(serverMsg: '도어벨 카메라를 연결하는데 실패하여 통화가 불가능합니다.'));
+      // }
     });
 
   }

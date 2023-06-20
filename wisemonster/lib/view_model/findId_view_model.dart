@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -30,14 +32,14 @@ class FindIdViewModel extends GetxController {
         if (kDebugMode) {
           print(value);
         }
-        if (value['result'] == true) {
+        if(value.statusCode == 200) {
           error = false;
           serverMsg = '등록된 번호로 아이디를 전송했습니다.';
           update();
         } else {
           userEnums = UserEnums.Error;
           error = true;
-          serverMsg = value['message'];
+          serverMsg = utf8.decode(value.reasonPhrase!.codeUnits);
           update();
         }
         //user = UserModel.fromJson(value);

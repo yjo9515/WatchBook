@@ -1,8 +1,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -10,14 +8,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:qr_code_scanner/src/types/barcode.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/api/api_services.dart';
 import 'package:wisemonster/models/user_model.dart';
+import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view/widgets/QuitWidget.dart';
-import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
 import '../controller/SData.dart';
 import '../models/mqtt.dart';
 import 'package:encrypt/encrypt.dart' as en;
@@ -51,9 +46,11 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   bool trigger = false;
   //도어쪽
   bool isBle = true;
+  bool subtrigger = false;
   FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
   var scanResultList = [];
   List<BluetoothService> bluetoothService = [];
+  bool btn = false;
 
   Map<String, List<int>> notifyDatas = {};
 
@@ -75,77 +72,77 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
 
   void info() {
     chk();
-    api.getInfo().then((value)  async {
-      if (value['result'] == false) {
-        // Get.snackbar(
-        //   '알림',
-        //   value['message']
-        //   ,
-        //   duration: const Duration(seconds: 5),
-        //   backgroundColor: const Color.fromARGB(
-        //       255, 39, 161, 220),
-        //   icon: const Icon(Icons.info_outline, color: Colors.white),
-        //   forwardAnimationCurve: Curves.easeOutBack,
-        //   colorText: Colors.white,
-        // );
-        print(value['message']);
-        update();
-      } else {
-        Map<String, dynamic> userMap = value;
-        var user = UserModel.fromJson(userMap);
-        userName.value = user.personObj['name'].toString();
-
-        print('전달할 유저 이름 : ${userName}');
-        sharedPreferences = await SharedPreferences.getInstance();
-
-        sharedPreferences.setString('name', user.personObj['name'].toString());
-        sharedPreferences.setString('person_id', user.personObj['person_id'].toString());
-        sharedPreferences.setString('family_id', user.familyId.toString());
-        sharedPreferences.setString('family_person_id', user.familyPersonId.toString());
-        sharedPreferences.setString('nickname', user.personObj['nickname'].toString());
-        sharedPreferences.setString('pictureUrl', user.personObj['pictureUrl'].toString());
-        sharedPreferences.setString('product_sncode_id', user.product_sncode_id.toString());
-        sharedPreferences.setString('pcode', value['pcode']);
-        sharedPreferences.setString('scode', value['scode']);
-        sharedPreferences.setString('address', value['ble']['address']);
-        place = value['personObj']['place'];
-        update();
-        print(place);
-
-        String? pcode =  sharedPreferences.getString('pcode');
-        String? scode =  sharedPreferences.getString('scode');
-        print(pcode);
-        print(scode);
-        api.sendFcmToken('/GoogleFcmToken/saveAll').then((value)  async {
-          print(value);
-          if (value['result'] == true) {
-            print('fcm토큰 전송 성공');
-          }else{
-            print('fcm토큰 전송 실패');
-          }
-        });
-
-        if( user.product_sncode_id.toString() == '0'){
-          print('등록 실패 홈');
-          update();
-
-        }else if(user.product_sncode_id.toString() != '0'){
-
-          print('등록 성공 홈');
-          update();
-          String? scode =  sharedPreferences.getString('scode');
-          String topic = 'smartdoor/SMARTDOOR/${scode}'; // Not a wildcard topic
-
-          //client?.subscribe(topic, MqttQos.exactlyOnce);
-          // var builder = MqttClientPayloadBuilder();
-          // builder.addString('{"request":"isDoorOpen","topic":"smartdoor/SMARTDOOR/${sncode}/${familyid}/${personid}"}');
-          // client?.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
-        }
-        // push();
-      }
-    }
-
-    );
+    // api.getInfo().then((value)  async {
+    //   if (value['result'] == false) {
+    //     // Get.snackbar(
+    //     //   '알림',
+    //     //   value['message']
+    //     //   ,
+    //     //   duration: const Duration(seconds: 5),
+    //     //   backgroundColor: const Color.fromARGB(
+    //     //       255, 39, 161, 220),
+    //     //   icon: const Icon(Icons.info_outline, color: Colors.white),
+    //     //   forwardAnimationCurve: Curves.easeOutBack,
+    //     //   colorText: Colors.white,
+    //     // );
+    //     print(value['message']);
+    //     update();
+    //   } else {
+    //     Map<String, dynamic> userMap = value;
+    //     var user = UserModel.fromJson(userMap);
+    //     userName.value = user.personObj['name'].toString();
+    //
+    //     print('전달할 유저 이름 : ${userName}');
+    //     sharedPreferences = await SharedPreferences.getInstance();
+    //
+    //     sharedPreferences.setString('name', user.personObj['name'].toString());
+    //     sharedPreferences.setString('person_id', user.personObj['person_id'].toString());
+    //     sharedPreferences.setString('family_id', user.familyId.toString());
+    //     sharedPreferences.setString('family_person_id', user.familyPersonId.toString());
+    //     sharedPreferences.setString('nickname', user.personObj['nickname'].toString());
+    //     sharedPreferences.setString('pictureUrl', user.personObj['pictureUrl'].toString());
+    //     sharedPreferences.setString('product_sncode_id', user.product_sncode_id.toString());
+    //     sharedPreferences.setString('pcode', value['pcode']);
+    //     sharedPreferences.setString('scode', value['scode']);
+    //     sharedPreferences.setString('address', value['ble']['address']);
+    //     place = value['personObj']['place'];
+    //     update();
+    //     print(place);
+    //
+    //     String? pcode =  sharedPreferences.getString('pcode');
+    //     String? scode =  sharedPreferences.getString('scode');
+    //     print(pcode);
+    //     print(scode);
+    //     api.sendFcmToken('/GoogleFcmToken/saveAll').then((value)  async {
+    //       print(value);
+    //       if (value['result'] == true) {
+    //         print('fcm토큰 전송 성공');
+    //       }else{
+    //         print('fcm토큰 전송 실패');
+    //       }
+    //     });
+    //
+    //     if( user.product_sncode_id.toString() == '0'){
+    //       print('등록 실패 홈');
+    //       update();
+    //
+    //     }else if(user.product_sncode_id.toString() != '0'){
+    //
+    //       print('등록 성공 홈');
+    //       update();
+    //       String? scode =  sharedPreferences.getString('scode');
+    //       String topic = 'smartdoor/SMARTDOOR/${scode}'; // Not a wildcard topic
+    //
+    //       //client?.subscribe(topic, MqttQos.exactlyOnce);
+    //       // var builder = MqttClientPayloadBuilder();
+    //       // builder.addString('{"request":"isDoorOpen","topic":"smartdoor/SMARTDOOR/${sncode}/${familyid}/${personid}"}');
+    //       // client?.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
+    //     }
+    //     // push();
+    //   }
+    // }
+    //
+    // );
   }
 
 
@@ -216,9 +213,11 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   }
 
   scan() async {
-    doorRequest = '';
-    print('scan 변수 ${doorRequest}');
+    btn = true;
     update();
+    // doorRequest = '';
+    // print('scan 변수 ${doorRequest}');
+    // update();
     print(await flutterBlue.isOn);
     // Get.dialog(
     //     barrierDismissible: false,
@@ -323,7 +322,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
                           print('Service descriptors: ${services[2].characteristics[1].descriptors}');
                           isCom = false;
                           print(services[2].characteristics[1].deviceId);
-                          print('주소 값 : ${sharedPreferences.getString('address')}');
+                          // print('주소 값 : ${sharedPreferences.getString('address')}');
                           if(!services[2].characteristics[1].isNotifying) {
                             try {
                               await services[2].characteristics[1].setNotifyValue(true);
@@ -334,8 +333,8 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
                                 // 데이터 읽기 처리!
                                 if (services[2].characteristics[1].uuid.toString() ==
                                     '48400003-b5a3-f393-e0a9-e50e24dcca9e'
-                                && sharedPreferences.getString('address') ==
-                                    services[2].characteristics[1].deviceId.toString()
+                                // && sharedPreferences.getString('address') ==
+                                //     services[2].characteristics[1].deviceId.toString()
                                 ) {
                                   print('같음');
 
@@ -382,6 +381,8 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
                                         isAuth = false;
                                         isCom = true;
                                         subscription?.cancel();
+                                        btn = false;
+                                        update();
                                       } else if (com[3] == 0 && com[2] == 0xA1) {
                                         Get.back();
                                         Get.dialog(QuitWidget(serverMsg: '문이 열렸습니다.'));
@@ -389,6 +390,8 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
                                         isAuth = false;
                                         isCom = true;
                                         subscription?.cancel();
+                                        btn = false;
+                                        update();
                                       }
 
                                       // else {
@@ -472,18 +475,18 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
     }
     late List<int> Data;
     late List<int> open ;
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    String? scode =  sharedPreferences.getString('scode');
-    List<String>? spl = scode?.split('-');
-    var fst = int.parse(spl![0]);
-    assert(fst is int);
-    var scd = int.parse(spl![1]);
-    assert(scd is int);
-    print(fst);
-    print(scd);
-    print(fst+scd);
-    int sum2 =fst+scd;
-    List<String> split = sum2.toString().split('');
+    // SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    // String? scode =  sharedPreferences.getString('scode');
+    // List<String>? spl = scode?.split('-');
+    // var fst = int.parse(spl![0]);
+    // assert(fst is int);
+    // var scd = int.parse(spl![1]);
+    // assert(scd is int);
+    // print(fst);
+    // print(scd);
+    // print(fst+scd);
+    // int sum2 =fst+scd;
+    // List<String> split = sum2.toString().split('');
     if(appkey != null){
        Data = [
         for(int i in Date)
@@ -739,40 +742,60 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   }
 
   publish(){
-      if(mqtt.client?.connectionStatus?.state == MqttConnectionState.disconnected){
+    print('mqtt 상태값 : ${mqtt.client?.connectionStatus?.state}');
+      if(mqtt.client?.connectionStatus?.state == MqttConnectionState.disconnected || mqtt.client?.connectionStatus?.state == null){
         mqtt.connect();
         print('커넥실패');
       }
 
-      api.doorControl('/ProductSncode/doorlockAppOpenProcess').then((val){
-        if (val['result'] == false) {
-          Get.dialog(QuitWidget(serverMsg: val['message'],));
-        }else{
+      api.post(null,'/Smartdoor/doorOpenProcess').then((val){
+        if(val.statusCode == 200) {
           print('mqtt로 문열기');
           var i = 0;
-            print('시작');
-            Timer.periodic(Duration(seconds: 1), (timer) {
-              print(i);
-              print(trigger);
-              if(trigger == true){
-                print('mqtt 연결 성공ㅐ');
-                trigger= false;
-                timer.cancel();
-                refresh();
-              }else if (trigger == false && i == 15){
-                print('mqtt 연결 실패ㅐ');
-                Get.back();
-                door = '-2';
-                Get.dialog(QuitWidget(serverMsg: '시간이 초과되었습니다 다시 시도해주세요.',));
-                timer.cancel();
-                refresh();
-              }
-              i++;
-            });
+          print('시작');
+          Timer.periodic(Duration(seconds: 1), (timer) {
+            print(i);
+            print(trigger);
+            if(trigger == true){
+              print('mqtt 연결 성공ㅐ');
+              trigger= false;
+              timer.cancel();
+              btn = false;
+              update();
+            }else if (trigger == false && i == 20){
+              print('mqtt 연결 실패ㅐ');
+              Get.back();
+              door = '-2';
+              Get.dialog(QuitWidget(serverMsg: '시간이 초과되었습니다 다시 시도해주세요.',));
+              timer.cancel();
+              btn = false;
+              update();
+            }
+            i++;
+          });
+        }else if(val.statusCode == 401) {
+          btn = false;
+          update();
+          Get.offAll(login_view());
+          Get.snackbar(
+            '알림',
+            utf8.decode(val.reasonPhrase!.codeUnits)
+            ,
+            duration: Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+
+        } else {
+          Get.dialog(QuitWidget(serverMsg: utf8.decode(val.reasonPhrase!.codeUnits),));
+          btn = false;
+          update();
         }
       }
       );
-
   }
 
   push(){
@@ -818,6 +841,7 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
       print('도어값 변경 : 닫힘');
       update();
     }
+
   }
 
 
@@ -839,146 +863,147 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
   }
 
   requestDoorRead(){
-
-    // event2.value = 0;
-    // trigger = false;
-    doorRequest = '';
-    Mqtt mqtt = new Mqtt();
-    mqtt.connect();
-    api.requestDoorRead('/ProductSncode/getDataByJson').then((val){
-      print('문여부값');
-      print(val['isDoorOpen']);
-      print(val);
-      // if (val['isDoorOpen'] == 1) {
-      //   sharedPreferences.setString('door', '1');
-      //   door = '1';
-      //   update();
-      // }else if (val['isDoorOpen'] == 0){
-      //   sharedPreferences.setString('door', '0');
-      //   door = '0';
-      //   update();
-      // }else{
-      //   door = '-1';
-      //   update();
-      // }
-      if(val['isDoorOpen'] == -1){
-        door = '-1';
-        update();
-        // Get.dialog(
-        //     barrierDismissible: false,
-        //     WillPopScope(
-        //       onWillPop: () async => false ,
-        //       child: Center(
-        //         child:
-        //         Container(
-        //             child:
-        //             Column(
-        //               mainAxisAlignment: MainAxisAlignment.center,
-        //               children:
-        //               [
-        //                 Material(
-        //                   type: MaterialType.transparency,
-        //                   child:
-        //                   Obx(() =>  Text(
-        //                     '문상태 조회중입니다.. \n ${event2.toString()}/15초',
-        //                     style: TextStyle(
-        //                         color: Colors.white,
-        //                         fontSize: 15
-        //                     ),
-        //                   ))
-        //                   ,),
-        //                 Container(height: 10,),
-        //                 CircularProgressIndicator()
-        //                 //   ,TextButton(onPressed: (){Get.back();}, child: Text('뒤로가기',
-        //                 //   style: TextStyle(
-        //                 //       color: Colors.white,
-        //                 //       fontSize: 15
-        //                 //   ),
-        //                 // ))
-        //               ],))
-        //         ,),
-        //     )
-        // );
-
-        print('시작');
-        Timer.periodic(Duration(seconds: 1), (timer) {
-          print(event2.value);
-          print(trigger);
-          if(trigger == true){
-            event2.value = 0;
-            trigger= false;
-            print('mqtt 연결 성공ㅐ');
-            Get.back();
-            timer.cancel();
-          }else if (trigger == false && event2.value == 15){
-            print('mqtt 연결 실패ㅐ');
-            event2.value = 0;
-            door = '-2';
-            print(door);
-            update();
-            Get.back();
-            Get.dialog(
-                barrierDismissible: false,
-                AlertDialog(
-                  // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-                  //Dialog Main Title
-                  title: Container(
-                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [Text("알림")],
-                    ),
-                  ),
-                  //
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        '스마트도어에 연결할 수 없습니다.\n 다시 연결 시도할까요?',
-                      )
-                    ],
-                  ),
-                  actions: <Widget>[
-                    TextButton(
-                      child: const Text("확인"),
-                      onPressed: () {
-                        Get.back();
-                        requestDoorRead();
-                      },
-                    ),
-                    TextButton(
-                      child: const Text("취소"),
-                      onPressed: () {
-                        Get.back();
-                        door = '-2';
-                        update();
-                      },
-                    ),
-                  ],
-                )
-            );
-            timer.cancel();
-          }
-          event2.value++;
-        });
-      }else
-        if (val['isDoorOpen'] == 1) {
-          door = '1';
-          update();
-        }else if (val['isDoorOpen'] == 0){
-          door = '0';
-          update();
-         }else{
-          door = '-2';
-          Get.dialog(QuitWidget(
-            serverMsg: '서버에서 에러가 발생했습니다. \n 앱을 다시 실행해주세요.',
-          ));
-          update();
+  //
+  //   // event2.value = 0;
+  //   // trigger = false;
+  //   doorRequest = '';
+    /*if(this.isClosed == false){
+      Mqtt mqtt = new Mqtt();
+      mqtt.connect();
+    }*/
+  //   api.requestDoorRead('/ProductSncode/getDataByJson').then((val){
+  //     print('문여부값');
+  //     print(val['isDoorOpen']);
+  //     print(val);
+  //     // if (val['isDoorOpen'] == 1) {
+  //     //   sharedPreferences.setString('door', '1');
+  //     //   door = '1';
+  //     //   update();
+  //     // }else if (val['isDoorOpen'] == 0){
+  //     //   sharedPreferences.setString('door', '0');
+  //     //   door = '0';
+  //     //   update();
+  //     // }else{
+  //     //   door = '-1';
+  //     //   update();
+  //     // }
+  //     if(val['isDoorOpen'] == -1){
+  //       door = '-1';
+  //       update();
+  //       print('시작');
+  //       Timer.periodic(Duration(seconds: 1), (timer) {
+  //         print(event2.value);
+  //         print(trigger);
+  //         if(trigger == true){
+  //           event2.value = 0;
+  //           trigger= false;
+  //           print('mqtt 연결 성공ㅐ');
+  //           Get.back();
+  //           timer.cancel();
+  //         }else if (trigger == false && event2.value == 15){
+  //           print('mqtt 연결 실패ㅐ');
+  //           event2.value = 0;
+  //           door = '-2';
+  //           print(door);
+  //           update();
+  //           Get.back();
+  //           Get.dialog(
+  //               barrierDismissible: false,
+  //               AlertDialog(
+  //                 // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+  //                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+  //                 //Dialog Main Title
+  //                 title: Container(
+  //                   margin: const EdgeInsets.fromLTRB(0, 0, 0, 20),
+  //                   child: Row(
+  //                     mainAxisAlignment: MainAxisAlignment.center,
+  //                     children: const [Text("알림")],
+  //                   ),
+  //                 ),
+  //                 //
+  //                 content: Column(
+  //                   mainAxisSize: MainAxisSize.min,
+  //                   mainAxisAlignment: MainAxisAlignment.end,
+  //                   crossAxisAlignment: CrossAxisAlignment.center,
+  //                   children: <Widget>[
+  //                     Text(
+  //                       '스마트도어에 연결할 수 없습니다.\n 다시 연결 시도할까요?',
+  //                     )
+  //                   ],
+  //                 ),
+  //                 actions: <Widget>[
+  //                   TextButton(
+  //                     child: const Text("확인"),
+  //                     onPressed: () {
+  //                       Get.back();
+  //                       requestDoorRead();
+  //                     },
+  //                   ),
+  //                   TextButton(
+  //                     child: const Text("취소"),
+  //                     onPressed: () {
+  //                       Get.back();
+  //                       door = '-2';
+  //                       update();
+  //                     },
+  //                   ),
+  //                 ],
+  //               )
+  //           );
+  //           timer.cancel();
+  //         }
+  //         event2.value++;
+  //       });
+  //     }else
+  //       if (val['isDoorOpen'] == 1) {
+  //         door = '1';
+  //         update();
+  //       }else if (val['isDoorOpen'] == 0){
+  //         door = '0';
+  //         update();
+  //        }else{
+  //         door = '-2';
+  //         Get.dialog(QuitWidget(
+  //           serverMsg: '서버에서 에러가 발생했습니다. \n 앱을 다시 실행해주세요.',
+  //         ));
+  //         update();
+  //       }
+  //
+  //   });
+    api.get('/Smartdoor/me').then((value) {
+      if(value.statusCode == 200) {
+        print('문상태 : ${json.decode(value.body)['isDoorOpen']}');
+        if(json.decode(value.body)['isDoorOpen'] == 1){
+          updatedoor('true');
+        }else if(json.decode(value.body)['isDoorOpen'] == 0){
+          updatedoor('false');
         }
-
+      } else if(value.statusCode == 401) {
+        Get.offAll(login_view());
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }
     });
   }
 
@@ -1006,7 +1031,6 @@ class HomeViewModel extends FullLifeCycleController with FullLifeCycleMixin{
     //mqtt.client?.disconnect();
     // flutterBlue.turnOff();
     // scanResultList[0].device.disconnect();
-    update();
     print('메인종료');
     super.onClose();
 

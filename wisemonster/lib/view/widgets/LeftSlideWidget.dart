@@ -24,7 +24,7 @@ class LeftSlideWidget extends StatelessWidget {
   String pictureUrl = '';
   final home = Get.put(HomeViewModel());
   final login = Get.put(LoginViewModel());
-
+  final con = Get.put(ProfileController());
 
   getName() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -86,19 +86,19 @@ class LeftSlideWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         IconButton(
+                          onPressed: () => Get.offAll(profile_view()),
+                          color: Color.fromARGB(255, 18, 136, 248),
+                          icon: Icon(
+                            Icons.edit,
+                            size: 25,
+                          ),
+                        ),
+                        IconButton(
                           onPressed: () => Get.back(),
                           color: Color.fromARGB(255, 18, 136, 248),
                           icon: Icon(
                             Icons.arrow_back_ios_new_outlined,
                             size: 20,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () => Get.offAll(home_view()),
-                          color: Color.fromARGB(255, 18, 136, 248),
-                          icon: Icon(
-                            Icons.home_outlined,
-                            size: 25,
                           ),
                         )
                       ],
@@ -123,7 +123,7 @@ class LeftSlideWidget extends StatelessWidget {
                                   if (snapshot.hasData) {
                                     return CircleAvatar(
                                         backgroundImage: Image
-                                            .network('https://www.smartdoor.watchbook.tv${pictureUrl}')
+                                            .network('http://api.hizib.watchbook.tv${pictureUrl}')
                                             .image
                                     );
                                   } else {
@@ -140,7 +140,7 @@ class LeftSlideWidget extends StatelessWidget {
                             FutureBuilder(
                                 future: getName(),
                                 builder: (context, snapshot) {
-                                  if (snapshot.data != null) {
+                                  if (snapshot.data != null && snapshot.data != '') {
                                     return
                                       Text('${snapshot.data} 님',
                                         style: TextStyle(
@@ -160,127 +160,51 @@ class LeftSlideWidget extends StatelessWidget {
                             ],
                           ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Get.to(notice_view());
-                              print('공지');
-                            },
-                            style: TextButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                            child: Text(
-                              '공지사항',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 18, 136, 248),
-                              ),
-                            ),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('준비물 목록',
+                          style: TextStyle(
+                              color: Color.fromARGB(255, 161, 161, 161),
+                              fontSize: 18
                           ),
-                          TextButton(
-                            onPressed: () {
-                              Get.to(calendar_view());
-                              print('캘린더');
+                        ),
+                        Container(
+                          height: 10,
+                        ),
+                        Container(
+                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width - 40,
+                          height: 30,
+                          child: new ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount:
+                            con.listData['lists']?.length == null ? 0 : con.listData['lists']?.length
+                            ,
+                            itemBuilder: (BuildContext context, int index) {
+                              return new Card(
+                                margin: EdgeInsets.fromLTRB(0, 1, 10, 1),
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                child:
+                                // new Text(ProfileController.Tagdata![1]),
+                                new Padding(
+                                  padding: EdgeInsets.all(7),
+                                  child: Center(
+                                    child: Text('${con.listData['lists'][index]['name']}',
+                                      style: TextStyle(
+                                          color: Color.fromARGB(255, 161, 161, 161)
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
                             },
-                            style: TextButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                            child: Text(
-                              '캘린더',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 18, 136, 248),
-                              ),
-                            ),
                           ),
-                          TextButton(
-                            onPressed: () {
-                              // Get.to(key_view());
-                              Get.to(addkey_view());
-                            },
-                            style: TextButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                            child: Text(
-                              '게스트 키',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 18, 136, 248),
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Get.to(entrance_view());
-                            },
-                            style: TextButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                            child: Text(
-                              '출입기록',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 18, 136, 248),
-                              ),
-                            ),
-                          ),
-                  TextButton(
-                    onPressed: () {
-                      Get.to(video_view());
-                    },
-                    style: TextButton.styleFrom(
-                        padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                        backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                    child: Text(
-                      '녹화기록',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color.fromARGB(255, 18, 136, 248),
-                      ),
+                        )
+                      ],
                     ),
                   ),
-                          // TextButton(
-                          //   onPressed: () {},
-                          //   style: TextButton.styleFrom(
-                          //       padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                          //       backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                          //   child: Text(
-                          //     '구성원',
-                          //     style: TextStyle(
-                          //       fontSize: 14,
-                          //       color: Color.fromARGB(255, 18, 136, 248),
-                          //     ),
-                          //   ),
-                          // ),
-                          TextButton(
-                            onPressed: () {
-                              Get.to(()=>profile_view());
-                            },
-                            style: TextButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                            child: Text(
-                              '내 프로필',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 18, 136, 248),
-                              ),
-                            ),
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              Get.to(config_view());
-                            },
-                            style: TextButton.styleFrom(
-                                padding: EdgeInsets.fromLTRB(0, 22, 0, 22),
-                                backgroundColor: Color.fromARGB(255, 255, 255, 255)),
-                            child: Text(
-                              '설정',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Color.fromARGB(255, 18, 136, 248),
-                              ),
-                            ),
-                          ),
                         ],
                       )),
                   TextButton(

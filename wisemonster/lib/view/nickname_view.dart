@@ -41,16 +41,13 @@ class nickname_view extends GetView<ProfileController> {
                   ),
                 ),
                 body: Container(
-                  width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
-                  height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 20,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                          padding: const EdgeInsets.fromLTRB(16, 114, 16, 16),
-                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
-                          //인풋박스 터치시 키보드 안나오는 에러 수정(원인 : 미디어쿼리)
-                          height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 140,
+                          padding: EdgeInsets.fromLTRB(16, 40, 16, 0),
+                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width - 32,
+                          height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 186,
                           color: Colors.white,
                           child: SingleChildScrollView(
                               child: Column(children: [

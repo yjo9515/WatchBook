@@ -92,8 +92,8 @@ class notice_view extends GetView<NoticeController> {
                       child: ListView.builder(
 
                         itemCount:
-                        controller.listData == null ? 0 :
-                        controller.listData?.length
+                        controller.listData['lists'].length == 0 ? 0 :
+                        controller.listData['lists'].length
                         ,
                         itemBuilder: (BuildContext context, int index) {
                           return Card(
@@ -113,7 +113,8 @@ class notice_view extends GetView<NoticeController> {
                                 onTap: (){
                                   print(controller.listData[index]['title']);
                                   print(index);
-                                  Get.to(notice_edit_view(),arguments: index);
+                                  print('kkkkkkkkk');
+                                  Get.to(notice_edit_view(),arguments: index-1);
                                 },
                               )
                           );

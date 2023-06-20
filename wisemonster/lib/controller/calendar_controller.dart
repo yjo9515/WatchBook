@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:wisemonster/view/calendar_view.dart';
+import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view_model/home_view_model.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 
@@ -17,15 +18,13 @@ import 'package:intl/intl.dart';
 class CalendarController extends GetxController{
   ApiServices api = ApiServices();
 
+  bool isclear = false;
+
   String readurl = '/FamilySchedule/getList'; //리스트 값 얻을 서버 url 입력
-  List detailData = [];
-  var titleController = TextEditingController();
-  var startController = TextEditingController();
-  var endController = TextEditingController();
-  var startTimeController = TextEditingController();
-  var endTimeController = TextEditingController();
-  var placeController = TextEditingController();
-  var valueController = TextEditingController();
+  var detailData;
+  var noticeData;
+  var nameController = TextEditingController();
+  var ddayController = TextEditingController();
 
   var home = Get.put(HomeViewModel());
 
@@ -46,7 +45,12 @@ class CalendarController extends GetxController{
   var selectValue = '상';
 
   int index = 0;
-  Mqtt mqtt = new Mqtt();
+  // Mqtt mqtt = new Mqtt();
+
+  Map<DateTime, List<Event>> events = {
+
+  };
+
   //중요도
   @override
   void onInit() async{
@@ -62,24 +66,84 @@ class CalendarController extends GetxController{
 
   @override
   void onClose() {
-    startController.clear();
-    startController.dispose();
+    ddayController.clear();
+    ddayController.dispose();
 
     super.onClose();
   }
 
   readToday(){
-    api.requestDateRead('/FamilySchedule/getListAtMonth',DateFormat('yyyy-MM-dd').format(DateTime.now())).then((value) async {
-      // if (value['result'] == false) {
-      //   SnackBarWidget(serverMsg: '리스트를 불러올 수 없습니다',);
-      // } else {
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      sharedPreferences.setString('family_schedule_id', value[index]['family_schedule_id']);
-      detailData = value;
-      // json.decode(value).cast<Map<String, dynamic>>().toList();
-      print(detailData);
-      update();
-      // }
+    api.get('/SmartdoorSchedule/lists?startDate=${DateFormat('yyyy-MM-dd').format(DateTime(DateTime.now().year, DateTime.now().month, 1))
+    }&stopDate=${DateFormat('yyyy-MM-dd').format(DateTime(DateTime.now().year, DateTime.now().month+1, 0)
+    )}').then((value) {
+      if(value.statusCode == 200) {
+        detailData = json.decode(value.body);
+
+        for(int i = 0; i < json.decode(value.body)['lists'].length; i++){
+          events.addAll({DateTime.utc(DateTime.parse(json.decode(value.body)['lists'][i]['dday']).year,DateTime.parse(json.decode(value.body)['lists'][i]['dday']).month,DateTime.parse(json.decode(value.body)['lists'][i]['dday']).day)  : [
+            Event('${json.decode(value.body)['lists'][i]['name']}')
+          ]});
+        };
+        print('달력업데이트');
+        update();
+        api.get('/SmartdoorNotice/lists').then((value) {
+          if(value.statusCode == 200) {
+            isclear = true;
+            noticeData = json.decode(value.body);
+            update();
+          } else if(value.statusCode == 401) {
+            Get.offAll(login_view());
+            Get.snackbar(
+              '알림',
+              utf8.decode(value.reasonPhrase!.codeUnits)
+              ,
+              duration: Duration(seconds: 5),
+              backgroundColor: const Color.fromARGB(
+                  255, 39, 161, 220),
+              icon: Icon(Icons.info_outline, color: Colors.white),
+              forwardAnimationCurve: Curves.easeOutBack,
+              colorText: Colors.white,
+            );
+          } else {
+            Get.snackbar(
+              '알림',
+              utf8.decode(value.reasonPhrase!.codeUnits)
+              ,
+              duration: Duration(seconds: 5),
+              backgroundColor: const Color.fromARGB(
+                  255, 39, 161, 220),
+              icon: Icon(Icons.info_outline, color: Colors.white),
+              forwardAnimationCurve: Curves.easeOutBack,
+              colorText: Colors.white,
+            );
+          }
+        });
+      } else if(value.statusCode == 401) {
+        Get.offAll(login_view());
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }
     });
   }
 
@@ -96,40 +160,37 @@ class CalendarController extends GetxController{
   selected(selectedDay2, focusedDay2){
     this.selectedDay.value = selectedDay2;
     this.focusedDay.value = focusedDay2;
-    print('날바뀜');
-    print(selectedDay2);
-    api.requestDateRead('/FamilySchedule/getListAtMonth',DateFormat('yyyy-MM-dd').format(selectedDay2)).then((value) async {
-      // if (value['result'] == false) {
-      //   SnackBarWidget(serverMsg: '리스트를 불러올 수 없습니다',);
-      // } else {
-      if(value.length > 0 && value[index]['family_schedule_id'] != null){
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      sharedPreferences.setString('family_schedule_id', value[index]['family_schedule_id']);
-      }
-      detailData = value;
-          // json.decode(value).cast<Map<String, dynamic>>().toList();
-
-      print(detailData);
-      update();
-      // }
-    });
-    update();
+    // print('날바뀜');
+    // print(selectedDay2);
+    // api.get('/SmartdoorSchedule/lists').then((value) {
+    //   detailData = value;
+    //   update();
+    // });
+    //
+    // api.get('/SmartdoorSchedule/lists?startDate=${DateFormat('yyyy-MM-dd').format(DateTime.now())}').then((value) {
+    //   detailData = value;
+    //   isclear = true;
+    //   update();
+    // });
+    // api.requestDateRead('/FamilySchedule/getListAtMonth',DateFormat('yyyy-MM-dd').format(selectedDay2)).then((value) async {
+    //   // if (value['result'] == false) {
+    //   //   SnackBarWidget(serverMsg: '리스트를 불러올 수 없습니다',);
+    //   // } else {
+    //   if(value.length > 0 && value[index]['family_schedule_id'] != null){
+    //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    //   sharedPreferences.setString('family_schedule_id', value[index]['family_schedule_id']);
+    //   }
+    //   detailData = value;
+    //       // json.decode(value).cast<Map<String, dynamic>>().toList();
+    //
+    //   print(detailData);
+    //   update();
+    //   // }
+    // });
+    // update();
   }
 
   focus(focusedDay) {
-    this.focusedDay = focusedDay;
-    api.requestDateRead('/FamilySchedule/getListAtMonth',DateFormat('yyyy-MM-dd').format(focusedDay)).then((value) async {
-    // if (value['result'] == false) {
-    //   SnackBarWidget(serverMsg: '리스트를 불러올 수 없습니다',);
-    // } else {
-      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-      sharedPreferences.setString('family_schedule_id', value[index]['family_schedule_id']);
-    detailData = value;
-        // json.decode(value).cast<Map<String, dynamic>>().toList();
-    print(detailData);
-    // }
-    });
-    update();
   }
 
   formatDate(){
@@ -140,52 +201,17 @@ class CalendarController extends GetxController{
     selectValue = value;
     update();
   }
-
-
-  //마커 로드
-  // List<Event> roadEvent(DateTime day){
-  //
-  //   //
-  //   // // Map<DateTime, List<dynamic>> events = {
-  //   // //     DateTime.utc(
-  //   // //       int.parse(k[0].toString()) ,int.parse(k[1].toString()),int.parse(k[2].toString())
-  //   // // ):e
-  //   // // };
-  //   // Map<DateTime, List> events = {
-  //   //   DateTime.utc(2022,11,13) : [  ],
-  //   //   DateTime.utc(2022,11,14) : [ ],
-  //   // };
-  //   // print(events);
-  //   // update();
-  //
-  //   Map<List<Event>,DateTime> list = {[Event('day')]: DateTime.now()};
-  //   for(int i in detailData) {
-  //     var start = detailData[i]['startDate'];
-  //     var end = detailData[i]['endDate'];
-  //     int length = DateTime
-  //         .parse(start)
-  //         .difference(DateTime.parse(end))
-  //         .inDays;
-  //     print(i);
-  //     list[[Event('day')]] = DateTime.parse(start);
-  //     start.add(Duration(days: 1));
-  //   }
-  //   return list[day] ?? [];
-  // }
-
+  List<Event> roadEvent(DateTime day){
+    print(events[day]);
+    return events[day] ?? [];
+  }
   // 날짜 선택
   selectDate(type) {
     if(pickedStartDate != null && type == 0){
       print(pickedStartDate);
       String formattedDate = DateFormat('yyyy년 MM월 dd일').format(pickedStartDate!);
       print(formattedDate);
-      startController.text = formattedDate; //set output date to TextField value.
-        update();
-    }else if(pickedEndDate != null && type == 1 ){
-      print(pickedEndDate);
-      String formattedDate = DateFormat('yyyy년 MM월 dd일').format(pickedEndDate!);
-      print(formattedDate);
-      endController.text = formattedDate; //set output date to TextField value.
+      ddayController.text = formattedDate; //set output date to TextField value.
       update();
     }else{
       SnackBarWidget(serverMsg: '날자가 선택되지 않았습니다.',);
@@ -193,36 +219,17 @@ class CalendarController extends GetxController{
     }
   }
 
-  selectTime(type,timeOfDay) {
-    if(type == 0){
-      startTimeController.text = '${timeOfDay.hour.toString()}시 ${timeOfDay.minute.toString()}분';
-      pickedStartDate=DateTime.utc(pickedStartDate!.year, pickedStartDate!.month, pickedStartDate!.day,
-          timeOfDay.hour,timeOfDay.minute,0,0
-      );
-      print(pickedStartDate);
-    }else{
-      endTimeController.text = '${timeOfDay.hour.toString()}시 ${timeOfDay.minute.toString()}분';
-      pickedEndDate=DateTime.utc(pickedEndDate!.year, pickedEndDate!.month, pickedEndDate!.day,
-          timeOfDay.hour,timeOfDay.minute,0,0
-      );
-      print('${pickedEndDate}: 포맷팅');
-      print(DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedEndDate!));
-    }
-    update();
-  }
-
-  sendSchedule(argument){
-      if(titleController.text != null&&pickedStartDate.isBlank != null && pickedEndDate != null && selectValue != null
-      &&placeController.text != null && comment != null
+  sendSchedule(argument) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    
+      if(nameController.text != null&&ddayController.isBlank != null
       ){
-
-        api.requestSchedule('/FamilySchedule/joinProcess',
-            titleController.text.trim(),
-            DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedStartDate!),
-            DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedEndDate!),
-            selectValue,
-            placeController.text.trim(),
-            comment,argument).then((value) {
+        if(pickedStartDate == null){
+         print(detailData['lists'][argument]['dday']);
+         pickedStartDate = DateTime.parse(detailData['lists'][argument]['dday']);
+         print(pickedStartDate);
+        }
+        api.post(json.encode({'smartdoor_id': sharedPreferences.getString('smartdoor_id'),'name':nameController.text.trim(),'dday':DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedStartDate!)}), '/SmartdoorSchedule').then((value) {
           if (value['result'] == false) {
             Get.snackbar(
               '알림',
@@ -236,17 +243,8 @@ class CalendarController extends GetxController{
               colorText: Colors.white,
             );
           } else {
-            refreshDoorUi();
-            api.requestDateRead('/FamilySchedule/getListAtMonth',DateFormat('yyyy-MM-dd').format(DateTime.now())).then((value) {
-              // if (value['result'] == false) {
-              //   SnackBarWidget(serverMsg: '리스트를 불러올 수 없습니다',);
-              // } else {
-              detailData = value;
-              // = json.decode(value).cast<Map<String, dynamic>>().toList();
-              print(detailData);
-              update();
-              // }
-            });
+            // refreshDoorUi();
+            readToday();
             Get.offAll(calendar_view());
             Get.snackbar(
               '알림',
@@ -261,21 +259,75 @@ class CalendarController extends GetxController{
             );
           }
         });
-      } else { Get.snackbar(
-        '알림',
-        '미완료된 설정이 있습니다. 전부 설정해주세요.'
-        ,
-        duration: Duration(seconds: 5),
-        backgroundColor: const Color.fromARGB(
-            255, 39, 161, 220),
-        icon: Icon(Icons.info_outline, color: Colors.white),
-        forwardAnimationCurve: Curves.easeOutBack,
-        colorText: Colors.white,
-      );
+            } else { Get.snackbar(
+              '알림',
+              '미완료된 설정이 있습니다. 전부 설정해주세요.'
+              ,
+              duration: Duration(seconds: 5),
+              backgroundColor: const Color.fromARGB(
+                  255, 39, 161, 220),
+              icon: Icon(Icons.info_outline, color: Colors.white),
+              forwardAnimationCurve: Curves.easeOutBack,
+              colorText: Colors.white,
+            );
+        }
   }
 
+  editSchedule(argument) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
+    if(nameController.text != null&&ddayController.isBlank != null
+    ){
+      if(pickedStartDate == null){
+        print(ddayController.text);
+        pickedStartDate = DateTime.parse(detailData['lists'][argument]['dday']);
+        print(pickedStartDate);
+      }
+      api.put(json.encode({'smartdoor_id': sharedPreferences.getString('smartdoor_id'),'name':nameController.text.trim(),'dday':DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedStartDate!)}), '/SmartdoorSchedule').then((value) {
+        if (value['result'] == false) {
+          Get.snackbar(
+            '알림',
+            value['message']
+            ,
+            duration: Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        } else {
+          // refreshDoorUi();
+          readToday();
+          // Get.offAll(calendar_view());
+          Get.back();
+          Get.snackbar(
+            '알림',
+            '완료되었습니다.'
+            ,
+            duration: Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        }
+      });
+    } else { Get.snackbar(
+      '알림',
+      '미완료된 설정이 있습니다. 전부 설정해주세요.'
+      ,
+      duration: Duration(seconds: 5),
+      backgroundColor: const Color.fromARGB(
+          255, 39, 161, 220),
+      icon: Icon(Icons.info_outline, color: Colors.white),
+      forwardAnimationCurve: Curves.easeOutBack,
+      colorText: Colors.white,
+    );
+    }
   }
+
   deleteSchedule() {
     String familyScheduleId=detailData[index]['family_schedule_id'];
     print(familyScheduleId);
@@ -294,7 +346,7 @@ class CalendarController extends GetxController{
         );
       } else {
         Get.offAll(calendar_view());
-        refreshDoorUi();
+        // refreshDoorUi();
         api.requestDateRead('/FamilySchedule/getListAtMonth',DateFormat('yyyy-MM-dd').format(DateTime.now())).then((value) {
           // if (value['result'] == false) {
           //   SnackBarWidget(serverMsg: '리스트를 불러올 수 없습니다',);
@@ -327,17 +379,17 @@ class CalendarController extends GetxController{
  allUpdate(){
     update();
  }
- refreshDoorUi(){
-   if(mqtt.client?.connectionStatus?.state == MqttConnectionState.disconnected){
-     // home.connect();
-     print('커넥시도');
-   }
-   String? sncode =  home.sharedPreferences.getString('sncode');
-   String topic = 'smartdoor/SMARTDOOR/${sncode}';
-   var builder = MqttClientPayloadBuilder();
-   builder.addString('{"request":"refresh"}');
-   mqtt.client?.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
- }
+//  refreshDoorUi(){
+//    if(mqtt.client?.connectionStatus?.state == MqttConnectionState.disconnected){
+//      // home.connect();
+//      print('커넥시도');
+//    }
+//    String? sncode =  home.sharedPreferences.getString('sncode');
+//    String topic = 'smartdoor/SMARTDOOR/${sncode}';
+//    var builder = MqttClientPayloadBuilder();
+//    builder.addString('{"request":"refresh"}');
+//    mqtt.client?.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
+//  }
 }
 class Event {
   String title;

@@ -11,9 +11,10 @@ import 'package:wisemonster/view_model/home_view_model.dart';
 import 'dart:io' as i;
 
 import '../controller/camera_controller.dart';
+import '../controller/member_controller.dart';
 import '../controller/profile_controller.dart';
 
-class TagPlus_view extends GetView<ProfileController> {
+class MessagePlus_view extends GetView<MemberController> {
   // Build UI
   String userName = '';
 
@@ -28,9 +29,9 @@ class TagPlus_view extends GetView<ProfileController> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ProfileController>(
-      init: ProfileController(),
-      builder: (ProfileController) => MaterialApp(
+    return GetBuilder<MemberController>(
+      init: MemberController(),
+      builder: (MemberController) => MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             appBar: AppBar(
@@ -39,7 +40,7 @@ class TagPlus_view extends GetView<ProfileController> {
               backgroundColor: Color.fromARGB(255, 255, 255, 255),
               iconTheme: const IconThemeData(color: Color.fromARGB(255, 87, 132, 255)),
               title: Text(
-                '외출 소지품 등록',
+                '메세지 등록',
                 style: TextStyle(
                   fontSize: 20,
                   color: Color.fromARGB(255, 87, 132, 255),
@@ -67,49 +68,14 @@ class TagPlus_view extends GetView<ProfileController> {
                               children: [
                         Row(
                           children: [
-                            Expanded(flex: 60,child: TextFieldWidget(tcontroller: ProfileController.tagController, changeValue: ProfileController.tag, hintText: '')),
+                            Expanded(flex: 60,child: TextFieldWidget(tcontroller: MemberController.mesaagecontroller, changeValue: MemberController.massage, hintText: '')),
                             Container(width: 10,),
                             Expanded(flex: 25 ,child: ElevatedButton(onPressed: (){
-                              ProfileController.sendTag();
+                              MemberController.sendMessage(Get.arguments);
                             }, child: Text('추가')))
-
                           ],
                         ),
                         Container(height: 30,),
-                        Container(
-                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
-                          height: 50,
-                          child: new ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount:
-                            ProfileController.listData['lists']?.length
-                                ,
-                            itemBuilder: (BuildContext context, int index) {
-                              return new Card(
-                                margin: EdgeInsets.fromLTRB(0, 5, 10, 5),
-                                color: Color.fromARGB(255, 234, 234, 234),
-                                child:
-                                    // new Text(ProfileController.Tagdata![1]),
-                                    new TextButton.icon(
-                                    onPressed: (){
-                                    ProfileController.deleteTag(index);
-                                  },
-                                      icon: Icon(
-                                        Icons.cancel_outlined,
-                                        size: 18,
-                                        color: Colors.black,
-                                      ),
-                                      label:
-                                        Text('${ProfileController.listData['lists'][index]['name']}',
-                                            style: TextStyle(
-                                            color: Colors.black
-                                        )
-                                        ),
-                                      )
-                              );
-                            },
-                          ),
-                        )
                       ]))
                 )),
       ),

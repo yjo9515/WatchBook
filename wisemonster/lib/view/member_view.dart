@@ -2,13 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/view/addMember_view.dart';
+import 'package:wisemonster/view/member_edit_view.dart';
 import '../controller/member_controller.dart';
 import 'home_view.dart';
 
 class member_view extends GetView<MemberController>{
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GetBuilder<MemberController>(
+        init: MemberController(),
+    builder: (MemberController) => MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: Scaffold(
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Color.fromARGB(255, 255, 255, 255),
@@ -36,17 +41,33 @@ class member_view extends GetView<MemberController>{
               ))
         ],
       ),
-      body: Container(
+      body: MemberController.isclear == false ? Center(child: CircularProgressIndicator(),) :
+      Container(
         margin: EdgeInsets.fromLTRB(16, 40, 16, 0),
         width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width - 32,
         height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            MemberController.listData['lists'].length.toString() == '0' ?
+            Center(
+              child: Text(
+                '구성원이 존재하지 않습니다.\n 구성원을 초대해주세요.',
+                style: TextStyle(color: Colors.black),
+                textAlign: TextAlign.center,
+              ),
+            )
+                :
             Expanded(
-                child:ListView.builder(
+                child:
+                ListView.builder(
+                    itemCount:
+                    MemberController.listData['lists'].length == 0 ? 0 :
+                    MemberController.listData['lists']?.length
+                    ,
                     itemBuilder: (BuildContext context, int index){
-                      return Container(
+                      return
+                        Container(
                         padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                         decoration: BoxDecoration(
                             color: Colors.white,
@@ -67,7 +88,11 @@ class member_view extends GetView<MemberController>{
                             Container(
                                 width: 50,
                                 height: 50,
-                                child: Icon(Icons.pattern_sharp,
+                                child:MemberController.listData['lists'][index]['userObj']['picture']['url'] != null ?
+                                CircleAvatar(
+                                    backgroundImage: Image.network('http://api.hizib.watchbook.tv${MemberController.listData['lists'][index]['userObj']['picture']['url']}').image
+                                )
+                                :Icon(Icons.pattern_sharp,
                                     size: 32, color: Color.fromARGB(255, 255, 255, 255)),
                                 decoration: BoxDecoration(
                                     color: Color.fromARGB(255, 87, 132, 255),
@@ -77,7 +102,7 @@ class member_view extends GetView<MemberController>{
                             Expanded(
                                 flex: 35,
                                 child:Text(
-                                  '구성원',
+                                  MemberController.listData['lists'][index]['userObj']['name'],
                                   style: TextStyle(
                                     fontSize: 14,
 
@@ -94,7 +119,7 @@ class member_view extends GetView<MemberController>{
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       IconButton(onPressed: (){
-                                        // Get.to(() => );
+                                        Get.to(member_edit_view(), arguments: [index, MemberController.listData['lists'][index]['user_id']] );
                                       },
                                           icon:Image.asset(
                                             'images/icon/pencil.png',
@@ -103,15 +128,14 @@ class member_view extends GetView<MemberController>{
                                           )
                                       ),
                                       IconButton(onPressed: (){
-
+                                        print('삭제');
+                                        MemberController.deleteMember(index);
                                       },
                                           icon:Icon(Icons.cancel_outlined,
                                               size: 32, color: Color.fromARGB(255, 44, 95, 233))
-                                      )
-                                    ],
+                                      )],
                                   ),
-                                ))
-                            ,
+                                )),
                           ],
                         ),
                       );
@@ -121,7 +145,7 @@ class member_view extends GetView<MemberController>{
           ],
         ),
       ),
-    );
+    )));
   }
 
 }

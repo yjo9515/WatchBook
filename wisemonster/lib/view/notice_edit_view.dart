@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view/nickname_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
@@ -20,15 +21,17 @@ import '../controller/camera_controller.dart';
 import '../controller/notice_controller.dart';
 import '../controller/profile_controller.dart';
 import '../controller/notice_controller.dart';
+import 'calendar_view.dart';
 
-class notice_edit_view extends GetView<NoticeController> {
+class notice_edit_view extends GetView<EditController> {
   // Build UI
   String userName = '';
   ApiServices api = ApiServices();
-  var controller = Get.put(NoticeController());
   @override
   Widget build(BuildContext context) {
-    return Obx(() =>
+    return GetBuilder<EditController>(
+        init: EditController(),
+        builder: (EditController) =>
             MaterialApp(
               debugShowCheckedModeBanner: false,
               home: Scaffold(
@@ -56,7 +59,7 @@ class notice_edit_view extends GetView<NoticeController> {
                         children: [
                           TextButton(
                               onPressed: () {
-                                controller.deleteNotice(Get.arguments);
+                                EditController.deleteNotice();
                               },
                               child: Text(
                                 '삭제',
@@ -67,7 +70,7 @@ class notice_edit_view extends GetView<NoticeController> {
                               )),
                           TextButton(
                               onPressed: () {
-                                controller.sendNotice('edit',Get.arguments);
+                                EditController.editNotice();
                               },
                               child: Text(
                                 '완료',
@@ -79,7 +82,7 @@ class notice_edit_view extends GetView<NoticeController> {
                         ],
                       ),
                     ]),
-                body:controller.isclear.value? Container(
+                body:EditController.isclear ? Container(
                   padding: const EdgeInsets.fromLTRB(16, 40, 16, 16),
                   width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
                   //인풋박스 터치시 키보드 안나오는 에러 수정(원인 : 미디어쿼리)
@@ -94,11 +97,11 @@ class notice_edit_view extends GetView<NoticeController> {
                         size: 14,
                       ),
                       TextField(
-                          controller: controller.titleController, //set id controller
+                          controller: EditController.titleController, //set id controller
                           style: const TextStyle(
                               color: Color.fromARGB(255, 43, 43, 43), fontSize: 17),
                           decoration: InputDecoration(
-                            hintText: '${controller.listData[Get.arguments]['title']}',
+                            hintText: '${EditController.detailData['title']}',
                             hintStyle: TextStyle(
                                 fontSize: 17,
                                 color: Color.fromARGB(255, 222, 222, 222)
@@ -109,61 +112,163 @@ class notice_edit_view extends GetView<NoticeController> {
                           ),
                           onChanged: (value) {
                             //변화된 id값 감지
-                            controller.title = value;
+                            EditController.title = value;
 
-                          }),
-                      Container(
-                        height: 30,
-                      ),
-                      H1(
-                        changeValue: '글쓴이',
-                        size: 14,
-                      ),
-                      Container(
-                        height: 20,
-                      ),
-                      Text(controller.listData[Get.arguments]['familyObj']['personObj']['nickname'] ?? ''),
-                      Container(
-                        height: 30,
-                      ),
-                      H1(
-                        changeValue: '날짜',
-                        size: 14,
-                      ),
-                      Container(
-                        height: 20,
-                      ),
-                      Text(controller.listData[Get.arguments]['updateDate'] == null ? '' :DateFormat('yyyy년 MM월 dd일').format(DateTime.parse(controller.listData[Get.arguments]['updateDate']))),
-                      Container(
-                        height: 30,
-                      ),
-                      H1(
-                        changeValue: '내용',
-                        size: 14,
-                      ),
-                      Container(
-                        height: 20,
-                      ),
-                      TextField(
-                          controller: controller.commentController,
-                          maxLines: 7, //or null
-                          decoration: InputDecoration(
-                            hintText:
-                                 '${
-                                     controller.listData[Get.arguments]['comment'] ?? ''}',
-                            hintStyle: TextStyle(fontSize: 17, color: Color.fromARGB(255, 222, 222, 222)),
-                            enabledBorder:
-                                OutlineInputBorder(borderSide: BorderSide(color: Color.fromARGB(255, 43, 43, 43))),
-                          ),
-                          onChanged: (value) {
-                            //변화된 id값 감지
-                            controller.comment = value;
                           }),
                     ],
                   )),
                 ) : Center(child: CircularProgressIndicator(),),
               ),
-            )
-    );
+            ))
+    ;
+  }
+}
+class EditController extends GetxController{
+  ApiServices api = ApiServices();
+  var titleController = TextEditingController();
+  String title = '';
+  var con = Get.put(CalendarController());
+  bool isclear = false;
+  var detailData;
+
+  @override
+  void onInit() {
+    print('공지');
+    readNotice();
+    update();
+    super.onInit();
+  }
+
+  readNotice(){
+    print(Get.arguments);
+    api.get('/SmartdoorNotice/${Get.arguments}').then((value) {
+      if(value.statusCode == 200) {
+        isclear = true;
+        print(json.decode(value.body));
+        detailData = json.decode(value.body);
+        print('달력업데이트');
+        update();
+      } else if(value.statusCode == 401) {
+        Get.offAll(login_view());
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }
+    });
+  }
+
+  editNotice() {
+    api.put(json.encode({'title':titleController.text.trim()}), '/SmartdoorNotice/${Get.arguments}').then((value) async {
+      if(value.statusCode == 200) {
+        refresh();
+        titleController.clear();
+        Get.offAll(calendar_view());
+        con.readToday();
+        Get.snackbar(
+          '알림',
+          '수정되었습니다.'
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else if(value.statusCode == 401) {
+        Get.offAll(login_view());
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }
+    });
+  }
+
+  deleteNotice() {
+    api.delete('/SmartdoorNotice/${Get.arguments}').
+    then((value) {
+      if(value.statusCode == 200) {
+        Get.back();
+        con.readToday();
+        Get.snackbar(
+          '알림',
+          '삭제가 완료되었습니다.'
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else if(value.statusCode == 401) {
+        Get.offAll(login_view());
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }
+
+    });
+
   }
 }

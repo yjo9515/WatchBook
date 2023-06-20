@@ -1,37 +1,46 @@
 
+import 'dart:convert';
+
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wisemonster/api/api_services.dart';
 import 'package:wisemonster/view/home_view.dart';
+import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view/widgets/ContactListWidget.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
+import 'package:wisemonster/view/widgets/QuitWidget.dart';
+import 'package:wisemonster/view/widgets/SnackBarWidget.dart';
 import 'package:wisemonster/view/widgets/TextFieldWidget.dart';
 import 'package:wisemonster/view_model/home_view_model.dart';
 import 'package:wisemonster/view_model/key_view_model.dart';
 import 'package:wisemonster/view_model/newMem_view_model.dart';
 import '../controller/member_controller.dart';
+import 'key_view.dart';
 import 'widgets/LeftSlideWidget.dart';
 import 'dart:math';
 
-class addkey_view extends GetView<KeyViewModel> {
+class addkey_view extends GetView<PlusController> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<KeyViewModel>(
-        init: KeyViewModel(),
-        builder: (KeyViewModel) => Scaffold(
+    return GetBuilder<PlusController>(
+        init: PlusController(),
+        builder: (PlusController) => Scaffold(
             resizeToAvoidBottomInset : false,
               appBar: AppBar(
                 elevation: 0,
                 backgroundColor: Color.fromARGB(255, 255, 255, 255),
                 iconTheme: const IconThemeData(color: Color.fromARGB(255, 44, 95, 233)),
                 leading: IconButton(
-                  onPressed: () => Get.offAll(home_view()),
-                  color: Color.fromARGB(255, 0000000000000000000000000018, 136, 248),
+                  onPressed: () => Get.back(),
+                  color: Color.fromARGB(255, 44, 95, 233),
                   icon: Icon(
                     Icons.arrow_back_ios_new_outlined,
                     size: 20,
@@ -58,8 +67,8 @@ class addkey_view extends GetView<KeyViewModel> {
                           Expanded(
                               flex: 66,
                               child: TextFieldWidget(
-                                  tcontroller: KeyViewModel.phonecontroller,
-                                  changeValue: KeyViewModel.phone,
+                                  tcontroller: PlusController.phonecontroller,
+                                  changeValue: PlusController.phone,
                                   hintText: '휴대폰번호를 입력해주세요.')),
                           Container(width: 20,),
                           Expanded(
@@ -83,20 +92,20 @@ class addkey_view extends GetView<KeyViewModel> {
                               flex: 43,
                               child:
                               TextField(
-                                controller: KeyViewModel.startController, //editing controller of this TextField
+                                controller: PlusController.startController, //editing controller of this TextField
                                 decoration: InputDecoration(
                                     icon: Icon(Icons.calendar_month_outlined), //icon of text field
                                     labelText: "시작일" //label text of field
                                 ),
                                 readOnly: true, //set it true, so that user will not able to edit text
                                 onTap: () async {
-                                  KeyViewModel.pickedStartDate = (await showDatePicker(
+                                  PlusController.pickedStartDate = (await showDatePicker(
                                       initialEntryMode: DatePickerEntryMode.calendarOnly,
                                       context: context,
                                       initialDate: DateTime.now(),
                                       firstDate: DateTime(2000), //DateTime.now() - not to allow to choose before today.
                                       lastDate: DateTime(2101)))!;
-                                  KeyViewModel.selectDate(0);
+                                  PlusController.selectDate(0);
                                 },
                               ),
                             ),
@@ -110,20 +119,20 @@ class addkey_view extends GetView<KeyViewModel> {
                             Expanded(
                               flex: 43,
                               child: TextField(
-                                controller: KeyViewModel.endController, //editing controller of this TextField
+                                controller: PlusController.endController, //editing controller of this TextField
                                 decoration: InputDecoration(
                                     icon: Icon(Icons.calendar_month_outlined), //icon of text field
                                     labelText: "종료일" //label text of field
                                 ),
                                 readOnly: true, //set it true, so that user will not able to edit text
                                 onTap: () async {
-                                  KeyViewModel.pickedEndDate = (await showDatePicker(
+                                  PlusController.pickedEndDate = (await showDatePicker(
                                       initialEntryMode: DatePickerEntryMode.calendarOnly,
                                       context: context,
                                       initialDate: DateTime.now(),
                                       firstDate: DateTime(2000), //DateTime.now() - not to allow to choose before today.
                                       lastDate: DateTime(2101)))!;
-                                  KeyViewModel.selectDate(1);
+                                  PlusController.selectDate(1);
                                 },
                               ),
                             )
@@ -137,19 +146,19 @@ class addkey_view extends GetView<KeyViewModel> {
                               flex: 43,
                               child:
                               TextField(
-                                controller: KeyViewModel.startTimeController, //editing controller of this TextField
+                                controller: PlusController.startTimeController, //editing controller of this TextField
                                 decoration: InputDecoration(
                                     icon: Icon(Icons.timer), //icon of text field
                                     labelText: "시작 시간" //label text of field
                                 ),
                                 readOnly: true, //set it true, so that user will not able to edit text
                                 onTap: () async {
-                                  KeyViewModel.selectedStartTime =
+                                  PlusController.selectedStartTime =
                                   (showTimePicker(context: context,
                                       initialEntryMode: TimePickerEntryMode.inputOnly,
                                       initialTime: TimeOfDay.now()))!;
-                                  KeyViewModel.selectedStartTime.then((timeOfDay) {
-                                    KeyViewModel.selectTime(0,timeOfDay);
+                                  PlusController.selectedStartTime.then((timeOfDay) {
+                                    PlusController.selectTime(0,timeOfDay);
                                   }
                                   );
                                 },
@@ -166,19 +175,19 @@ class addkey_view extends GetView<KeyViewModel> {
                               flex: 41,
                               child:
                               TextField(
-                                controller: KeyViewModel.endTimeController, //editing controller of this TextField
+                                controller: PlusController.endTimeController, //editing controller of this TextField
                                 decoration: InputDecoration(
                                     icon: Icon(Icons.timer), //icon of text field
                                     labelText: "종료 시간" //label text of field
                                 ),
                                 readOnly: true, //set it true, so that user will not able to edit text
                                 onTap: () async {
-                                  KeyViewModel.selectedEndTime =
+                                  PlusController.selectedEndTime =
                                   (showTimePicker(
                                       initialEntryMode: TimePickerEntryMode.inputOnly,
                                       context: context, initialTime: TimeOfDay.now()))!;
-                                  KeyViewModel.selectedEndTime.then((timeOfDay) {
-                                    KeyViewModel.selectTime(1,timeOfDay);
+                                  PlusController.selectedEndTime.then((timeOfDay) {
+                                    PlusController.selectTime(1,timeOfDay);
                                   }
                                   );
                                 },
@@ -195,7 +204,7 @@ class addkey_view extends GetView<KeyViewModel> {
                               FilteringTextInputFormatter.digitsOnly
                             ],
                             maxLength: 6,
-                            controller: KeyViewModel.passwdController, //set id controller
+                            controller: PlusController.passwdController, //set id controller
                             style: const TextStyle(
                                 color: Color.fromARGB(255, 43, 43, 43), fontSize: 17),
                             decoration: InputDecoration(
@@ -206,7 +215,7 @@ class addkey_view extends GetView<KeyViewModel> {
 
                             onChanged: (value) {
                               //변화된 id값 감지
-                              KeyViewModel.pw = value;
+                              PlusController.pw = value;
                               print(value);
                             }),
                         Container(height: 30,),
@@ -226,7 +235,7 @@ class addkey_view extends GetView<KeyViewModel> {
                                 for( int i = 0; i < 6; i ++) {
                                   nums.add(Random().nextInt(9));
                                 }
-                                KeyViewModel.passwdController.text = nums[0].toString()+nums[1].toString()+nums[2].toString()+nums[3].toString()+nums[4].toString()+nums[5].toString();
+                                PlusController.passwdController.text = nums[0].toString()+nums[1].toString()+nums[2].toString()+nums[3].toString()+nums[4].toString()+nums[5].toString();
                               },
                               child:Center(
                                 child: Text('일회용 비밀번호 생성',
@@ -247,7 +256,7 @@ class addkey_view extends GetView<KeyViewModel> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            KeyViewModel.createKey();
+                            PlusController.createKey();
                           },
                           child: Text(
                             '발급하기',
@@ -263,5 +272,168 @@ class addkey_view extends GetView<KeyViewModel> {
                 ],
               )
             ));
+  }
+}
+class PlusController extends GetxController{
+  ApiServices api = ApiServices();
+  var startController = TextEditingController();
+  var endController = TextEditingController();
+  var startTimeController = TextEditingController();
+  var endTimeController = TextEditingController();
+  var passwdController = TextEditingController();
+  var phonecontroller = TextEditingController();
+
+  late Future<TimeOfDay?> selectedStartTime ;
+  late Future<TimeOfDay?> selectedEndTime ;
+
+  bool trigger1 = false;
+  bool trigger2 = false;
+
+  late DateTime pickedStartDate;
+
+  late DateTime pickedEndDate;
+
+  String sendStart = '';
+  String sendEnd = '';
+  String phone = '';
+  String pw = '';
+  var controller = Get.put(KeyView());
+
+  splitDate(sendStart){
+    List<String>? spl = sendStart?.split('-');
+    var fst = int.parse(spl![0]);
+    assert(fst is int);
+    var scd = int.parse(spl![1]);
+    assert(scd is int);
+    var trd = int.parse(spl![2]);
+    assert(trd is int);
+    return [fst,scd,trd];
+  }
+  selectTime(type,timeOfDay) {
+    try{
+      if(pickedStartDate != null && type == 0){
+        startTimeController.text = '${timeOfDay.hour.toString()}시 ${timeOfDay.minute.toString()}분';
+        pickedStartDate=DateTime.utc(pickedStartDate.year, pickedStartDate.month, pickedStartDate.day,
+            timeOfDay.hour,timeOfDay.minute
+        );
+        print(pickedStartDate);
+
+      }else if(pickedEndDate != null && type == 1){
+        endTimeController.text = '${timeOfDay.hour.toString()}시 ${timeOfDay.minute.toString()}분';
+        pickedEndDate=DateTime.utc(pickedEndDate.year, pickedEndDate.month, pickedEndDate.day,
+            timeOfDay.hour,timeOfDay.minute
+        );
+        var timeData = [
+          DateFormat('yy').format(pickedStartDate),
+          pickedStartDate.month,
+          pickedStartDate.day,
+          pickedStartDate.hour,
+          DateFormat('yy').format(pickedEndDate),
+          pickedEndDate.month,
+          pickedEndDate.day,
+          pickedEndDate.hour,
+          passwdController.text
+        ];
+        print(timeData);
+        print(pickedEndDate);
+      }
+    }catch(e){
+      Get.dialog(QuitWidget(serverMsg: '기간 설정부터 완료해주세요.',));
+      print("Date is not selected");
+    }
+    update();
+  }
+
+  selectDate(type) {
+    if(pickedStartDate != null && type == 0){
+      print(pickedStartDate);
+      String formattedDate = DateFormat('yyyy년 MM월 dd일').format(pickedStartDate);
+      print(formattedDate);
+      sendStart = DateFormat('yy-MM-dd').format(pickedStartDate);
+      print(splitDate(DateFormat('yy-MM-dd').format(pickedStartDate)));
+      startController.text = formattedDate; //set output date to TextField value.
+      trigger1 = true;
+      update();
+    }else if(pickedEndDate != null && type == 1 ){
+      print(pickedEndDate);
+      String formattedDate = DateFormat('yyyy년 MM월 dd일').format(pickedEndDate);
+      print(formattedDate);
+      sendEnd = DateFormat('yy-MM-dd').format(pickedEndDate);
+      endController.text = formattedDate; //set output date to TextField value.
+      trigger2 = true;
+      update();
+    }else{
+      Get.snackbar(
+        '알림',
+        '날짜가 선택되지 않았습니다.'
+        ,
+        duration: const Duration(seconds: 5),
+        backgroundColor: const Color.fromARGB(
+            255, 39, 161, 220),
+        icon: const Icon(Icons.info_outline, color: Colors.white),
+        forwardAnimationCurve: Curves.easeOutBack,
+        colorText: Colors.white,
+      );
+      print("Date is not selected");
+    }
+  }
+
+  createKey() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    print(json.encode({'smartdoor_id':sharedPreferences.getString('smartdoor_id'),'user_id':sharedPreferences.getString('user_id'),'handphone':phonecontroller.text,'passwd' : passwdController.text,'startDate' : DateFormat('yyyy-MM-dd HH:m:ss').format(pickedStartDate), 'stopDate' : DateFormat('yyyy-MM-dd HH:m:ss').format(pickedEndDate)}));
+    if(phonecontroller.text != null && passwdController.text != null && trigger1 == true && trigger2 == true){
+      api.post(
+          json.encode({'handphone':phonecontroller.text,'passwd' : passwdController.text,'startDate' : DateFormat('yyyy-MM-dd HH:m:ss').format(pickedStartDate), 'stopDate' : DateFormat('yyyy-MM-dd HH:m:ss').format(pickedEndDate)}),
+          '/Smartdoor/guestkeyJoinProcess'
+      ).then((value) {
+        if(value.statusCode == 200) {
+          print('서버성공');
+          Get.back();
+          controller.requestKey();
+          Get.snackbar(
+            '알림',
+            '잠시만 기다려주십시오.'
+            ,
+            duration: const Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: const Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        }else if(value.statusCode == 401) {
+          Get.offAll(login_view());
+          Get.snackbar(
+            '알림',
+            utf8.decode(value.reasonPhrase!.codeUnits)
+            ,
+            duration: Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        }else {
+          print('ddddddddfdf');
+          Get.snackbar(
+            '알림',
+            utf8.decode(value.reasonPhrase!.codeUnits)
+            ,
+            duration: Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        }
+      });
+    }else{
+      Get.dialog(
+          QuitWidget(serverMsg: '값을 전부 설정해주세요.',)
+      );
+    }
+
   }
 }

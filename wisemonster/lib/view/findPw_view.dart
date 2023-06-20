@@ -28,7 +28,7 @@ class findPw_view extends GetView<FindPwViewModel>{
                         centerTitle: true,
                         backgroundColor: Color.fromARGB(255, 42, 66, 91),
                         iconTheme: const IconThemeData(color: Color.fromARGB(255, 255, 255, 255)),
-                        title:Text('아이디찾기')
+                        title:Text('비밀번호 찾기')
                     ),
                     body: Container(
                       padding: const EdgeInsets.only(top: 90),

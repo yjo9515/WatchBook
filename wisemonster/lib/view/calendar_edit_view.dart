@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wisemonster/view/calendar_view.dart';
+import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view/nickname_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/TextFieldWidget.dart';
@@ -18,7 +20,7 @@ import '../controller/calendar_controller.dart';
 import '../controller/camera_controller.dart';
 import '../controller/profile_controller.dart';
 
-class calendar_edit_view extends GetView<CalendarController> {
+class calendar_edit_view extends GetView<EditController> {
   // Build UI
   String userName = '';
   ApiServices api = ApiServices();
@@ -29,27 +31,12 @@ class calendar_edit_view extends GetView<CalendarController> {
     print(userName);
     return await userName;
   }
-  var con = Get.put(CalendarController());
-  init(){
-    print('초반');
-    api.requestDateRead('/FamilySchedule/getListAtMonth',DateFormat('yyyy-MM-dd').format(DateTime.now())).then((value) {
-      // if (value['result'] == false) {
-      //   SnackBarWidget(serverMsg: '리스트를 불러올 수 없습니다',);
-      // } else {
-      con.detailData = json.decode(value).cast<Map<String, dynamic>>().toList();
-
-      print(con.detailData);
-      con.update();
-      // }
-    });
-
-  }
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<CalendarController>(
-        init: CalendarController(),
-        builder: (CalendarController) => MaterialApp(
+    return GetBuilder<EditController>(
+        init: EditController(),
+        builder: (EditController) => MaterialApp(
               debugShowCheckedModeBanner: false,
               home: Scaffold(
                 resizeToAvoidBottomInset: false,
@@ -77,7 +64,7 @@ class calendar_edit_view extends GetView<CalendarController> {
                         children: [
                           TextButton(
                               onPressed: () {
-                                CalendarController.deleteSchedule();
+                                EditController.deleteSchedule(Get.arguments);
                               },
                               child: Text(
                                 '삭제',
@@ -88,7 +75,7 @@ class calendar_edit_view extends GetView<CalendarController> {
                               )),
                           TextButton(
                               onPressed: () {
-                                CalendarController.sendSchedule(Get.arguments);
+                                EditController.editSchedule(Get.arguments);
                               },
                               child: Text(
                                 '완료',
@@ -100,7 +87,9 @@ class calendar_edit_view extends GetView<CalendarController> {
                         ],
                       ),
                     ]),
-                body: Container(
+                body:
+                EditController.isclear == false ? Center(child: CircularProgressIndicator(),) :
+                Container(
                   padding: const EdgeInsets.fromLTRB(16, 40, 16, 16),
                   width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
                   //인풋박스 터치시 키보드 안나오는 에러 수정(원인 : 미디어쿼리)
@@ -115,159 +104,232 @@ class calendar_edit_view extends GetView<CalendarController> {
                         size: 14,
                       ),
                       TextFieldWidget(
-                        tcontroller: CalendarController.titleController,
-                        changeValue: CalendarController.title,
-                        hintText: '${controller.detailData[controller.index]['name']}',
+                        tcontroller: EditController.nameController,
+                        changeValue: EditController.name,
+                        hintText: '${EditController.detailData['lists'][Get.arguments]['name']}',
                       ),
                       Container(
                         height: 30,
                       ),
                       H1(
-                        changeValue: '일정 시작일',
+                        changeValue: '수정할 날짜',
                         size: 14,
                       ),
                       TextField(
-                        controller: CalendarController.startController, //editing controller of this TextField
+                        controller: EditController.ddayController, //editing controller of this TextField
                         decoration: InputDecoration(
                             icon: Icon(Icons.calendar_month_outlined), //icon of text field
-                            labelText:
-                          '${DateFormat('yyyy년 MM월 dd일').format(DateTime.parse(controller.detailData[controller.index]['startDate']))}'
-                            ),
+                            labelText: '${DateFormat('yyyy년 MM월 dd일').format(DateTime.parse(EditController.detailData['lists'][Get.arguments]['dday']))}'
+                        ),
                         readOnly: true, //set it true, so that user will not able to edit text
                         onTap: () async {
-                          CalendarController.pickedStartDate = (await showDatePicker(
+                          EditController.pickedStartDate = (await showDatePicker(
                               initialEntryMode: DatePickerEntryMode.calendarOnly,
                               context: context,
                               initialDate: DateTime.now(),
                               firstDate: DateTime(2000), //DateTime.now() - not to allow to choose before today.
                               lastDate: DateTime(2101)))!;
-                          CalendarController.selectDate(0);
+                          EditController.selectDate(0);
                         },
                       ),
-                      TextField(
-                        controller: CalendarController.startTimeController, //editing controller of this TextField
-                        decoration: InputDecoration(
-                            icon: Icon(Icons.timer), //icon of text field
-                            labelText:
-                                 '${DateFormat('HH시 mm분').format(DateTime.parse(controller.detailData[controller.index]['startDate']))}'
-                        ),
-                        readOnly: true, //set it true, so that user will not able to edit text
-                        onTap: () async {
-                          CalendarController.selectedStartTime =
-                          (showTimePicker(context: context,
-                              initialEntryMode: TimePickerEntryMode.inputOnly,
-                              initialTime: TimeOfDay.now()))!;
-                          CalendarController.selectedStartTime.then((timeOfDay) {
-                            CalendarController.selectTime(0,timeOfDay);
-                          }
-                          );
-                        },
-                      ),
-                      Container(
-                        height: 30,
-                      ),
-                      H1(
-                        changeValue: '일정 종료일',
-                        size: 14,
-                      ),
-                      TextField(
-                        controller: CalendarController.endController, //editing controller of this TextField
-                        decoration: InputDecoration(
-                            icon: Icon(Icons.calendar_month_outlined), //icon of text field
-                            labelText:
-                           '${DateFormat('yyyy년 MM월 dd일').format(DateTime.parse(controller.detailData[controller.index]['stopDate']))}'//label text of field
-                            ),
-                        readOnly: true, //set it true, so that user will not able to edit text
-                        onTap: () async {
-                          CalendarController.pickedEndDate = (await showDatePicker(
-                              initialEntryMode: DatePickerEntryMode.calendarOnly,
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(2000), //DateTime.now() - not to allow to choose before today.
-                              lastDate: DateTime(2101)))!;
-                          CalendarController.selectDate(1);
-                        },
-                      ),
-                      TextField(
-                        controller: CalendarController.endTimeController, //editing controller of this TextField
-                        decoration: InputDecoration(
-                            icon: Icon(Icons.timer), //icon of text field
-                            labelText: '${DateFormat('HH시 mm분').format(DateTime.parse(controller.detailData[controller.index]['stopDate']))}'
-                          //label text of field
-                        ),
-                        readOnly: true, //set it true, so that user will not able to edit text
-                        onTap: () async {
-                          CalendarController.selectedEndTime =
-                          (showTimePicker(
-                            initialEntryMode: TimePickerEntryMode.inputOnly,
-                              context: context, initialTime: TimeOfDay.now()))!;
-                          CalendarController.selectedEndTime.then((timeOfDay) {
-                            CalendarController.selectTime(1,timeOfDay);
-                          }
-                          );
-                        },
-                      ),
-                      Container(
-                        height: 30,
-                      ),
-                      H1(
-                        changeValue: '중요도',
-                        size: 14,
-                      ),
-                      DropdownButton(
-                        hint : Text('${controller.detailData[controller.index]['level']}') ,
-                        value: CalendarController.selectValue,
-                          items: CalendarController.valueList.map(
-                              (value){
-                                return DropdownMenuItem(
-                                     value: value,
-                                    child: Text(value));
-                              }
-                          ).toList(),
-                          onChanged: (value){
-                          CalendarController.dropdown(value);
-                      }),
-                      Container(
-                        height: 30,
-                      ),
-
-                      H1(
-                        changeValue: '장소',
-                        size: 14,
-                      ),
-                      TextFieldWidget(
-                        tcontroller: CalendarController.placeController,
-                        changeValue: CalendarController.place,
-                        hintText:
-                        controller.detailData[controller.index]['place'],
-                      ),
-                      Container(
-                        height: 30,
-                      ),
-                      H1(
-                        changeValue: '일정 내용',
-                        size: 14,
-                      ),
-                      Container(
-                        height: 20,
-                      ),
-                      TextField(
-                          controller: CalendarController.valueController,
-                          maxLines: 7, //or null
-                          decoration: InputDecoration(
-                            hintText:  controller.detailData[controller.index]['comment'],
-                            hintStyle: TextStyle(fontSize: 17, color: Color.fromARGB(255, 222, 222, 222)),
-                            enabledBorder:
-                                OutlineInputBorder(borderSide: BorderSide(color: Color.fromARGB(255, 43, 43, 43))),
-                          ),
-                          onChanged: (value) {
-                            //변화된 id값 감지
-                            CalendarController.comment = value;
-                          }),
                     ],
                   )),
                 ),
               ),
             ));
+  }
+}
+class EditController extends GetxController{
+  var nameController = TextEditingController();
+  var ddayController = TextEditingController();
+  String name = '';
+  var detailData;
+  DateTime? pickedStartDate;
+
+  bool isclear = false;
+  var listData;
+  ApiServices api = ApiServices();
+  var con = Get.put(CalendarController());
+
+  @override
+  void onInit() {
+    print('달력편집');
+    readToday();
+    update();
+    super.onInit();
+  }
+
+  readToday(){
+    api.get('/SmartdoorSchedule/lists?startDate=${DateFormat('yyyy-MM-dd').format(DateTime(DateTime.now().year, DateTime.now().month, 1))
+    }&stopDate=${DateFormat('yyyy-MM-dd').format(DateTime(DateTime.now().year, DateTime.now().month+1, 0)
+    )}').then((value) {
+      if(value.statusCode == 200) {
+        isclear = true;
+        detailData = json.decode(value.body);
+        print('달력업데이트');
+        update();
+      } else if(value.statusCode == 401) {
+        Get.offAll(login_view());
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }
+    });
+  }
+  selectDate(type) {
+    if(pickedStartDate != null && type == 0){
+      print(pickedStartDate);
+      String formattedDate = DateFormat('yyyy년 MM월 dd일').format(pickedStartDate!);
+      print(formattedDate);
+      ddayController.text = formattedDate; //set output date to TextField value.
+      update();
+    }else{
+      Get.snackbar(
+        '알림',
+        '날짜가 선택되지 않았습니다.'
+        ,
+        duration: Duration(seconds: 5),
+        backgroundColor: const Color.fromARGB(
+            255, 39, 161, 220),
+        icon: Icon(Icons.info_outline, color: Colors.white),
+        forwardAnimationCurve: Curves.easeOutBack,
+        colorText: Colors.white,
+      );
+      print("Date is not selected");
+    }
+  }
+
+  deleteSchedule(argument) {
+    print(detailData['lists'][argument]['smartdoor_schedule_id']);
+    api.delete('/SmartdoorSchedule/${detailData['lists'][argument]['smartdoor_schedule_id']}').
+    then((value) {
+
+      if(value.statusCode == 200) {
+        // Get.offAll(calendar_view());
+        Get.back();
+        con.readToday();
+        Get.snackbar(
+          '알림',
+          '삭제가 완료되었습니다.'
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else if(value.statusCode == 401) {
+        Get.offAll(login_view());
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }
+    });
+
+  }
+
+  editSchedule(argument) {
+    if(nameController.text != null&&ddayController.isBlank != null
+    ){
+      if(pickedStartDate == null){
+        pickedStartDate = DateTime.parse(detailData['lists'][argument]['dday']);
+        print(pickedStartDate);
+      }
+      api.put(json.encode({'name':nameController.text.trim(),'dday':DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedStartDate!)}), '/SmartdoorSchedule/${detailData['lists'][argument]['smartdoor_schedule_id']}').then((value) {
+        if(value.statusCode == 200) {
+          Get.back();
+          con.readToday();
+          Get.snackbar(
+            '알림',
+            '삭제가 완료되었습니다.'
+            ,
+            duration: Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        } else if(value.statusCode == 401) {
+          Get.offAll(login_view());
+          Get.snackbar(
+            '알림',
+            utf8.decode(value.reasonPhrase!.codeUnits)
+            ,
+            duration: Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        } else {
+          Get.snackbar(
+            '알림',
+            utf8.decode(value.reasonPhrase!.codeUnits)
+            ,
+            duration: Duration(seconds: 5),
+            backgroundColor: const Color.fromARGB(
+                255, 39, 161, 220),
+            icon: Icon(Icons.info_outline, color: Colors.white),
+            forwardAnimationCurve: Curves.easeOutBack,
+            colorText: Colors.white,
+          );
+        }
+      });
+    } else {
+      Get.snackbar(
+      '알림',
+      '미완료된 설정이 있습니다. 전부 설정해주세요.'
+      ,
+      duration: Duration(seconds: 5),
+      backgroundColor: const Color.fromARGB(
+          255, 39, 161, 220),
+      icon: Icon(Icons.info_outline, color: Colors.white),
+      forwardAnimationCurve: Curves.easeOutBack,
+      colorText: Colors.white,
+    );
+    }
   }
 }

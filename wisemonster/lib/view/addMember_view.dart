@@ -1,4 +1,5 @@
 
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:contacts_service/contacts_service.dart';
@@ -8,6 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:wisemonster/api/api_services.dart';
+import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view/widgets/ContactListWidget.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/TextFieldWidget.dart';
@@ -18,7 +21,7 @@ import '../controller/member_controller.dart';
 import 'widgets/LeftSlideWidget.dart';
 import 'dart:math';
 
-class addMember_view extends GetView<MemberController> {
+class addMember_view extends GetView<PlusController> {
 
   List<Contact>? contacts;
   getPermission() async{
@@ -39,9 +42,9 @@ class addMember_view extends GetView<MemberController> {
   }
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<MemberController>(
-        init: MemberController(),
-        builder: (KeyViewModel) => Scaffold(
+    return GetBuilder<PlusController>(
+        init: PlusController(),
+        builder: (PlusController) => Scaffold(
             resizeToAvoidBottomInset : false,
               appBar: AppBar(
                 elevation: 0,
@@ -74,8 +77,8 @@ class addMember_view extends GetView<MemberController> {
                         H1(changeValue: '호칭', size: 14,),
                         Container(height: 20,),
                       TextFieldWidget(
-                          tcontroller: KeyViewModel.namecontroller,
-                          changeValue: KeyViewModel.name,
+                          tcontroller: PlusController.namecontroller,
+                          changeValue: PlusController.name,
                           hintText: '받으시는 분 호칭을 입력해주세요.'),
                         Container(height: 30,),
                         H1(changeValue: '휴대폰번호', size: 14,),
@@ -83,8 +86,8 @@ class addMember_view extends GetView<MemberController> {
                           Expanded(
                               flex: 66,
                               child: TextFieldWidget(
-                                  tcontroller: KeyViewModel.phonecontroller,
-                                  changeValue: KeyViewModel.phone,
+                                  tcontroller: PlusController.phonecontroller,
+                                  changeValue: PlusController.phone,
                                   hintText: '휴대폰번호를 입력해주세요.')),
                           Container(width: 20,),
                           Expanded(
@@ -172,7 +175,7 @@ class addMember_view extends GetView<MemberController> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-
+                            PlusController.invite();
                           },
                           child: Text(
                             '초대',
@@ -188,5 +191,59 @@ class addMember_view extends GetView<MemberController> {
                 ],
               )
             ));
+  }
+}
+class PlusController extends GetxController{
+  ApiServices api = ApiServices();
+  var namecontroller = TextEditingController();
+  var phonecontroller = TextEditingController();
+  var mesaagecontroller = TextEditingController();
+  String phone = '';
+  String name = '';
+  var con = Get.put(MemberController());
+  invite(){
+    print('초대');
+    api.post(json.encode({'name':namecontroller.text,'handphone':phonecontroller.text}), '/SmartdoorUserInvite').then((value) {
+      if(value.statusCode == 200) {
+        Get.back();
+        con.requestMember();
+        Get.snackbar(
+          '알림',
+          '초대 완료되었습니다.'
+          ,
+          duration: const Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: const Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }else if(value.statusCode == 401) {
+        Get.offAll(login_view());
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }else {
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      }
+    });
   }
 }

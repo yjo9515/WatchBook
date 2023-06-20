@@ -8,6 +8,7 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wisemonster/main.dart';
+import 'package:wisemonster/view/login_view.dart';
 import 'package:wisemonster/view/widgets/QuitWidget.dart';
 import '../api/api_services.dart';
 import '../controller/camera_controller.dart';
@@ -75,15 +76,15 @@ class cameraState extends State<camera_view> {
                   color: Color.fromARGB(255, 204, 204, 204),
                 ),
                 Container(
-                  height: (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162),
+                  height: (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162)/2,
                   decoration: BoxDecoration(border: Border.all()),
                   child: Center(child: remoteVideo()),
                 ),
-                // Container(
-                //   height:  (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162)/2,
-                //   decoration: BoxDecoration(border: Border.all()),
-                //   child: Center(child: localPreview()),
-                // ),
+                Container(
+                  height:  (MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 162)/2,
+                  decoration: BoxDecoration(border: Border.all()),
+                  child: Center(child: localPreview()),
+                ),
                 // Container for the local video
                 //Container for the Remote video
                 Container(
@@ -196,7 +197,6 @@ class cameraState extends State<camera_view> {
         ),
       );
     } else {
-
       return Text(
         '유저연결을 기다리는 중 입니다.',
         textAlign: TextAlign.center,
@@ -342,7 +342,9 @@ class cameraState extends State<camera_view> {
   @override
   void initState() {
     super.initState();
-    api.requestRTCToken('/AgoraToken/getToken',random).then((value) {
+    api.post(json.encode({'channelName':random}), '/Smartdoor/channelJoinProcess').then((value){
+      print(random);
+    // api.requestRTCToken('/AgoraToken/getToken',random).then((value) {
       // if (value['result'] == false) {
       //   Get.snackbar(
       //     '알림',
@@ -362,26 +364,25 @@ class cameraState extends State<camera_view> {
       // print(uid);
       // print('uid');
 
-      if(value != null){
-        print(value['token']);
-        print(value['appID']);
+      if (value.statusCode == 200) {
+        print(json.decode(value.body));
         setState(() {
-          channelName = value['channelName'];
-          token = value['token'];
-          appid = value['appID'];
-          agoratokenid = value['agora_token_id'];
-          uid = value['person_id'];
+          channelName = random;
+          token = json.decode(value.body)['token'];
+          appid = json.decode(value.body)['appID'];
+          // agoratokenid = value['agora_token_id'];
+          uid = json.decode(value.body)['uid'];
         });
         print('채널아디 : ${channelName}');
         print('토큰 : ${token}');
         setupVideoSDKEngine().then((value) {
           print(value);
           print('내꺼완료');
-          api.requestRTCinit(agoratokenid).then((val){
-            if(val != null){
-              print('완료');
-            }
-          });
+          // api.requestRTCinit(agoratokenid).then((val){
+          //   if(val != null){
+          //     print('완료');
+          //   }
+          // });
 
         });
 
@@ -391,10 +392,32 @@ class cameraState extends State<camera_view> {
         // builder.addString('{"request":"webrtcChannelJoin","data":{"channelName":"${channelName}","appID":"${appId}","token":"${token}"},"isWebsocket":"true"}');
         //
         // home.client?.publishMessage(topic, MqttQos.exactlyOnce, builder.payload!);
+      } else if (value.statusCode == 401) {
+        Get.offAll(login_view());
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+      } else {
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
       }
-      // else{
-      //   QuitWidget(serverMsg: value['message'],);
-      // }
     });
     print('아고라 실행');
     print('엔진');

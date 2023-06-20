@@ -9,6 +9,7 @@ import 'dart:io';
 import 'dart:async';
 
 import '../api/api_services.dart';
+import '../view/login_view.dart';
 
 class CameraAuthController extends GetxController{
   final ImagePicker _picker = ImagePicker();
@@ -29,16 +30,20 @@ class CameraAuthController extends GetxController{
       return null;
     }
     try {
-      sleep(Duration(seconds: 1));
+      // sleep(Duration(seconds: 2));
       file = await cameraController.takePicture();
       if (file != null) {
         image = File(file!.path);
         final bytes = image?.readAsBytesSync();
         String base64Image = "data:image/png;base64," + base64Encode(bytes!);
         print(base64Image);
-        api.requestFaceProcess('/Person/faceProcess', base64Image).then((value) {
-          if (value['result'] == true) {
-             if (value['params']['idx'] == 20){
+        api.requestFaceProcess('/User/faceUpload', base64Image, count+1).then((value) {
+          if(value.statusCode == 200) {
+            print(value.body);
+            print('${count} : 카운트 수');
+            if (count == 19){
+              print('끝끝끝');
+              // sleep(Duration(seconds: 1));
               Get.back();
               Get.snackbar(
                 '알림',
@@ -52,14 +57,27 @@ class CameraAuthController extends GetxController{
                 colorText: Colors.white,
               );
             } else {
-               count++;
-             }
-            print(value);
+              count++;
+            }
             update();
+
+          } else if(value.statusCode == 401) {
+            Get.offAll(login_view());
+            Get.snackbar(
+              '알림',
+              utf8.decode(value.reasonPhrase!.codeUnits)
+              ,
+              duration: Duration(seconds: 5),
+              backgroundColor: const Color.fromARGB(
+                  255, 39, 161, 220),
+              icon: Icon(Icons.info_outline, color: Colors.white),
+              forwardAnimationCurve: Curves.easeOutBack,
+              colorText: Colors.white,
+            );
           } else {
             Get.snackbar(
               '알림',
-              value['massage']
+              utf8.decode(value.reasonPhrase!.codeUnits)
               ,
               duration: Duration(seconds: 5),
               backgroundColor: const Color.fromARGB(
@@ -116,36 +134,36 @@ class CameraAuthController extends GetxController{
 
   @override
   void onInit() async{
-    api.requestFaceDelete('/Person/faceDeleteAllProcess').then((value) {
-      if (value['result'] == true) {
-          Get.snackbar(
-            '알림',
-            '촬영 버튼을 눌러 등록해주십시오.\n얼굴을 돌려 다양한 각도에서 촬영해주세요.'
-            ,
-            duration: Duration(seconds: 5),
-            backgroundColor: const Color.fromARGB(
-                255, 39, 161, 220),
-            icon: Icon(Icons.info_outline, color: Colors.white),
-            forwardAnimationCurve: Curves.easeOutBack,
-            colorText: Colors.white,
-          );
-        print(value);
-        update();
-      } else {
-        Get.snackbar(
-          '알림',
-          value['massage']
-          ,
-          duration: Duration(seconds: 5),
-          backgroundColor: const Color.fromARGB(
-              255, 39, 161, 220),
-          icon: Icon(Icons.info_outline, color: Colors.white),
-          forwardAnimationCurve: Curves.easeOutBack,
-          colorText: Colors.white,
-        );
-      }
-
-    });
+    // api.requestFaceDelete('/Person/faceDeleteAllProcess').then((value) {
+    //   if (value['result'] == true) {
+    //       Get.snackbar(
+    //         '알림',
+    //         '촬영 버튼을 눌러 등록해주십시오.\n얼굴을 돌려 다양한 각도에서 촬영해주세요.'
+    //         ,
+    //         duration: Duration(seconds: 5),
+    //         backgroundColor: const Color.fromARGB(
+    //             255, 39, 161, 220),
+    //         icon: Icon(Icons.info_outline, color: Colors.white),
+    //         forwardAnimationCurve: Curves.easeOutBack,
+    //         colorText: Colors.white,
+    //       );
+    //     print(value);
+    //     update();
+    //   } else {
+    //     Get.snackbar(
+    //       '알림',
+    //       value['massage']
+    //       ,
+    //       duration: Duration(seconds: 5),
+    //       backgroundColor: const Color.fromARGB(
+    //           255, 39, 161, 220),
+    //       icon: Icon(Icons.info_outline, color: Colors.white),
+    //       forwardAnimationCurve: Curves.easeOutBack,
+    //       colorText: Colors.white,
+    //     );
+    //   }
+    //
+    // });
 
 
     try {

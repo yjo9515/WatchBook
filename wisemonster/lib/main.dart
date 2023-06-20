@@ -97,6 +97,9 @@ late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
+  // Mqtt mqtt = Mqtt();
+  // mqtt.connect();
   Get.put(ConnectController());
   print(Firebase.apps.length);
   if(Firebase.apps.length == 0){

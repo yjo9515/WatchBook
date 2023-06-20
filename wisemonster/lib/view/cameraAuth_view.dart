@@ -45,7 +45,7 @@ class cameraAuth_view extends GetView<CameraAuthController> {
           Column(
             children: [
               Text('종료시 초기화 됩니다.',style: TextStyle(color: Colors.red),),
-              Text('현재 ${CameraController.count}/20개')
+              Text('${CameraController.count}/20')
               ,
               Container(height: 5,),
               Container(
@@ -59,6 +59,7 @@ class cameraAuth_view extends GetView<CameraAuthController> {
               InkWell(
                 onTap: () async {
                   for(int i = 0; i<20; i++){
+                    sleep(Duration(seconds: 1));
                     await CameraController.takePicture();
                   }
                   // XFile? rawImage = await CameraController.takePicture();

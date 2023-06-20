@@ -69,7 +69,7 @@ class entrance_view extends GetView<EntranceController> {
                             child: ListTile(
                               contentPadding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                               leading:Icon(Icons.door_front_door_outlined) ,
-                              title: Text('${element['name']} ${element['type']}'),
+                              title: Text('${element['name']}'),
                               trailing: element['group'] =='' ? Text('') :Text(EntranceController.timeData[i]),
                             ),
                           ),

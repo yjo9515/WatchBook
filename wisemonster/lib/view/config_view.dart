@@ -4,7 +4,9 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:wisemonster/controller/config_controller.dart';
+import 'package:wisemonster/view/faq_view.dart';
 import 'package:wisemonster/view/home_view.dart';
+import 'package:wisemonster/view/qna_view.dart';
 import 'package:wisemonster/view/widgets/TextFieldWidget.dart';
 
 import 'widgets/LeftSlideWidget.dart';
@@ -39,6 +41,23 @@ class config_view extends GetView<ConfigController> {
                 height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height-40,
                 child: SettingsList(
                   sections: [
+                SettingsSection(
+                title: Text('고객 센터'),
+                  tiles: [
+                    SettingsTile.navigation(
+                      title:  Text('FAQ'),
+                      onPressed: (value) {
+                        Get.to(faq_view());
+                      }
+                    ),
+                    SettingsTile.navigation(
+                        title:  Text('1:1 문의'),
+                        onPressed: (value) {
+                          Get.to(qna_view());
+                        }
+                    )
+                  ],
+                  ),
                     SettingsSection(
                       title: Text('알림 설정'),
                       tiles: <SettingsTile>[
@@ -96,12 +115,12 @@ class config_view extends GetView<ConfigController> {
                           title: (ConfigController.deviceData != null) ? Text('기기 : ${ConfigController.deviceData['기기']}')
                               : Text('버전 정보를 불러올 수 없습니다.'),
                         ),
-                        SettingsTile.navigation(
-                          leading: Icon(Icons.info_outline),
-                          title: (ConfigController.token != null) ?
-                          TextFieldWidget(tcontroller: ConfigController.k, changeValue: ConfigController.test, hintText: '')
-                              : Text('fcm토큰값 불러올 수 없습니다.'),
-                        ),
+                        // SettingsTile.navigation(
+                        //   leading: Icon(Icons.info_outline),
+                        //   title: (ConfigController.token != null) ?
+                        //   TextFieldWidget(tcontroller: ConfigController.k, changeValue: ConfigController.test, hintText: '')
+                        //       : Text('fcm토큰값 불러올 수 없습니다.'),
+                        // ),
                       ],
                     ),
 

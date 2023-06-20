@@ -11,9 +11,13 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wisemonster/view/calendar_view.dart';
 import 'package:wisemonster/view/cameraAuth_view.dart';
+import 'package:wisemonster/view/config_view.dart';
+import 'package:wisemonster/view/key_view.dart';
 import 'package:wisemonster/view/member_view.dart';
 import 'package:wisemonster/view/profile_view.dart';
+import 'package:wisemonster/view/video_view.dart';
 import 'package:wisemonster/view/widgets/H1.dart';
 import 'package:wisemonster/view/widgets/H2.dart';
 
@@ -47,227 +51,351 @@ class home_view extends GetView<HomeViewModel> {
             resizeToAvoidBottomInset: false,
             body:
               SafeArea(
-                  child:
-                  Container(
-                      width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
-                      height: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.height - 20,
-                      child: Stack(
-                        children: [
-                          Positioned(
-                              top: 0,
                               child: Container(
                                 width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
-                                height: 388,
-                                decoration: BoxDecoration(
-                                    color: Color.fromARGB(255, 87, 132, 255),
-                                    borderRadius: BorderRadius.only(
-                                        bottomRight: Radius.circular(40), bottomLeft: Radius.circular(40))),
-                                padding: EdgeInsets.fromLTRB(16, 20, 16, 16),
+                                padding: EdgeInsets.fromLTRB(8, 0, 8, 0),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    // Text(HomeViewModel.place,
-                                    //     style: TextStyle(
-                                    //       fontSize: 20,
-                                    //       color: Color.fromARGB(255, 255, 255, 255),
-                                    //     )),
                                     Container(
-                                      height: 20,
+                                      height: 40,
                                     ),
-                                    TextButton(
-                                        style: ButtonStyle(
-                                          shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(120.0),
-                                          )),
-                                        ),
-                                        onPressed: () {
-                                          if(HomeViewModel.door == '-3'){
-                                            print('조회중일때 터치');
-                                          }else{
-                                            HomeViewModel.scan();
-                                          }
-                                          // HomeViewModel.publish();
-
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        TextButton(onPressed: (){
+                                          Get.to(() => camera_view());
                                         },
-                                        child: Container(
-                                          width: 220,
+                                            style: ButtonStyle(
+                                              padding:   MaterialStateProperty.all<EdgeInsets>(
+                                                  EdgeInsets.all(0)),
+                                              shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(120.0),
+                                              )),
+                                            ),
+                                            child:
+                                        Container(
+                                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width/2 - 12,
                                           height: 220,
                                           decoration: BoxDecoration(
-                                              color: Color.fromARGB(255, 44, 95, 233),
-                                              borderRadius: BorderRadius.all(Radius.circular(120))),
-                                          child: Container(
-                                            child: Container(
-                                              child: HomeViewModel.door== '1' ? Icon(Icons.lock_open,
-                                                  size: 40, color: Color.fromARGB(255, 255, 255, 255)):
-                                              HomeViewModel.door== '0' ?
-                                              Icon(Icons.lock,
-                                                  size: 40, color: Color.fromARGB(255, 87, 132, 255)):
-                                              HomeViewModel.door== '-1' ?
-                                              Icon(Icons.search,
-                                                  size: 40, color: Color.fromARGB(255, 87, 132, 255)):
-                                              HomeViewModel.door== '-3' ?
-                                              Icon(Icons.search,
-                                                  size: 40, color: Color.fromARGB(255, 87, 132, 255))
-                                                  :Icon(Icons.cancel,
-                                                  size: 40, color: Color.fromARGB(255, 87, 132, 255))
-                                              ,
-                                              margin: EdgeInsets.fromLTRB(25, 25, 25, 25),
-                                              width: 120,
-                                              height: 120,
-                                              decoration:HomeViewModel.door == '1' ? BoxDecoration(
-                                                  color: Color.fromARGB(255, 14, 39, 158),
-                                                  borderRadius: BorderRadius.all(Radius.circular(100))):
-                                              HomeViewModel.door == '2' ?
-                                              BoxDecoration(
-                                                  color: Color.fromARGB(255, 255, 255, 255),
-                                                  borderRadius: BorderRadius.all(Radius.circular(100)))
-                                                  :
-                                              BoxDecoration(
-                                                  color: Color.fromARGB(255, 255, 255, 255),
-                                                  borderRadius: BorderRadius.all(Radius.circular(100)))
-                                              ,
+                                              color: Color.fromARGB(
+                                                  255, 253, 133, 1),
+                                              borderRadius: BorderRadius.all(Radius.circular(20))),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.camera,
+                                                    size: 80, color: Color.fromARGB(
+                                                        255, 255, 255, 255)),
+                                                Container(height: 20,),
+                                                Text('외부영상',
+                                                    style: TextStyle(
+                                                      fontSize: 23,
+                                                      color: Color.fromARGB(255, 255, 255, 255),
+                                                    ))
+                                              ],
                                             ),
-                                            margin: EdgeInsets.fromLTRB(25, 25, 25, 25),
-                                            width: 170,
-                                            height: 170,
-                                            decoration: BoxDecoration(
-                                                color: Color.fromARGB(255, 87, 132, 255),
-                                                borderRadius: BorderRadius.all(Radius.circular(100))),
                                           ),
-                                        )),
+                                        )
+                                        ),
+                                        TextButton(onPressed: (){
+                                          HomeViewModel.btn == true ?
+                                              null :
+                                          HomeViewModel.scan();
+                                        },
+                                            style: ButtonStyle(
+                                              padding:   MaterialStateProperty.all<EdgeInsets>(
+                                                  EdgeInsets.all(0)),
+                                              shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(120.0),
+                                              )),
+                                            ),
+                                            child:
+                                            Container(
+                                              width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width/2 - 12,
+                                              height: 220,
+                                              decoration: BoxDecoration(
+                                                  color: Color.fromARGB(
+                                                      255, 87, 132, 255),
+                                                  borderRadius: BorderRadius.all(Radius.circular(20))),
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                                  children: [
+                                                    HomeViewModel.door== '1' ? Icon(Icons.lock_open,
+                                                        size: 80, color: Color.fromARGB(255, 255, 255, 255)):
+                                                    HomeViewModel.door== '0' ?
+                                                    Icon(Icons.lock,
+                                                        size: 80, color: Color.fromARGB(255, 255, 255, 255)):
+                                                    HomeViewModel.door== '-1' ?
+                                                    Icon(Icons.search,
+                                                        size: 80, color: Color.fromARGB(255, 255, 255, 255)):
+                                                    HomeViewModel.door== '-3' ?
+                                                    Icon(Icons.search,
+                                                        size: 80, color: Color.fromARGB(255, 255, 255, 255))
+                                                        :Icon(Icons.cancel,
+                                                        size: 80, color: Color.fromARGB(255, 255, 255, 255))
+                                                    ,
+                                                    Container(height: 20,),
+                                                    HomeViewModel.door == '1'?
+                                                    Text('도어가 열려있습니다.',
+                                                        style: TextStyle(
+                                                          fontSize: 17,
+                                                          color: Color.fromARGB(255, 255, 255, 255),
+                                                        )):HomeViewModel.door == '0'?
+                                                    Text('열기',
+                                                        style: TextStyle(
+                                                          fontSize: 17,
+                                                          color: Color.fromARGB(255, 255, 255, 255),
+                                                        )):HomeViewModel.door == '-1'?Text('문상태 조회중',
+                                                        style: TextStyle(
+                                                          fontSize: 17,
+                                                          color: Color.fromARGB(255, 255, 255, 255),
+                                                        ))
+                                                        :HomeViewModel.door == '-3'?
+                                                    Text('문작동중',
+                                                        style: TextStyle(
+                                                          fontSize: 17,
+                                                          color: Color.fromARGB(255, 255, 255, 255),
+                                                        ))
+                                                        :Text('문상태 조회실패',
+                                                        style: TextStyle(
+                                                          fontSize: 17,
+                                                          color: Color.fromARGB(255, 255, 255, 255),
+                                                        )),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                        ),
+                                      ],
+                                    ),
+                                    Container(
+                                      height: 40,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SizedBox(
+                                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width/2 - 12,
+                                          height: 60,
+                                          child: ElevatedButton(
+                                              style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.resolveWith(
+                                                      (states) {
+                                                    if (states.contains(MaterialState.disabled)) {
+                                                      return Colors.grey;
+                                                    } else {
+                                                      return Colors.white;
+                                                    }
+                                                  },
+                                                ),
+                                                shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.all(Radius.circular(15)))),
+                                              ),
+                                              onPressed: () {
+                                                Get.to(() => entrance_view());
+                                              },
+                                              child:Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Icon(Icons.list, size: 40, color: Colors.grey),
+                                                  Text('출입기록',
+                                                      style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.grey,
+                                                      )),
+                                                ],
+                                              )
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width/2-12,
+                                          height: 60,
+                                          child: ElevatedButton(
+                                              style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.resolveWith(
+                                                      (states) {
+                                                    if (states.contains(MaterialState.disabled)) {
+                                                      return Colors.grey;
+                                                    } else {
+                                                      return Colors.white;
+                                                    }
+                                                  },
+                                                ),
+                                                shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.all(Radius.circular(15)))),
+                                              ),
+                                              onPressed: () {
+                                                Get.to(() => member_view());
+                                              },
+                                              child:Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Icon(Icons.people, size: 40, color: Colors.grey),
+                                                  Text('구성원',
+                                                      style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.grey,
+                                                      )),
+                                                ],
+                                              )
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                     Container(
                                       height: 20,
                                     ),
-                                    HomeViewModel.door == '1'?
-                                    Text('도어가 열려있습니다.',
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          color: Color.fromARGB(255, 255, 255, 255),
-                                        )):HomeViewModel.door == '0'?
-                                  Text('도어가 닫혀있습니다.',
-                                  style: TextStyle(
-                                  fontSize: 17,
-                                  color: Color.fromARGB(255, 255, 255, 255),
-                                  )):HomeViewModel.door == '-1'?Text('문상태 조회중입니다.',
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          color: Color.fromARGB(255, 255, 255, 255),
-                                        ))
-                                        :HomeViewModel.door == '-3'?
-                                    Text('문작동중',
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          color: Color.fromARGB(255, 255, 255, 255),
-                                        ))
-                                        :Text('문상태 조회에 실패했습니다.',
-                                        style: TextStyle(
-                                          fontSize: 17,
-                                          color: Color.fromARGB(255, 255, 255, 255),
-                                        )),
-                                  ],
-                                ),
-                              )),
-                          Positioned(
-                              top: 364,
-                              left: 16,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width - 32,
-                                    height: 50,
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty.resolveWith(
-                                              (states) {
-                                            if (states.contains(MaterialState.disabled)) {
-                                              return Colors.grey;
-                                            } else {
-                                              return Colors.white;
-                                            }
-                                          },
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SizedBox(
+                                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width/2-12,
+                                          height: 60,
+                                          child: ElevatedButton(
+                                              style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.resolveWith(
+                                                      (states) {
+                                                    if (states.contains(MaterialState.disabled)) {
+                                                      return Colors.grey;
+                                                    } else {
+                                                      return Colors.white;
+                                                    }
+                                                  },
+                                                ),
+                                                shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.all(Radius.circular(15)))),
+                                              ),
+                                              onPressed: () {
+                                                Get.to(() => calendar_view());
+                                              },
+                                              child:Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Icon(Icons.calendar_month, size: 40, color: Colors.grey),
+                                                  Text('캘린더',
+                                                      style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.grey,
+                                                      )),
+                                                ],
+                                              )
+                                          ),
                                         ),
-                                        shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.all(Radius.circular(30)))),
-                                      ),
-                                      onPressed: () {
-                                        Get.to(() => camera_view());
-                                      },
-                                      child: Text('영상통화',
-                                          style: TextStyle(
-                                            fontSize: 17,
-                                            color: Color.fromARGB(255, 87, 132, 255),
-                                          )),
-                                    ),
-                                  ),
-                                  Container(
-                                    height: 10,
-                                  ),
-                                  SizedBox(
-                                    width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width - 32,
-                                    height: 50,
-                                    child: ElevatedButton(
-                                      style: ButtonStyle(
-                                        backgroundColor: MaterialStateProperty.resolveWith(
-                                              (states) {
-                                            if (states.contains(MaterialState.disabled)) {
-                                              return Colors.grey;
-                                            } else {
-                                              return Colors.white;
-                                            }
-                                          },
+                                        SizedBox(
+                                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width/2 - 12,
+                                          height: 60,
+                                          child: ElevatedButton(
+                                              style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.resolveWith(
+                                                      (states) {
+                                                    if (states.contains(MaterialState.disabled)) {
+                                                      return Colors.grey;
+                                                    } else {
+                                                      return Colors.white;
+                                                    }
+                                                  },
+                                                ),
+                                                shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.all(Radius.circular(15)))),
+                                              ),
+                                              onPressed: () {
+                                                Get.to(() => video_view());
+                                              },
+                                              child:Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Icon(Icons.playlist_play, size: 40, color: Colors.grey),
+                                                  Text('녹화목록',
+                                                      style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.grey,
+                                                      )),
+                                                ],
+                                              )
+                                          ),
                                         ),
-                                        shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.all(Radius.circular(30)))),
-                                      ),
-                                      onPressed: () {
-                                        Get.to(entrance_view());
-                                      },
-                                      child: Text('출입이력',
-                                          style: TextStyle(
-                                            fontSize: 17,
-                                            color: Color.fromARGB(255, 87, 132, 255),
-                                          )),
+                                      ],
                                     ),
-                                  ),
-                                  Container(
-                                    height: 10,
-                                  ),
-                                  // SizedBox(
-                                  //   width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width - 32,
-                                  //   height: 50,
-                                  //   child: ElevatedButton(
-                                  //     style: ButtonStyle(
-                                  //       backgroundColor: MaterialStateProperty.resolveWith(
-                                  //             (states) {
-                                  //           if (states.contains(MaterialState.disabled)) {
-                                  //             return Colors.grey;
-                                  //           } else {
-                                  //             return Colors.white;
-                                  //           }
-                                  //         },
-                                  //       ),
-                                  //       shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
-                                  //           borderRadius: BorderRadius.all(Radius.circular(30)))),
-                                  //     ),
-                                  //     onPressed: () {
-                                  //       Get.to(member_view());
-                                  //     },
-                                  //     child: Text('구성원',
-                                  //         style: TextStyle(
-                                  //           fontSize: 17,
-                                  //           color: Color.fromARGB(255, 87, 132, 255),
-                                  //         )),
-                                  //   ),
-                                  // )
-                                ],
-                              ))
-                        ],
-                      ))
-
-              ),
-
+                                    Container(
+                                      height: 20,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        SizedBox(
+                                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width/2 - 12,
+                                          height: 60,
+                                          child: ElevatedButton(
+                                              style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.resolveWith(
+                                                      (states) {
+                                                    if (states.contains(MaterialState.disabled)) {
+                                                      return Colors.grey;
+                                                    } else {
+                                                      return Colors.white;
+                                                    }
+                                                  },
+                                                ),
+                                                shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.all(Radius.circular(15)))),
+                                              ),
+                                              onPressed: () {
+                                                Get.to(() => key_view());
+                                              },
+                                              child:Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Icon(Icons.key, size: 40, color: Colors.grey),
+                                                  Text('게스트 키',
+                                                      style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.grey,
+                                                      )),
+                                                ],
+                                              )
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width/2 - 12,
+                                          height: 60,
+                                          child: ElevatedButton(
+                                              style: ButtonStyle(
+                                                backgroundColor: MaterialStateProperty.resolveWith(
+                                                      (states) {
+                                                    if (states.contains(MaterialState.disabled)) {
+                                                      return Colors.grey;
+                                                    } else {
+                                                      return Colors.white;
+                                                    }
+                                                  },
+                                                ),
+                                                shape: MaterialStateProperty.resolveWith((states) => const RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.all(Radius.circular(15)))),
+                                              ),
+                                              onPressed: () {
+                                                Get.to(() => config_view());
+                                              },
+                                              child:Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Icon(Icons.settings, size: 40, color: Colors.grey),
+                                                  Text('설정',
+                                                      style: TextStyle(
+                                                        fontSize: 17,
+                                                        color: Colors.grey,
+                                                      )),
+                                                ],
+                                              )
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                              ]))),
             appBar: AppBar(
               elevation: 0,
               backgroundColor: Color.fromARGB(255, 87, 132, 255),

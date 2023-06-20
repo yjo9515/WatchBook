@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/api/api_services.dart';
@@ -264,7 +265,7 @@ class NewMemberViewModel extends GetxController{
     update();
   }
 
-  requestJoinProcess(){
+  requestJoinProcess() async{
     joinName = nameController.text.trim();
     joinId = idController.text.trim();
     joinPw = passwdController.text.trim();
@@ -277,36 +278,56 @@ class NewMemberViewModel extends GetxController{
     all.add(joinName);
     all.add(joinPhone);
     // all.add(joinPhone);
+    String? token = await FirebaseMessaging.instance.getToken();
     // 보내야할거 리스트에 담아서 전송
-    api.requestJoinProcess(all).then((value) {
-      if (value == false) {
-        msg = "전송에 실패하였습니다.";
-        error = true;
-        update();
-        initDialog(msg);
-      } else {
-        print(value);
-        if(value['result'] == true) {
-
-          Get.offAll(newMember5_view());
-        }else{
-          msg = value['message'];
-          print(msg);
-          Get.snackbar(
-              '알림',
-              msg,
-              duration: Duration(seconds: 3),
-              backgroundColor: const Color.fromARGB(
+    api.post(json.encode({'id':joinId,'passwd':joinPw,'repasswd':joinRepasswd,'name':joinName
+      ,'fcm_token':token,'handphone':joinPhone
+    }), '/User').then((value) {
+      if(value.statusCode == 200) {
+        Get.offAll(newMember5_view());
+      }else{
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits),
+          duration: Duration(seconds: 3),
+          backgroundColor: const Color.fromARGB(
               255, 39, 161, 220),
-              icon: Icon(Icons.info_outline, color: Colors.white),
-              forwardAnimationCurve: Curves.easeOutBack,
-              colorText: Colors.white,
-          );
-          update();
-        }
-        //user = UserModel.fromJson(value);
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
       }
-    });
+     });
+
+    // api.requestJoinProcess(all).then((value) {
+    //   if (value == false) {
+    //     msg = "전송에 실패하였습니다.";
+    //     error = true;
+    //     update();
+    //     initDialog(msg);
+    //   } else {
+    //     print(value);
+    //     if(value['result'] == true) {
+    //
+    //       Get.offAll(newMember5_view());
+    //     }else{
+    //       msg = value['message'];
+    //       print(msg);
+    //       Get.snackbar(
+    //           '알림',
+    //           msg,
+    //           duration: Duration(seconds: 3),
+    //           backgroundColor: const Color.fromARGB(
+    //           255, 39, 161, 220),
+    //           icon: Icon(Icons.info_outline, color: Colors.white),
+    //           forwardAnimationCurve: Curves.easeOutBack,
+    //           colorText: Colors.white,
+    //       );
+    //       update();
+    //     }
+    //     //user = UserModel.fromJson(value);
+    //   }
+    // });
   }
   requestPlaceJoinProcess(sncode){
     String place = placeController.text.trim();

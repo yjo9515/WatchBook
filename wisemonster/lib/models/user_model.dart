@@ -24,6 +24,12 @@ class UserModel{
   late var familyItemId;
   late var product_sncode_id;
   late var nickName;
+  late var smartdoor_id;
+  late var smartdoor_user_id;
+  late var handphone;
+  late var isOwner;
+  late var picture;
+  late var name;
 
 
 
@@ -53,6 +59,12 @@ class UserModel{
     required this.familyItemId,
     required this.nickName,
     required this.product_sncode_id,
+    required this.smartdoor_id,
+    required this.smartdoor_user_id,
+    required this.handphone,
+    required this.isOwner,
+    required this.picture,
+    required this.name,
   });
 
   UserModel.fromJson(Map<String, dynamic> json){
@@ -81,6 +93,12 @@ class UserModel{
     familyItemId = json['family_item_id'];
     nickName = json['nickname'];
     product_sncode_id = json['product_sncode_id'];
+    smartdoor_id = json['smartdoor_id'];
+    smartdoor_user_id = json['smartdoor_user_id'];
+    handphone = json['handphone'];
+    isOwner = json['isOwner'];
+    picture = json['picture'];
+    name = json['name'];
   }
 
   Map<String, dynamic> toJson() {
@@ -110,6 +128,12 @@ class UserModel{
     data['family_item_id'] = this.familyItemId;
     data['nickname'] = this.nickName;
     data['product_sncode_id'] = this.product_sncode_id;
+    data['smartdoor_id'] = this.smartdoor_id;
+    data['smartdoor_user_id'] = this.smartdoor_user_id;
+    data['handphone'] = this.handphone;
+    data['isOwner'] = this.isOwner;
+    data['picture'] = this.picture;
+    data['name'] = this.name;
     return data;
   }
 

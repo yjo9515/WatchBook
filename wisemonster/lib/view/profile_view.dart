@@ -18,7 +18,7 @@ import '../controller/profile_controller.dart';
 class profile_view extends GetView<ProfileController> {
   // Build UI
   String userName = '';
-  final home = Get.put(HomeViewModel());
+
 
   getName() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -57,6 +57,7 @@ class profile_view extends GetView<ProfileController> {
               ),
             ),
             body:
+            ProfileController.isclear == false ? Center(child: CircularProgressIndicator(),) :
             Container(
                 padding: const EdgeInsets.fromLTRB(30, 40, 30, 16),
                 width: MediaQueryData.fromWindow(WidgetsBinding.instance!.window).size.width,
@@ -82,11 +83,13 @@ class profile_view extends GetView<ProfileController> {
                                     shape: BoxShape.circle,
                                     color: Color.fromARGB(255, 161, 161, 161),
                                   ),
-                                  child: ProfileController.imageUrl != null
+                                  child:
+                                  ProfileController.imageUrl != '' || ProfileController.imageUrl != null
                                       ? CircleAvatar(
-                                      backgroundImage: Image.network('https://www.smartdoor.watchbook.tv${ProfileController.imageUrl}').image
+                                      backgroundImage: Image.network('http://api.hizib.watchbook.tv${ProfileController.imageUrl}').image
                                   )
-                                      : Icon(
+                                      :
+                                  Icon(
                                     Icons.add,
                                     color: Colors.white,
                                     size: 30,
@@ -145,7 +148,7 @@ class profile_view extends GetView<ProfileController> {
                         child: new ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount:
-                          ProfileController.listData?.length == null ? 0 : ProfileController.listData?.length
+                          ProfileController.listData['lists']?.length == null || ProfileController.listData['lists']?.length == '' ? 0 : ProfileController.listData['lists']?.length
                           ,
                           itemBuilder: (BuildContext context, int index) {
                             return new Card(
@@ -156,7 +159,7 @@ class profile_view extends GetView<ProfileController> {
                               new Padding(
                                 padding: EdgeInsets.all(7),
                                 child: Center(
-                                  child: Text('${ProfileController.listData[index]['name']}'),
+                                  child: Text('${ProfileController.listData['lists'][index]['name']}'),
                                 ),
                               ),
                             );

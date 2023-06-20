@@ -30,31 +30,46 @@ class NoticeController extends GetxController{
   final isclear = false.obs;
 
   ApiServices api = ApiServices();
-  late final listData = [].obs;
-  Mqtt mqtt = new Mqtt();
+  RxMap listData = {}.obs;
+  // Mqtt mqtt = new Mqtt();
   @override
   void onInit() {
-    requestNotice();
+    getDataAtSmartdoorNotice();
     update();
     super.onInit();
   }
-  requestNotice(){
-    print('초기 인덱스');
+  getDataAtSmartdoorNotice(){
     print(Get.arguments);
-    api.requestNoticeRead('/FamilyNotice/getList').then((value){
-      if (value == false) {
-        SnackBarWidget(serverMsg: value['message'],);
-      } else {
-        listData.value = value;
-        print(listData.length);
-        print('요청한 리스트값 ${value}');
-        // print(value[index]['title']);
-        // print(value[index]['familyObj']);
-            // json.decode(value).cast<Map<String, dynamic>>().toList();
-        update();
-        isclear.value = true;
-      }
+    api.get('/SmartdoorNotice/${Get.arguments}').then((value) async {
+        if (value == false) {
+          SnackBarWidget(serverMsg: value['message'],);
+        } else {
+          listData.value = value;
+          print(listData);
+          // print(listData.length);
+          print('요청한 리스트값 ${value}');
+          print('${value['title']} 제목');
+          // print(value[index]['title']);
+          // print(value[index]['familyObj']);
+              // json.decode(value).cast<Map<String, dynamic>>().toList();
+          update();
+          isclear.value = true;
+        }
     });
+    // api.requestNoticeRead('/SmartdoorNotice/1').then((value){
+    //   if (value == false) {
+    //     SnackBarWidget(serverMsg: value['message'],);
+    //   } else {
+    //     listData.value = value;
+    //     print(listData.length);
+    //     print('요청한 리스트값 ${value}');
+    //     // print(value[index]['title']);
+    //     // print(value[index]['familyObj']);
+    //         // json.decode(value).cast<Map<String, dynamic>>().toList();
+    //     update();
+    //     isclear.value = true;
+    //   }
+    // });
     update();
   }
   deleteNotice(index)  {
@@ -75,10 +90,10 @@ class NoticeController extends GetxController{
         );
       } else {
         isclear.value = false;
-        requestNotice();
+        getDataAtSmartdoorNotice();
         Get.back();
         // Get.offAll(notice_view());
-        refreshDoorUi();
+        // refreshDoorUi();
         Get.snackbar(
           '알림',
           '완료되었습니다.'
@@ -94,70 +109,16 @@ class NoticeController extends GetxController{
     });
 
   }
-  void sendNotice(argument,index) async{
-    // if(index == null){
-    //   index = 0;
-    //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    //   sharedPreferences.setString('family_notice_id', listData[index]['family_notice_id']);
-    //   update();
-    // }
-    String? familyNoticeId;
-    if(argument != 'create'){
-      familyNoticeId = listData[index!]['family_notice_id'];
-    }else{
-      familyNoticeId = '0';
-    }
-
-    api.requestNoticeProcess(titleController.text.trim(),
-      comment,argument,familyNoticeId
-    ).then((value) async {
-        print(value);
-        if (value['result'] == true) {
-          refresh();
-          refreshDoorUi();
-          requestNotice();
-          titleController.clear();
-          commentController.clear();
-          // Get.offAll(notice_view());
-          Get.back();
-          Get.snackbar(
-            '알림',
-            '완료되었습니다.'
-            ,
-            duration: Duration(seconds: 5),
-            backgroundColor: const Color.fromARGB(
-                255, 39, 161, 220),
-            icon: Icon(Icons.info_outline, color: Colors.white),
-            forwardAnimationCurve: Curves.easeOutBack,
-            colorText: Colors.white,
-          );
-        } else {
-          Get.snackbar(
-            '알림',
-            value['message'].toString()
-            ,
-            duration: Duration(seconds: 5),
-            backgroundColor: const Color.fromARGB(
-                255, 39, 161, 220),
-            icon: Icon(Icons.info_outline, color: Colors.white),
-            forwardAnimationCurve: Curves.easeOutBack,
-            colorText: Colors.white,
-          );
-          update();
-        }
-        //user = UserModel.fromJson(value);
-    });
-  }
-  refreshDoorUi(){
-    if(mqtt.client?.connectionStatus?.state == MqttConnectionState.disconnected){
-      // home.connect();
-      print('커넥시도');
-    }
-    String? sncode =  home.sharedPreferences.getString('sncode');
-    String topic = 'smartdoor/SMARTDOOR/${sncode}';
-    var builder = MqttClientPayloadBuilder();
-    builder.addString('{"request":"refresh"}');
-    mqtt.client?.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
-  }
+  // refreshDoorUi(){
+  //   if(mqtt.client?.connectionStatus?.state == MqttConnectionState.disconnected){
+  //     // home.connect();
+  //     print('커넥시도');
+  //   }
+  //   String? sncode =  home.sharedPreferences.getString('sncode');
+  //   String topic = 'smartdoor/SMARTDOOR/${sncode}';
+  //   var builder = MqttClientPayloadBuilder();
+  //   builder.addString('{"request":"refresh"}');
+  //   mqtt.client?.publishMessage(topic, MqttQos.atLeastOnce, builder.payload!);
+  // }
 
 }

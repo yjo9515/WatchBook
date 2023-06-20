@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wisemonster/api/api_services.dart';
 import 'package:wisemonster/view/widgets/AlertWidget.dart';
+
+import '../view/login_view.dart';
 
 enum UserEnums { Error, Initial, Waiting }
 
@@ -15,40 +19,35 @@ class FindPwViewModel extends GetxController {
 
   final GlobalKey<FormState> findPwFormKey = GlobalKey<FormState>();
 
-  void findPw(apiName, apiPhone) {
-    userEnums = UserEnums.Waiting;
-    update();
-    api.findPw(apiName, apiPhone).then((value) {
-      Get.back();
-      if (value == false) {
-        userEnums = UserEnums.Error;
-        serverMsg = "서버 연결에 실패하였습니다.";
-        error = true;
-        update();
-      } else {
-        if (kDebugMode) {
-          print(value);
-        }
-        if (value['result'] == true) {
-          error = false;
-          serverMsg = '등록된 번호로 비밀번호를 전송했습니다.';
-          update();
-        } else {
-          userEnums = UserEnums.Error;
-          error = true;
-          serverMsg = value['message'];
-          update();
-        }
-        //user = UserModel.fromJson(value);
+  findPw(id,phone){
+    api.get('/User/findPasswd?id=${id}&type=1&handphone=${phone}').then((value) {
+      if(value.statusCode == 200) {
+        Get.snackbar(
+          '알림',
+          '등록된 번호로 문자를 전송하였습니다\n확인 후 다시 로그인해주세요.'
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
+        Get.offAll(login_view());
+      }else{
+        Get.snackbar(
+          '알림',
+          utf8.decode(value.reasonPhrase!.codeUnits)
+          ,
+          duration: Duration(seconds: 5),
+          backgroundColor: const Color.fromARGB(
+              255, 39, 161, 220),
+          icon: Icon(Icons.info_outline, color: Colors.white),
+          forwardAnimationCurve: Curves.easeOutBack,
+          colorText: Colors.white,
+        );
       }
-      dialog(value);
     });
-  }
-
-  void dialog(value) {
-    Get.dialog(
-        AlertWidget(serverMsg: serverMsg, error: error)
-    );
   }
 
 }
