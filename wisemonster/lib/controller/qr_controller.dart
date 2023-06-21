@@ -46,6 +46,7 @@ class QRController extends GetxController {
       print(result?.code);
       api.get('/Smartdoor/findByCode?code=${result?.code}').then((value) async {
         if(value.statusCode == 200) {
+          print(json.decode(value.body)['smartdoor_id']);
           if(json.decode(value.body)['smartdoor_id'] == "" || json.decode(value.body)['smartdoor_id'] == null){
             print('다른거');
             Get.back();
@@ -63,39 +64,81 @@ class QRController extends GetxController {
             qrcontroller!.dispose();
           }else{
             SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-            print(sharedPreferences.getString('user_id'));
-            api.post(json.encode({'smartdoor_id':json.decode(value.body)['smartdoor_id'],'user_id':sharedPreferences.getString('user_id')}),'/SmartdoorUser').then((value) async {
-              // Get.to(afterQr_view(),arguments: [value['params']['pcode'],value['params']['sncode'],value['params']['product_sncode_id']]);
-              if(value.statusCode == 200) {
-                Get.offAll(home_view());
-              }else if(value.statusCode == 401){
-                Get.offAll(login_view());
-                Get.snackbar(
-                  '알림',
-                  utf8.decode(value.reasonPhrase!.codeUnits)
-                  ,
-                  duration: Duration(seconds: 5),
-                  backgroundColor: const Color.fromARGB(
-                      255, 39, 161, 220),
-                  icon: Icon(Icons.info_outline, color: Colors.white),
-                  forwardAnimationCurve: Curves.easeOutBack,
-                  colorText: Colors.white,
-                );
-              } else {
-                Get.snackbar(
-                  '알림',
-                  utf8.decode(value.reasonPhrase!.codeUnits)
-                  ,
-                  duration: Duration(seconds: 5),
-                  backgroundColor: const Color.fromARGB(
-                      255, 39, 161, 220),
-                  icon: Icon(Icons.info_outline, color: Colors.white),
-                  forwardAnimationCurve: Curves.easeOutBack,
-                  colorText: Colors.white,
-                );
-              }
+            sharedPreferences.setString('smartdoor_id', json.decode(value.body)['smartdoor_id']);
+            api.get('/SmartdoorUserInvite/lists?name=${sharedPreferences.getString('name')}&handphone=${sharedPreferences.getString('handphone')}&smartdoor_id=${sharedPreferences.getString('smartdoor_id')}&isAll=1').then((value) {
+              print('토탈값 : ${json.decode(value.body)}');
+              print(json.decode(value.body)['total']);
+              if(json.decode(value.body)['total'] == '0') {
+                api.post(json.encode({'smartdoor_id':sharedPreferences.getString('smartdoor_id'),'user_id':sharedPreferences.getString('user_id'),'isOwner' : '1'}),'/SmartdoorUser').then((value) async {
+                  if(value.statusCode == 200) {
+                    print('유저등록 완료');
+                    Get.offAll(home_view());
+                  }else if(value.statusCode == 401){
+                    Get.offAll(login_view());
+                    Get.snackbar(
+                      '알림',
+                      utf8.decode(value.reasonPhrase!.codeUnits)
+                      ,
+                      duration: Duration(seconds: 5),
+                      backgroundColor: const Color.fromARGB(
+                          255, 39, 161, 220),
+                      icon: Icon(Icons.info_outline, color: Colors.white),
+                      forwardAnimationCurve: Curves.easeOutBack,
+                      colorText: Colors.white,
+                    );
+                  } else {
+                    Get.snackbar(
+                      '알림',
+                      utf8.decode(value.reasonPhrase!.codeUnits)
+                      ,
+                      duration: Duration(seconds: 5),
+                      backgroundColor: const Color.fromARGB(
+                          255, 39, 161, 220),
+                      icon: Icon(Icons.info_outline, color: Colors.white),
+                      forwardAnimationCurve: Curves.easeOutBack,
+                      colorText: Colors.white,
+                    );
+                  }
 
+                });
+              }else{
+                api.post(json.encode({'smartdoor_id':sharedPreferences.getString('smartdoor_id'),'user_id':sharedPreferences.getString('user_id'),'isOwner' : '0'}),'/SmartdoorUser').then((value) async {
+                  if(value.statusCode == 200) {
+                    print('유저등록 완료');
+                    Get.offAll(home_view());
+                  }else if(value.statusCode == 401){
+                    Get.offAll(login_view());
+                    Get.snackbar(
+                      '알림',
+                      utf8.decode(value.reasonPhrase!.codeUnits)
+                      ,
+                      duration: Duration(seconds: 5),
+                      backgroundColor: const Color.fromARGB(
+                          255, 39, 161, 220),
+                      icon: Icon(Icons.info_outline, color: Colors.white),
+                      forwardAnimationCurve: Curves.easeOutBack,
+                      colorText: Colors.white,
+                    );
+                  } else {
+                    Get.snackbar(
+                      '알림',
+                      utf8.decode(value.reasonPhrase!.codeUnits)
+                      ,
+                      duration: Duration(seconds: 5),
+                      backgroundColor: const Color.fromARGB(
+                          255, 39, 161, 220),
+                      icon: Icon(Icons.info_outline, color: Colors.white),
+                      forwardAnimationCurve: Curves.easeOutBack,
+                      colorText: Colors.white,
+                    );
+                  }
+
+                });
+              }
             });
+
+
+
           }
         }else{
           Get.snackbar(

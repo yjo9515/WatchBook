@@ -70,6 +70,7 @@ class newMember4_view extends GetView<NewMemberController> {
                             width: double.infinity,
                             child: ElevatedButton(
                               onPressed: () {
+                                print('버튼');
                                 NewMemberViewModel.requestJoinProcess();
                               },
                               child: const Text(

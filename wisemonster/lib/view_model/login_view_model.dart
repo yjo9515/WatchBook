@@ -161,6 +161,8 @@ class LoginViewModel extends GetxController{
             addPref('smartdoor_id', user.smartdoor_id.toString());
             addPref('user_id', user.user_id.toString());
             addPref('smartdoor_user_id', user.smartdoor_user_id.toString());
+            addPref('name', user.name.toString());
+            addPref('handphone', user.handphone.toString());
             if(user.picture['url'] == null || user.picture['url'] == ''){
               addPref('pictureUrl', '');
             }else{
@@ -220,6 +222,7 @@ class LoginViewModel extends GetxController{
           print(user.user_id.toString());
 
           api.SmartdoorMe('/Smartdoor/me').then((value) async {
+
             if(value.statusCode == 200){
               print('등록 성공');
 
@@ -232,53 +235,54 @@ class LoginViewModel extends GetxController{
             } else if(value.statusCode == 411){
               print('등록 실패');
               print(user.handphone);
-              api.get('/SmartdoorUserInvite/lists?name=${user.name}&handphone=${user.handphone}&isAll=1').then((value) {
-               if(value.statusCode == 404) {
-                  Get.offAll(() => registration1_view());
-                } else if(value.statusCode == 401) {
-                  Get.snackbar(
-                    '알림',
-                    '로그인 토큰이 만료되었습니다. 다시 로그인하세요',
-                    duration: const Duration(seconds: 5),
-                    backgroundColor: const Color.fromARGB(
-                        255, 39, 161, 220),
-                    icon: const Icon(Icons.info_outline, color: Colors.white),
-                    forwardAnimationCurve: Curves.easeOutBack,
-                    colorText: Colors.white,
-                  );
-                }else if(value.statusCode == 200) {
-
-                    print('있음');
-                    api.post(json.encode({'smartdoor_id':user.smartdoor_id,'isOwner':user.isOwner}), '/SmartdoorUser').then((value) {
-                      if(value.statusCode == 200){
-                        Get.offAll(() => home_view());
-                      }else{
-                        Get.snackbar(
-                          '알림',
-                          utf8.decode(value.reasonPhrase!.codeUnits),
-                          duration: const Duration(seconds: 5),
-                          backgroundColor: const Color.fromARGB(
-                              255, 39, 161, 220),
-                          icon: const Icon(Icons.info_outline, color: Colors.white),
-                          forwardAnimationCurve: Curves.easeOutBack,
-                          colorText: Colors.white,
-                        );
-                      }
-
-                    });
-                } else {
-                 Get.snackbar(
-                   '알림',
-                   utf8.decode(value.reasonPhrase!.codeUnits),
-                   duration: const Duration(seconds: 5),
-                   backgroundColor: const Color.fromARGB(
-                       255, 39, 161, 220),
-                   icon: const Icon(Icons.info_outline, color: Colors.white),
-                   forwardAnimationCurve: Curves.easeOutBack,
-                   colorText: Colors.white,
-                 );
-               }
-              });
+              Get.offAll(() => registration1_view());
+              // api.get('/SmartdoorUserInvite/lists?name=${user.name}&handphone=${user.handphone}&isAll=1').then((value) {
+              //  if(value.statusCode == 404) {
+              //     Get.offAll(() => registration1_view());
+              //   } else if(value.statusCode == 401) {
+              //     Get.snackbar(
+              //       '알림',
+              //       '로그인 토큰이 만료되었습니다. 다시 로그인하세요',
+              //       duration: const Duration(seconds: 5),
+              //       backgroundColor: const Color.fromARGB(
+              //           255, 39, 161, 220),
+              //       icon: const Icon(Icons.info_outline, color: Colors.white),
+              //       forwardAnimationCurve: Curves.easeOutBack,
+              //       colorText: Colors.white,
+              //     );
+              //   }else if(value.statusCode == 200) {
+              //
+              //       print('있음');
+              //       api.post(json.encode({'smartdoor_id':user.smartdoor_id,'isOwner':user.isOwner}), '/SmartdoorUser').then((value) {
+              //         if(value.statusCode == 200){
+              //           Get.offAll(() => home_view());
+              //         }else{
+              //           Get.snackbar(
+              //             '알림',
+              //             utf8.decode(value.reasonPhrase!.codeUnits),
+              //             duration: const Duration(seconds: 5),
+              //             backgroundColor: const Color.fromARGB(
+              //                 255, 39, 161, 220),
+              //             icon: const Icon(Icons.info_outline, color: Colors.white),
+              //             forwardAnimationCurve: Curves.easeOutBack,
+              //             colorText: Colors.white,
+              //           );
+              //         }
+              //
+              //       });
+              //   } else {
+              //    Get.snackbar(
+              //      '알림',
+              //      utf8.decode(value.reasonPhrase!.codeUnits),
+              //      duration: const Duration(seconds: 5),
+              //      backgroundColor: const Color.fromARGB(
+              //          255, 39, 161, 220),
+              //      icon: const Icon(Icons.info_outline, color: Colors.white),
+              //      forwardAnimationCurve: Curves.easeOutBack,
+              //      colorText: Colors.white,
+              //    );
+              //  }
+              // });
 
               update();
             }else{

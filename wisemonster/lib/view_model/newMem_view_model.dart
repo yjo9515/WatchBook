@@ -280,7 +280,15 @@ class NewMemberViewModel extends GetxController{
     // all.add(joinPhone);
     String? token = await FirebaseMessaging.instance.getToken();
     // 보내야할거 리스트에 담아서 전송
-    api.post(json.encode({'id':joinId,'passwd':joinPw,'repasswd':joinRepasswd,'name':joinName
+    print(token);
+    print(joinId);
+    print(joinPw);
+    print(joinRepasswd);
+
+    print(joinName);
+    print(joinPhone);
+
+    api.join(json.encode({'id':joinId,'passwd':joinPw,'repasswd':joinRepasswd,'name':joinName
       ,'fcm_token':token,'handphone':joinPhone
     }), '/User').then((value) {
       if(value.statusCode == 200) {

@@ -575,6 +575,14 @@ class ApiServices extends GetxController {
     }
   }
 
+  Future join(json, url) async {
+    var response = await http.post(Uri.parse(server+url),
+        body: json
+    );
+    print(utf8.decode(response.reasonPhrase!.codeUnits));
+    print(response.statusCode);
+    return response;
+  }
 
   Future get(url) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -594,6 +602,7 @@ class ApiServices extends GetxController {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     String? tokenValue = sharedPreferences.getString('token');
     print('헤더 토큰 ${tokenValue}');
+    print('json 값 : ${json}');
     var response = await http.post(Uri.parse(server+url),
         headers: {HttpHeaders.authorizationHeader: "Bearer ${tokenValue}"},//넣어야 로그인 인증댐
         body: json
