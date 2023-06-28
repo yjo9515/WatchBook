@@ -105,8 +105,8 @@ Future<void> main() async {
   if(Firebase.apps.length == 0){
     await Firebase.initializeApp(
         options: const FirebaseOptions(
-            apiKey: 'AIzaSyC82k385JVg5-Dpcid3WRfF1JpdwH4viO0', // google-service.json 파일에 값 확인가능
-            appId: '1:323332851667:android:d4f97d67d2f6b3c9981126',
+            apiKey: 'AIzaSyAhA4enKkys67NyvIupF1BbBT0gPJFZO5Q', // google-service.json 파일에 값 확인가능
+            appId: '1:323332851667:ios:e0590392cfbfe8b6981126',
             // 나머지 세개는 firebase console 페이지에서 확인가능
             messagingSenderId: '',
             projectId: 'wisemonster-27620')
