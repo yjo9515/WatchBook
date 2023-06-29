@@ -129,7 +129,6 @@ class CameraAuthController extends GetxController{
             forwardAnimationCurve: Curves.easeOutBack,
             colorText: Colors.white,
           );
-
         print(value);
         update();
       } else {

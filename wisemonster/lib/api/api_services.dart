@@ -571,7 +571,6 @@ class ApiServices extends GetxController {
       }
     } else {
       Get.back();
-
       return another;
     }
 
